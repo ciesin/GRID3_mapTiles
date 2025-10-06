@@ -95,9 +95,10 @@ class OvertureMap {
             'infrastructure-points': 72,    // Infrastructure points (towers, utilities, etc.)
             
             // Buildings and structures (80-89)
-            'buildings-low-lod': 82,   // Building fills (low detail)
-            'buildings-medium-lod': 81, // Building fills (medium detail)
-            'buildings-high-lod': 80,  // Building fills (high detail)
+            'buildings': 80,           // Building fills
+            // 'buildings-low-lod': 82,   // Building fills (low detail)
+            // 'buildings-medium-lod': 81, // Building fills (medium detail)
+            // 'buildings-high-lod': 80,  // Building fills (high detail)
             'building-outlines': 83,   // Building outlines
 
             // Administrative boundaries (85-89)
@@ -1225,9 +1226,10 @@ class OvertureMap {
                 'settlement-extents-outlines',
                 'water-polygons',
                 'roads-solid',
-                'buildings-low-lod',
-                'buildings-medium-lod',
-                'buildings-high-lod',
+                'buildings',
+                // 'buildings-low-lod',
+                // 'buildings-medium-lod',
+                // 'buildings-high-lod',
                 'places'
             ];
 

@@ -54,6 +54,10 @@
       "type": "vector",
       "url": "pmtiles://tiles/GRID3_COD_health_zones_v5_0.pmtiles"
     },
+    "health-areas-tiles": {
+      "type": "vector",
+      "url": "pmtiles://tiles/GRID3_COD_health_areas_v5_0.pmtiles"
+    },
     "esri": {
       "type": "vector",
       "url": "https://basemaps.arcgis.com/arcgis/rest/services/World_Basemap_v2/VectorTileServer",
@@ -863,12 +867,11 @@
       }
     },
     {
-      "id": "buildings-low-lod",
+      "id": "buildings",
       "type": "fill",
       "source": "buildings-tiles",
       "source-layer": "buildings",
       "minzoom": 5,
-      "maxzoom": 12,
       "layout": {
         "visibility": "visible"
       },
@@ -878,71 +881,16 @@
           ["exponential", 2],
           ["zoom"],
           5, "#000",
-          11, "#fff"
-        ],
-        "fill-opacity": [
-          "interpolate",
-          ["exponential", 1.5],
-          ["zoom"],
-          3, 0.75,
-          9, 0.5,
-          12, 0
-        ]
-      }
-    },
-    {
-      "id": "buildings-medium-lod",
-      "type": "fill",
-      "source": "buildings-tiles",
-      "source-layer": "buildings",
-      "minzoom": 10,
-      "maxzoom": 14,
-      "layout": {
-        "visibility": "visible"
-      },
-      "paint": {
-        "fill-color": [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          9, "#f2bdfc",
-          15, "#a93e89"
-        ],
-        "fill-opacity": [
-          "interpolate",
-          ["exponential", 1.5],
-          ["zoom"],
-          8, 0,
-          12, 0.9,
-          13, 0.8,
-          15, 0
-        ]
-      }
-    },
-    {
-      "id": "buildings-high-lod",
-      "type": "fill",
-      "source": "buildings-tiles",
-      "source-layer": "buildings",
-      "minzoom": 12,
-      "layout": {
-        "visibility": "visible"
-      },
-      "paint": {
-        "fill-color": [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          12, "#a93e89",
+          11, "#f2bdfc",
+          14, "#a93e89",
           16, "#BFB8AF"
         ],
         "fill-opacity": [
           "interpolate",
           ["exponential", 1.5],
           ["zoom"],
-          11, 0,
-          14, 0.5,
-          15, 1
+          8, 0.25,
+          16, 1
         ]
       }
     },
@@ -1191,8 +1139,8 @@
     {
       "id": "health-areas",
       "type": "fill",
-      "source": "health-zones-tiles",
-      "source-layer": "GRID3_COD_health_zones_v5_0",
+      "source": "health-areas-tiles",
+      "source-layer": "GRID3_COD_health_areas_v5_0",
       "minzoom": 8,
       "maxzoom": 16,
       "layout": {
@@ -1207,8 +1155,8 @@
     {
       "id": "health-areas-outline",
       "type": "line",
-      "source": "health-zones-tiles",
-      "source-layer": "GRID3_COD_health_zones_v5_0",
+      "source": "health-areas-tiles",
+      "source-layer": "GRID3_COD_health_areas_v5_0",
       "minzoom": 12.5,
       "layout": {
       "visibility": "visible"
@@ -1243,7 +1191,7 @@
     {
       "id": "health-areas-centerline",
       "type": "line",
-      "source": "health-zones-tiles",
+      "source": "health-areas-tiles",
       "source-layer": "health_areas",
       "minzoom": 12.5,
       "layout": {

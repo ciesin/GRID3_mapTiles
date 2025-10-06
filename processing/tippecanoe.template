@@ -1,0 +1,243 @@
+"""
+Tippecanoe configuration template for layer-specific settings.
+
+Simple 1:1 mapping between layers and their optimized tippecanoe parameters.
+Import this into runCreateTiles.py to get settings for each layer.
+
+Usage:
+    from tippecanoe import LAYER_SETTINGS
+    settings = LAYER_SETTINGS['buildings.geojsonseq']
+"""
+
+# Direct mapping of layer files to their tippecanoe settings
+LAYER_SETTINGS = {
+    # Building footprints - high detail at close zooms
+    'buildings.geojsonseq': [
+        '--no-polygon-splitting',
+        '--detect-shared-borders',
+        '--simplification=4',
+        '--drop-rate=0.05',
+        '--low-detail=12',
+        '--full-detail=15',
+        '--coalesce-smallest-as-needed',
+        '--extend-zooms-if-still-dropping',
+        '--gamma=0.6',
+        '--maximum-zoom=16',
+        '--minimum-zoom=12',
+        '--buffer=12'
+    ],
+
+    # Infrastructure polygons
+    'infrastructure.geojsonseq': [
+        '--no-polygon-splitting',
+        '--detect-shared-borders',
+        '--extend-zooms-if-still-dropping-maximum=16',
+        '--drop-rate=0.1',
+        '--coalesce-densest-as-needed',
+        '--minimum-zoom=8',
+        '--maximum-zoom=15'
+    ],
+
+    # Land use polygons - shared settings for land layers
+    'land_use.geojsonseq': [
+        '--no-polygon-splitting',
+        '--detect-shared-borders',
+        '--extend-zooms-if-still-dropping-maximum=16',
+        '--drop-rate=0.1',
+        '--coalesce-densest-as-needed',
+        '--minimum-zoom=8',
+        '--maximum-zoom=15'
+    ],
+
+    'land_cover.geojsonseq': [
+        '--no-polygon-splitting',
+        '--detect-shared-borders',
+        '--extend-zooms-if-still-dropping-maximum=16',
+        '--drop-rate=0.1',
+        '--coalesce-densest-as-needed',
+        '--minimum-zoom=8',
+        '--maximum-zoom=15'
+    ],
+
+    'land_residential.geojsonseq': [
+        '--no-polygon-splitting',
+        '--detect-shared-borders',
+        '--extend-zooms-if-still-dropping-maximum=16',
+        '--drop-rate=0.1',
+        '--coalesce-densest-as-needed',
+        '--minimum-zoom=8',
+        '--maximum-zoom=15'
+    ],
+
+    'land.geojsonseq': [
+        '--no-polygon-splitting',
+        '--detect-shared-borders',
+        '--extend-zooms-if-still-dropping-maximum=16',
+        '--drop-rate=0.1',
+        '--coalesce-densest-as-needed',
+        '--minimum-zoom=8',
+        '--maximum-zoom=15'
+    ],
+
+    # Roads - linear features with line-specific optimizations
+    'roads.geojsonseq': [
+        '--no-line-simplification',
+        '--buffer=16',
+        '--drop-rate=0.05',
+        '--drop-smallest',
+        '--simplification=5',
+        '--minimum-zoom=7',
+        '--extend-zooms-if-still-dropping',
+        '--coalesce-smallest-as-needed',
+        '--full-detail=13',
+        '--minimum-detail=10'
+    ],
+
+    # Water polygons - enhanced detail at zoom 13+
+    'water.geojsonseq': [
+        '--no-polygon-splitting',
+        '--detect-shared-borders',
+        '--no-tiny-polygon-reduction',
+        '--extend-zooms-if-still-dropping',
+        '--maximum-tile-bytes=2097152',
+        '--maximum-zoom=15'
+    ],
+
+    # Point features - places and placenames
+    'places.geojson': [
+        '--cluster-distance=10',
+        '--drop-rate=0.0',
+        '--no-feature-limit',
+        '--extend-zooms-if-still-dropping',
+        '--maximum-zoom=16'
+    ],
+
+    'placenames.geojson': [
+        '--cluster-distance=10',
+        '--drop-rate=0.0',
+        '--no-feature-limit',
+        '--extend-zooms-if-still-dropping',
+        '--maximum-zoom=16'
+    ],
+
+    # GRID3 health areas
+    'GRID3_COD_health_areas_v5_0.geojsonseq': [
+        '--no-polygon-splitting',
+        '--detect-shared-borders',
+        '--simplification=8',
+        '--drop-rate=0.08',
+        '--low-detail=9',
+        '--full-detail=14',
+        '--coalesce-smallest-as-needed',
+        '--extend-zooms-if-still-dropping',
+        '--maximum-zoom=14',
+        '--minimum-zoom=7'
+    ],
+
+    # GRID3 health facilities (points)
+    'GRID3_COD_health_facilities_v5_0.geojsonseq': [
+        '--cluster-distance=15',
+        '--drop-rate=0.0',
+        '--no-feature-limit',
+        '--extend-zooms-if-still-dropping',
+        '--maximum-zoom=16',
+        '--minimum-zoom=8'
+    ],
+
+    # GRID3 health zones
+    'GRID3_COD_health_zones_v5_0.geojsonseq': [
+        '--no-polygon-splitting',
+        '--detect-shared-borders',
+        '--simplification=10',
+        '--drop-rate=0.08',
+        '--low-detail=8',
+        '--full-detail=13',
+        '--coalesce-smallest-as-needed',
+        '--extend-zooms-if-still-dropping',
+        '--maximum-zoom=13',
+        '--minimum-zoom=6'
+    ],
+
+    # GRID3 settlement extents
+    'GRID3_COD_Settlement_Extents_v3_1.geojsonseq': [
+        '--no-polygon-splitting',
+        '--detect-shared-borders',
+        '--simplification=10',
+        '--drop-rate=0.25',
+        '--low-detail=11',
+        '--full-detail=14',
+        '--coalesce-smallest-as-needed',
+        '--gamma=0.8',
+        '--maximum-zoom=13',
+        '--minimum-zoom=6',
+        '--cluster-distance=2',
+        '--minimum-detail=8'
+    ],
+
+    # GRID3 settlement names (points)
+    'GRID3_COD_settlement_names_v5_0.geojsonseq': [
+        '--cluster-distance=8',
+        '--drop-rate=0.0',
+        '--no-feature-limit',
+        '--extend-zooms-if-still-dropping',
+        '--maximum-zoom=16',
+        '--minimum-zoom=7'
+    ]
+}
+
+# Base tippecanoe command flags that apply to all layers
+BASE_COMMAND = [
+    '--buffer=8',
+    '--drop-smallest',
+    '--maximum-tile-bytes=1048576',
+    '--preserve-input-order',
+    '--coalesce-densest-as-needed',
+    '--drop-fraction-as-needed',
+    '-P'  # Show progress
+]
+
+def get_layer_settings(filename):
+    """
+    Get tippecanoe settings for a specific layer file.
+    
+    Args:
+        filename (str): Name of the layer file
+        
+    Returns:
+        list: Tippecanoe command arguments for this layer
+    """
+    return LAYER_SETTINGS.get(filename, [])
+
+def build_tippecanoe_command(input_file, output_file, layer_name, extent=None):
+    """
+    Build complete tippecanoe command for a layer.
+    
+    Args:
+        input_file (str): Path to input GeoJSON/GeoJSONSeq file
+        output_file (str): Path to output PMTiles file  
+        layer_name (str): Layer name for the tiles
+        extent (tuple): Optional bounding box (xmin, ymin, xmax, ymax)
+        
+    Returns:
+        list: Complete command arguments for subprocess
+    """
+    import os
+    
+    filename = os.path.basename(input_file)
+    
+    # Start with base command
+    cmd = ['tippecanoe', '-fo', output_file, '-l', layer_name] + BASE_COMMAND
+    
+    # Add layer-specific settings
+    layer_settings = get_layer_settings(filename)
+    cmd.extend(layer_settings)
+    
+    # Add extent clipping if provided
+    if extent:
+        xmin, ymin, xmax, ymax = extent
+        cmd.extend(['--clip-bounding-box', f'{xmin},{ymin},{xmax},{ymax}'])
+    
+    # Add input file
+    cmd.append(input_file)
+    
+    return cmd

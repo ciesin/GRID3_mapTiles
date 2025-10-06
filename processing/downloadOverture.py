@@ -21,7 +21,7 @@ from tqdm import tqdm
 import mercantile
 
 
-def snap_to_tile_bounds(extent, zoom=8):
+def snap_to_tile_bounds(extent, zoom=16):
     """Snap extent to align with slippy tile boundaries to prevent rendering artifacts"""
     xmin, ymin, xmax, ymax = extent
     tiles = list(mercantile.tiles(xmin, ymin, xmax, ymax, zoom))
@@ -76,13 +76,13 @@ def get_db_url(sql_section):
     
     return None
 
-def download_overture_data(extent, buffer_degrees=0.2, template_path=None, verbose=True,
+def download_overture_data(extent, buffer_degrees=0, template_path=None, verbose=True,
                            project_root=None, overture_data_dir=None):
     """Download and process source data from Overture Maps
     
     Args:
         extent (tuple): (xmin, ymin, xmax, ymax) in WGS84 coordinates
-        buffer_degrees (float): Buffer around extent in degrees (default: 0.2)
+        buffer_degrees (float): Buffer around extent in degrees (default: 0)
         template_path (str|Path): Path to SQL template file (default: tileQueries.template)
         verbose (bool): Show progress information (default: True)
         project_root (str|Path|None): Optional project root path to override module default
@@ -103,7 +103,7 @@ def download_overture_data(extent, buffer_degrees=0.2, template_path=None, verbo
         overture_data_dir = PROJECT_ROOT / "data" / "raw" / "overture"
 
     # Snap extent to tile boundaries to prevent rendering artifacts
-    snapped_extent = snap_to_tile_bounds(extent, zoom=8)
+    snapped_extent = snap_to_tile_bounds(extent, zoom=16)
     extent_xmin, extent_ymin, extent_xmax, extent_ymax = snapped_extent
     
     if verbose:

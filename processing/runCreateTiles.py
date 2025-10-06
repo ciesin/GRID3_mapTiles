@@ -25,6 +25,21 @@ import argparse
 from pathlib import Path
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
+# Import tippecanoe settings template
+# Use a dynamic import to avoid static analysis failures when the optional
+# `tippecanoe` helper module isn't installed, but still support runtime use.
+import importlib
+try:
+    tippecanoe_mod = importlib.import_module('tippecanoe')
+    get_layer_settings = getattr(tippecanoe_mod, 'get_layer_settings', None)
+    build_tippecanoe_command = getattr(tippecanoe_mod, 'build_tippecanoe_command', None)
+    BASE_COMMAND = getattr(tippecanoe_mod, 'BASE_COMMAND', None)
+except Exception:
+    print("Warning: Could not import tippecanoe template. Using fallback settings.")
+    get_layer_settings = None
+    build_tippecanoe_command = None
+    BASE_COMMAND = None
+
 # Set up project paths - aligned with notebook CONFIG
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 PROCESSING_DIR = PROJECT_ROOT / "processing"
