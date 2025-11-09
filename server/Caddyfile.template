@@ -1,0 +1,127 @@
+# Caddyfile for serving PMTiles and proxying Martin
+{
+    auto_https off
+    admin off
+}
+
+:8080 {
+    # Health check endpoint
+    handle /health {
+        respond "OK" 200
+    }
+
+    # Serve static PMTiles files
+    handle /static/* {
+        # Enable CORS for map tile requests
+        @cors_preflight {
+            method OPTIONS
+        }
+        
+        header {
+            Access-Control-Allow-Origin *
+            Access-Control-Allow-Methods "GET, HEAD, OPTIONS"
+            Access-Control-Allow-Headers "Range, Content-Type"
+            Access-Control-Expose-Headers "Content-Length, Content-Range, Accept-Ranges"
+        }
+
+        # Strip /static prefix and serve from /tiles
+        uri strip_prefix /static
+        
+        # Serve PMTiles files with range request support
+        file_server {
+            root /tiles
+            precompressed gzip br
+        }
+    }
+
+    # Proxy requests to Martin for dynamic MVT tiles
+    handle /mvt/* {
+        # CORS headers for Martin endpoints
+        header {
+            Access-Control-Allow-Origin *
+            Access-Control-Allow-Methods "GET, HEAD, OPTIONS"
+            Access-Control-Allow-Headers "Content-Type"
+        }
+
+        # Strip /mvt prefix before proxying
+        uri strip_prefix /mvt
+        
+        # Reverse proxy to Martin
+        reverse_proxy ${MARTIN_UPSTREAM} {
+            header_up Host {host}
+            header_up X-Real-IP {remote}
+            header_up X-Forwarded-For {remote}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+
+    # Proxy Martin catalog/metadata
+    handle /catalog* {
+        header Access-Control-Allow-Origin *
+        reverse_proxy ${MARTIN_UPSTREAM}
+    }
+
+    # Serve TileJSON for PMTiles
+    handle /*.json {
+        header {
+            Access-Control-Allow-Origin *
+            Content-Type application/json
+        }
+        file_server {
+            root /tiles
+        }
+    }
+
+    # Root handler - simple info page
+    handle / {
+        respond `
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MapTiles Server</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+        h1 { color: #333; }
+        code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; }
+        pre { background: #f4f4f4; padding: 15px; border-radius: 5px; overflow-x: auto; }
+        .endpoint { margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <h1>🗺️ MapTiles Server</h1>
+    <p>Hybrid tile server for static PMTiles and dynamic PostGIS layers</p>
+    
+    <div class="endpoint">
+        <h2>Static PMTiles (Basemap)</h2>
+        <p>Served via Caddy with PMTiles plugin</p>
+        <pre>http://localhost:8080/static/{tilename}.pmtiles</pre>
+    </div>
+    
+    <div class="endpoint">
+        <h2>Dynamic MVT Tiles (Overlays)</h2>
+        <p>Served via Martin from PostGIS</p>
+        <pre>http://localhost:8080/mvt/{table_or_function}/{z}/{x}/{y}.mvt</pre>
+    </div>
+    
+    <div class="endpoint">
+        <h2>Martin Catalog</h2>
+        <p>Available tile sources</p>
+        <pre>http://localhost:8080/catalog</pre>
+    </div>
+    
+    <div class="endpoint">
+        <h2>Health Check</h2>
+        <pre>http://localhost:8080/health</pre>
+    </div>
+</body>
+</html>
+        ` 200
+    }
+
+    # Enable logging
+    log {
+        output stdout
+        format console
+        level INFO
+    }
+}

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MapTiles Hybrid Viewer</title>
+    
+    <!-- MapLibre GL JS -->
+    <script src='https://unpkg.com/maplibre-gl@4.0.0/dist/maplibre-gl.js'></script>
+    <link href='https://unpkg.com/maplibre-gl@4.0.0/dist/maplibre-gl.css' rel='stylesheet' />
+    
+    <!-- PMTiles Protocol -->
+    <script src="https://unpkg.com/pmtiles@3.0.0/dist/pmtiles.js"></script>
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+        
+        .info-panel {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: white;
+            padding: 15px;
+            border-radius: 4px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+            max-width: 300px;
+            z-index: 1;
+        }
+        
+        .info-panel h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        
+        .info-panel ul {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0;
+        }
+        
+        .info-panel li {
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .info-panel li:last-child {
+            border-bottom: none;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-ok {
+            background-color: #28a745;
+        }
+        
+        .status-loading {
+            background-color: #ffc107;
+        }
+        
+        .legend {
+            position: absolute;
+            bottom: 30px;
+            left: 10px;
+            background: white;
+            padding: 10px;
+            border-radius: 4px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+            z-index: 1;
+        }
+        
+        .legend h4 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+            font-size: 12px;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 8px;
+            border: 1px solid white;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    
+    <div class="info-panel">
+        <h3>🗺️ Hybrid Tile Server</h3>
+        <ul>
+            <li>
+                <span class="status-indicator status-loading" id="pmtiles-status"></span>
+                <strong>PMTiles (Static)</strong>
+            </li>
+            <li>
+                <span class="status-indicator status-loading" id="martin-status"></span>
+                <strong>Martin (Dynamic)</strong>
+            </li>
+        </ul>
+        <small>
+            <strong>Basemap:</strong> Monthly PMTiles<br>
+            <strong>Overlays:</strong> Live PostGIS data
+        </small>
+    </div>
+    
+    <div class="legend">
+        <h4>Health Facilities</h4>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #d73027;"></div>
+            <span>Hospital</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #fc8d59;"></div>
+            <span>Clinic</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #4575b4;"></div>
+            <span>Pharmacy</span>
+        </div>
+    </div>
+
+    <script>
+        // Register PMTiles protocol
+        let protocol = new pmtiles.Protocol();
+        maplibregl.addProtocol('pmtiles', protocol.tile);
+        
+        // Configuration - update these URLs for your setup
+        const TILE_SERVER = 'http://10.0.0.1:3002';
+        
+        // Initialize map
+        const map = new maplibregl.Map({
+            container: 'map',
+            style: {
+                version: 8,
+                name: 'Hybrid Demo',
+                sources: {
+                    // Static basemap from PMTiles
+                    'basemap': {
+                        type: 'vector',
+                        // Update this to match your actual PMTiles file
+                        url: `pmtiles://${TILE_SERVER}/static/roads.pmtiles`
+                    },
+                    
+                    // Dynamic overlay from Martin
+                    'facilities': {
+                        type: 'vector',
+                        tiles: [`${TILE_SERVER}/mvt/health_facilities/{z}/{x}/{y}.mvt`],
+                        minzoom: 0,
+                        maxzoom: 14
+                    }
+                },
+                layers: [
+                    // Background
+                    {
+                        id: 'background',
+                        type: 'background',
+                        paint: {
+                            'background-color': '#f8f4f0'
+                        }
+                    },
+                    
+                    // Roads from PMTiles
+                    {
+                        id: 'roads',
+                        type: 'line',
+                        source: 'basemap',
+                        'source-layer': 'roads',
+                        paint: {
+                            'line-color': '#ffffff',
+                            'line-width': ['interpolate', ['linear'], ['zoom'], 5, 0.5, 18, 8]
+                        }
+                    },
+                    
+                    // Health facilities from Martin
+                    {
+                        id: 'facilities-points',
+                        type: 'circle',
+                        source: 'facilities',
+                        'source-layer': 'health_facilities',
+                        paint: {
+                            'circle-radius': ['interpolate', ['linear'], ['zoom'], 8, 4, 14, 10],
+                            'circle-color': [
+                                'match',
+                                ['get', 'type'],
+                                'hospital', '#d73027',
+                                'clinic', '#fc8d59',
+                                'pharmacy', '#4575b4',
+                                '#999999'
+                            ],
+                            'circle-stroke-color': '#ffffff',
+                            'circle-stroke-width': 2
+                        }
+                    },
+                    
+                    // Labels
+                    {
+                        id: 'facilities-labels',
+                        type: 'symbol',
+                        source: 'facilities',
+                        'source-layer': 'health_facilities',
+                        minzoom: 11,
+                        layout: {
+                            'text-field': ['get', 'name'],
+                            'text-size': 11,
+                            'text-anchor': 'top',
+                            'text-offset': [0, 1.2]
+                        },
+                        paint: {
+                            'text-color': '#333',
+                            'text-halo-color': '#fff',
+                            'text-halo-width': 1
+                        }
+                    }
+                ]
+            },
+            center: [23.5, -2.5], // Update to your region
+            zoom: 6
+        });
+        
+        // Add controls
+        map.addControl(new maplibregl.NavigationControl(), 'top-left');
+        map.addControl(new maplibregl.ScaleControl(), 'bottom-right');
+        
+        // Status indicators
+        map.on('sourcedata', (e) => {
+            if (e.sourceId === 'basemap' && e.isSourceLoaded) {
+                document.getElementById('pmtiles-status').className = 'status-indicator status-ok';
+            }
+            if (e.sourceId === 'facilities' && e.isSourceLoaded) {
+                document.getElementById('martin-status').className = 'status-indicator status-ok';
+            }
+        });
+        
+        // Click handler for facilities
+        map.on('click', 'facilities-points', (e) => {
+            const feature = e.features[0];
+            new maplibregl.Popup()
+                .setLngLat(e.lngLat)
+                .setHTML(`
+                    <h3>${feature.properties.name || 'Unnamed'}</h3>
+                    <p><strong>Type:</strong> ${feature.properties.type}</p>
+                    <p><strong>Category:</strong> ${feature.properties.category || 'N/A'}</p>
+                `)
+                .addTo(map);
+        });
+        
+        // Cursor change on hover
+        map.on('mouseenter', 'facilities-points', () => {
+            map.getCanvas().style.cursor = 'pointer';
+        });
+        
+        map.on('mouseleave', 'facilities-points', () => {
+            map.getCanvas().style.cursor = '';
+        });
+        
+        // Log tile requests for debugging
+        map.on('dataloading', (e) => {
+            if (e.tile) {
+                console.log('Loading tile:', e.sourceId, e.tile.tileID);
+            }
+        });
+        
+        console.log('Map initialized. Server:', TILE_SERVER);
+    </script>
+</body>
+</html>

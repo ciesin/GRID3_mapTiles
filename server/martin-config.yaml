@@ -1,0 +1,84 @@
+# Martin Configuration for PostGIS Tile Server
+# https://maplibre.org/martin/config-file.html
+
+# PostgreSQL connection string (overridden by DATABASE_URL env var)
+# postgres:
+#   connection_string: "postgres://user:password@host:5432/database"
+
+# Auto-publish tables and functions from PostGIS
+auto_publish:
+  tables:
+    # Automatically detect and serve tables with geometry columns
+    from_schemas: public
+    
+    # ID column settings
+    id_columns:
+      - id
+      - gid
+      - fid
+      - ogc_fid
+    
+    # Geometry column settings
+    geo_columns:
+      - geom
+      - geometry
+      - wkb_geometry
+      - the_geom
+    
+    # Clip geometries to tile bounds
+    clip_geom: true
+    
+    # Buffer around tile (in tile coordinate units)
+    buffer: 64
+    
+    # Simplification extent (larger = more aggressive simplification)
+    extent: 4096
+
+  functions:
+    # Automatically detect and serve table-returning functions
+    # Functions should accept (z integer, x integer, y integer, query_params json)
+    # and return TABLE (mvt bytea)
+    from_schemas: public
+
+# Optional: Explicitly define table sources
+# table_sources:
+#   points_overlay:
+#     schema: public
+#     table: health_facilities
+#     srid: 4326
+#     geometry_column: geom
+#     id_column: id
+#     minzoom: 0
+#     maxzoom: 22
+#     bounds: [-180.0, -90.0, 180.0, 90.0]
+#     properties:
+#       # Include these columns as properties
+#       name: text
+#       type: text
+#       category: text
+
+# Optional: Explicitly define function sources
+# function_sources:
+#   admin_overlay:
+#     schema: public
+#     function: get_admin_tiles
+#     minzoom: 0
+#     maxzoom: 22
+
+# PMTiles sources (if serving semi-static PMTiles through Martin)
+# pmtiles:
+#   sources:
+#     basemap:
+#       path: /pmtiles/overture_2024_11.pmtiles
+
+# Server configuration
+# listen_addresses: "0.0.0.0:3000"
+
+# Worker processes (defaults to CPU count)
+# worker_processes: 4
+
+# Keep-alive timeout (seconds)
+# keep_alive: 75
+
+# Maximum tile buffer size
+# max_feature_count: 1000000

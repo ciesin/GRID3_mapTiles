@@ -34,3 +34,36 @@ public/tiles_stl/
 !README.md
 data/
 input/
+
+# caddy config
+
+# Environment configuration
+**/.env
+
+# Docker volumes
+/volumes/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.swp
+*~
+
+# Backup files
+*.backup
+*.bak
+
+# SQL dumps
+*.sql
+!sql/*.sql
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.sublime-*
