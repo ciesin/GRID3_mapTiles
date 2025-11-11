@@ -1,0 +1,189 @@
+services:
+  # PostgreSQL + PostGIS for dynamic overlays
+  postgis:
+    image: postgis/postgis:16-3.4
+    container_name: maptiles-postgis
+    profiles:
+      - donotstart
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-gisdb}
+      POSTGRES_USER: ${POSTGRES_USER:-gisuser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      # Performance tuning for tile serving
+      POSTGRES_SHARED_BUFFERS: ${POSTGRES_SHARED_BUFFERS:-256MB}
+      POSTGRES_WORK_MEM: ${POSTGRES_WORK_MEM:-16MB}
+      POSTGRES_MAINTENANCE_WORK_MEM: ${POSTGRES_MAINTENANCE_WORK_MEM:-128MB}
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    volumes:
+      - postgis_data:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d  # Initial schema/data setup scripts
+    ports:
+      - "${HOST_IP:-10.0.0.1}:${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-gisuser} -d ${POSTGRES_DB:-gisdb}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - tiles-network
+    restart: unless-stopped
+
+  # Martin tile server for PostGIS-backed dynamic tiles
+  martin:
+    image: ghcr.io/maplibre/martin:latest
+    container_name: maptiles-martin
+    profiles:
+      - donotstart
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-gisuser}:${POSTGRES_PASSWORD:-changeme}@postgis:5432/${POSTGRES_DB:-gisdb}
+      MARTIN_KEEP_ALIVE: ${MARTIN_KEEP_ALIVE:-75}
+      MARTIN_WORKER_PROCESSES: ${MARTIN_WORKER_PROCESSES:-4}
+      # Optional: PMTiles serving from Martin (if needed for semi-static overlays)
+      # MARTIN_PMTILES_SOURCES: /pmtiles
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+    depends_on:
+      postgis:
+        condition: service_healthy
+    volumes:
+      - ./martin/config.yaml:/config/martin-config.yaml:ro
+      # Optional: mount semi-static PMTiles for Martin to serve
+      # - ./data/tiles:/pmtiles:ro
+    ports:
+      - "${HOST_IP:-10.0.0.1}:${MARTIN_PORT:-3001}:3000"
+    command: --config /config/martin-config.yaml
+    networks:
+      - tiles-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Caddy with PMTiles plugin for static basemap tiles
+  caddy:
+    build:
+      context: ./caddy
+      dockerfile: Dockerfile
+    container_name: maptiles-caddy
+    environment:
+      TILES_DOMAIN: ${TILES_DOMAIN:-localhost:8080}
+      TILES_SERVE_DOMAIN: ${TILES_SERVE_DOMAIN:-localhost}
+      TILES_EMAIL: ${TILES_EMAIL:-admin@localhost}
+      # For local file serving (not S3)
+      PMTILES_PATH: /tiles
+      MARTIN_UPSTREAM: http://martin:3000
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+    volumes:
+      # Mount PMTiles directly from processing output
+      - ../1-processing/output/pmtiles:/tiles:ro
+      # Caddy data for certificates
+      - caddy_data:/data
+      - caddy_config:/config
+    ports:
+      - "${HOST_IP:-10.0.0.1}:${CADDY_HTTP_PORT:-3002}:8080"
+      - "${HOST_IP:-10.0.0.1}:${CADDY_HTTPS_PORT:-3003}:8443"
+    # depends_on:
+    #   martin:
+    #     condition: service_healthy
+    networks:
+      - tiles-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # PMTiles CLI for tile operations (inspect, convert, serve)
+  pmtiles:
+    image: protomaps/go-pmtiles:latest
+    container_name: maptiles-pmtiles-cli
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
+        reservations:
+          cpus: '0.05'
+          memory: 64M
+    volumes:
+      # Mount tiles directory for read/write operations  
+      - ../1-processing/output/pmtiles:/tiles
+      # Mount processing directory for conversions
+      - ../1-processing:/processing
+    working_dir: /tiles
+    networks:
+      - tiles-network
+    profiles:
+      - tools  # Only start with: docker-compose --profile tools up
+    # No default command - use docker-compose run pmtiles <command>
+    # Examples:
+    # docker-compose run pmtiles show /tiles/buildings.pmtiles
+    # docker-compose run pmtiles verify /tiles/buildings.pmtiles
+    # docker-compose run pmtiles tile-join -o /tiles/combined.pmtiles /tiles/*.pmtiles
+    entrypoint: ["pmtiles"]
+
+  # Optional: pgAdmin for database management
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: maptiles-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@localhost}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-changeme}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    ports:
+      - "${HOST_IP:-10.0.0.1}:${PGADMIN_PORT:-3004}:80"
+    depends_on:
+      - postgis
+    networks:
+      - tiles-network
+    restart: unless-stopped
+    profiles:
+      - tools  # Only start with: docker-compose --profile tools up
+
+volumes:
+  postgis_data:
+    driver: local
+  caddy_data:
+    driver: local
+  caddy_config:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+networks:
+  tiles-network:
+    driver: bridge

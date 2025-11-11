@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+.ipynb_checkpoints/
+
+# Environment
+.env
+.venv
+venv/
+env/
+
+# Data files (large binary files)
+data/1-input/**/*.shp
+data/1-input/**/*.gpkg
+data/1-input/**/*.gdb
+data/1-input/**/*.geojson
+data/1-input/**/*.geojsonseq
+data/2-scratch/**/*
+data/3-pmtiles/**/*.pmtiles
+
+# Keep directory structure but ignore contents
+!data/1-input/grid3/.gitkeep
+!data/1-input/overture/.gitkeep
+!data/2-scratch/.gitkeep
+!data/3-pmtiles/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+*.bak
+**/.bak

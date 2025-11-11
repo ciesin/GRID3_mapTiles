@@ -1,0 +1,34 @@
+{
+  "name": "overture-basemap",
+  "version": "1.0.0",
+  "description": "Overture Maps basemap with topographic contours",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "convert-tiles": "node scripts/convert-pmtiles.js",
+    "serve-vector": "node scripts/serve-with-vector-tiles.js"
+  },
+  "dependencies": {
+    "maplibre-contour": "^0.1.0",
+    "maplibre-gl": "^4.0.0",
+    "pmtiles": "^3.2.1"
+  },
+  "devDependencies": {
+    "vite": "^7.2.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/math-eaton/mapTiles"
+  },
+  "keywords": [
+    "maps",
+    "overture",
+    "pmtiles",
+    "topographic",
+    "contours"
+  ],
+  "author": "",
+  "license": "MIT"
+}
