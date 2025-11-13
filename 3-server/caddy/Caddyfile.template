@@ -5,8 +5,9 @@
 }
 
 :8080 {
-    # Health check endpoint
+    # Health check endpoint with CORS headers
     handle /health {
+        header Access-Control-Allow-Origin *
         respond "OK" 200
     }
 

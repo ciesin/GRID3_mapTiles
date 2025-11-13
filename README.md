@@ -2,6 +2,21 @@
 
 Data processing pipeline for generating PMTiles basemaps.
 
+## 🚀 NEW: Caddy Server Integration
+
+The viewer now supports dual-mode hosting with automatic endpoint detection:
+- **Primary**: Self-hosted Caddy server (optimal performance)
+- **Fallback**: GitHub Pages with local PMTiles files
+
+**Quick Test**: Run `./test-integration.sh` to verify your setup!
+
+**Documentation**:
+- **Quick Start**: [`CADDY_QUICKSTART.md`](CADDY_QUICKSTART.md)
+- **Full Guide**: [`CADDY_INTEGRATION.md`](CADDY_INTEGRATION.md)
+- **Implementation Details**: [`IMPLEMENTATION_SUMMARY.md`](IMPLEMENTATION_SUMMARY.md)
+
+---
+
 ## Quick Start for New Users
 
 ### Option 1: Automated Setup (Recommended)

@@ -3,6 +3,10 @@ name: Build and Deploy to GitHub Pages
 on:
   push:
     branches: ["main"]
+    paths:
+      - '2-viewer/**'
+      - 'data/3-pmtiles/**'
+      - '.github/workflows/deploy.yml'
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -31,14 +35,29 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          cache: 'npm'
+          node-version: '20'
+          
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: 2-viewer/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('2-viewer/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
           
       - name: Install dependencies
+        working-directory: ./2-viewer
         run: npm ci
         
       - name: Build project
+        working-directory: ./2-viewer
         run: npm run build
+        env:
+          NODE_ENV: production
+          # Optional: Override Caddy endpoint for production
+          # Set these as GitHub repository secrets/variables if needed
+          VITE_CADDY_HOST: ${{ secrets.VITE_CADDY_HOST || '127.0.0.1' }}
+          VITE_CADDY_PORT: ${{ secrets.VITE_CADDY_PORT || '3002' }}
         
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -46,8 +65,8 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload dist folder
-          path: 'dist'
+          # Upload dist folder from 2-viewer
+          path: '2-viewer/dist'
           
       - name: Deploy to GitHub Pages
         id: deployment
