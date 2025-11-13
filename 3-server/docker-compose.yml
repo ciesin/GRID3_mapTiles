@@ -1,8 +1,20 @@
+# ============================================================
+# Docker Compose Configuration for Map Tile Services
+# ============================================================
+# Load environment from repository root: /basemap/.env
+# Run from 3-server directory: docker-compose up -d
+# ============================================================
+
+# Note: Docker Compose automatically loads ../.env (parent directory)
+# when running from 3-server/ directory
+
 services:
   # PostgreSQL + PostGIS for dynamic overlays
   postgis:
     image: postgis/postgis:16-3.4
     container_name: maptiles-postgis
+    env_file:
+      - ../.env  # Load from repository root
     profiles:
       - donotstart
     environment:
@@ -25,7 +37,7 @@ services:
       - postgis_data:/var/lib/postgresql/data
       - ./postgres/init:/docker-entrypoint-initdb.d  # Initial schema/data setup scripts
     ports:
-      - "${HOST_IP:-10.0.0.1}:${POSTGRES_PORT:-5432}:5432"
+      - "${HOST_IP:-127.0.0.1}:${POSTGRES_PORT:-5432}:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-gisuser} -d ${POSTGRES_DB:-gisdb}"]
       interval: 10s
@@ -39,6 +51,8 @@ services:
   martin:
     image: ghcr.io/maplibre/martin:latest
     container_name: maptiles-martin
+    env_file:
+      - ../.env  # Load from repository root
     profiles:
       - donotstart
     environment:
@@ -63,7 +77,7 @@ services:
       # Optional: mount semi-static PMTiles for Martin to serve
       # - ./data/tiles:/pmtiles:ro
     ports:
-      - "${HOST_IP:-10.0.0.1}:${MARTIN_PORT:-3001}:3000"
+      - "${HOST_IP:-127.0.0.1}:${MARTIN_PORT:-3001}:3000"
     command: --config /config/martin-config.yaml
     networks:
       - tiles-network
@@ -80,6 +94,8 @@ services:
       context: ./caddy
       dockerfile: Dockerfile
     container_name: maptiles-caddy
+    env_file:
+      - ../.env  # Load from repository root
     environment:
       TILES_DOMAIN: ${TILES_DOMAIN:-localhost:8080}
       TILES_SERVE_DOMAIN: ${TILES_SERVE_DOMAIN:-localhost}
@@ -97,13 +113,14 @@ services:
           memory: 128M
     volumes:
       # Mount PMTiles directly from processing output
-      - ../1-processing/output/pmtiles:/tiles:ro
+      # Using ../data relative to 3-server directory to reach repo root
+      - ../data/3-pmtiles:/tiles:ro
       # Caddy data for certificates
       - caddy_data:/data
       - caddy_config:/config
     ports:
-      - "${HOST_IP:-10.0.0.1}:${CADDY_HTTP_PORT:-3002}:8080"
-      - "${HOST_IP:-10.0.0.1}:${CADDY_HTTPS_PORT:-3003}:8443"
+      - "${HOST_IP:-127.0.0.1}:${CADDY_HTTP_PORT:-3002}:8080"
+      - "${HOST_IP:-127.0.0.1}:${CADDY_HTTPS_PORT:-3003}:8443"
     # depends_on:
     #   martin:
     #     condition: service_healthy
@@ -120,6 +137,8 @@ services:
   pmtiles:
     image: protomaps/go-pmtiles:latest
     container_name: maptiles-pmtiles-cli
+    env_file:
+      - ../.env  # Load from repository root
     deploy:
       resources:
         limits:
@@ -129,8 +148,9 @@ services:
           cpus: '0.05'
           memory: 64M
     volumes:
-      # Mount tiles directory for read/write operations  
-      - ../1-processing/output/pmtiles:/tiles
+      # Mount tiles directory for read/write operations
+      # Using ../data relative to 3-server directory to reach repo root
+      - ../data/3-pmtiles:/tiles
       # Mount processing directory for conversions
       - ../1-processing:/processing
     working_dir: /tiles
@@ -149,6 +169,8 @@ services:
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: maptiles-pgadmin
+    env_file:
+      - ../.env  # Load from repository root
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@localhost}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-changeme}
@@ -165,7 +187,7 @@ services:
     volumes:
       - pgadmin_data:/var/lib/pgadmin
     ports:
-      - "${HOST_IP:-10.0.0.1}:${PGADMIN_PORT:-3004}:80"
+      - "${HOST_IP:-127.0.0.1}:${PGADMIN_PORT:-3004}:80"
     depends_on:
       - postgis
     networks:

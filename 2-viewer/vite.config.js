@@ -27,7 +27,7 @@ export default defineConfig({
     proxy: {
       // Proxy PMTiles requests to Caddy server
       '/tiles': {
-        target: 'http://10.0.0.1:3002',
+        target: 'http://127.0.0.1:3002',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/tiles/, '/static')
       }

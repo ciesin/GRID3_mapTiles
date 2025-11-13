@@ -84,7 +84,7 @@
       "source": "land-use-tiles",
       "source-layer": "land-use",
       "layout": {
-      "visibility": "visible"
+      "visibility": "none"
       },
       "paint": {
       "fill-color": [
@@ -110,7 +110,7 @@
         "green", "#15803d",
         "tee", "#166534",
         "bunker", "#d6d3d1",
-        "water_hazard", "#3b82f6",
+        "water_hazard", "#A0D8ED",
         "track", "#f97316",
         "camp_site", "#eab308",
         "theme_park", "#ec4899",
@@ -161,9 +161,9 @@
         9, [
           "match",
           ["get", "subtype"],
-            "forest", "#d3e5d0",
-            "wood", "#d3e5d0",
-            "tree", "#c9dfc6",
+          "forest", "#d3e5d0",
+          "wood", "#d3e5d0",
+          "tree", "#c9dfc6",
           "shrub", "#e3f2c7",
           "grass", "#eaf6d2",
           "grassland", "#eaf6d2",
@@ -254,9 +254,9 @@
         "visibility": "visible"
       },
       "paint": {
-        "fill-color": "#4a90e2",
+        "fill-color": "#9ADBE8",
         "fill-opacity": 1,
-        "fill-outline-color": "#2980b9"
+        "fill-outline-color": "#59CBE8"
       }
     },
     {
@@ -269,7 +269,7 @@
         "visibility": "visible"
       },
       "paint": {
-        "line-color": "#2980b9",
+        "line-color": "#59CBE8",
         "line-width": 1,
         "line-opacity": 1
       }
@@ -284,7 +284,7 @@
         "visibility": "visible"
       },
       "paint": {
-      "line-color": "#4a90e2",
+      "line-color": "#59CBE8",
       "line-width": [
         "interpolate",
         ["exponential", 1.5],
@@ -638,6 +638,7 @@
       "type": "line",
       "source": "roads-tiles",
       "source-layer": "roads",
+      "minzoom": 11.5,
       "filter": [
       "any",
       ["==", "class", "service"],
@@ -713,8 +714,8 @@
         "interpolate",
         ["linear"],
         ["zoom"],
-        6, 0.8,
-        12, 1
+        11, 0,
+        12.5, 1
       ],
       "line-dasharray": [4, 3, 5, 2.5]
       }
@@ -765,7 +766,7 @@
         "emergency", "#FF0000",
         "airport", "#87CEEB",
         "transportation", "#2F4F4F",
-        "water", "#4682B4",
+        "water", "#A0D8ED",
         "waste_management", "#8B4513",
         "recreation", "#32CD32",
         "#666666"
@@ -805,7 +806,7 @@
           "communication", "#4169E1",
           "transportation", "#2F4F4F",
           "utility", "#696969",
-          "water", "#4682B4",
+          "water", "#A0D8ED",
           "aerialway", "#8B4513",
           "#666666"
         ],
@@ -856,7 +857,7 @@
           "airport", "#C0C0C0",
           "transportation", "#2F4F4F",
           "utility", "#696969",
-          "water", "#4682B4",
+          "water", "#A0D8ED",
           "waste_management", "#8B4513",
           "recreation", "#32CD32",
           "military", "#556B2F",

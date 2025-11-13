@@ -8,6 +8,26 @@ making it easy to import and use across notebooks and scripts.
 from pathlib import Path
 import os
 
+# Load .env from repository root
+def load_environment():
+    """Load .env file from repository root (monorepo-wide configuration)."""
+    try:
+        from dotenv import load_dotenv
+        # This file is at: /basemap/1-processing/config.py
+        # Repository root is: /basemap/
+        repo_root = Path(__file__).resolve().parent.parent
+        env_file = repo_root / '.env'
+        if env_file.exists():
+            load_dotenv(env_file)
+            return True
+    except ImportError:
+        # python-dotenv not installed, continue with system env vars
+        pass
+    return False
+
+# Load environment before defining paths
+load_environment()
+
 # Detect project root - works both from notebooks and scripts
 def get_project_root():
     """
@@ -22,8 +42,17 @@ def get_project_root():
 # Initialize paths
 PROJECT_ROOT = get_project_root()
 
-# Data is stored on external disk for better performance and space
-DATA_DISK = Path("/mnt/pool/gis/mapTiles")
+# Data disk - check environment variable first, then fall back to default
+# If DATA_DISK is relative (like '.'), resolve it relative to the repository root
+data_disk_env = os.environ.get("DATA_DISK", "/mnt/pool/gis/mapTiles")
+if data_disk_env.startswith(('.', '..')):
+    # Relative path - resolve from repository root (parent of PROJECT_ROOT)
+    repo_root = PROJECT_ROOT.parent
+    DATA_DISK = (repo_root / data_disk_env).resolve()
+else:
+    # Absolute path
+    DATA_DISK = Path(data_disk_env)
+
 SCRIPTS_DIR = PROJECT_ROOT / "scripts"
 NOTEBOOKS_DIR = PROJECT_ROOT / "notebooks"
 UTILITIES_DIR = PROJECT_ROOT / "utilities"
@@ -88,7 +117,7 @@ DEFAULT_CONFIG = {
         "verbose": True
     },
     "tiling": {
-        "input_dirs": [OVERTURE_DATA_DIR],  # Can be extended with GRID3_DATA_DIR
+        "input_dirs": [SCRATCH_DIR],  # Read FlatGeobuf files from scratch directory
         "output_dir": OUTPUT_DIR,
         "parallel": True,
         "overwrite": True,

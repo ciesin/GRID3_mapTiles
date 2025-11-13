@@ -37,16 +37,29 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 # Use a dynamic import to avoid static analysis failures when the optional
 # `tippecanoe` helper module isn't installed, but still support runtime use.
 import importlib
-try:
-    tippecanoe_mod = importlib.import_module('tippecanoe')
-    get_layer_settings = getattr(tippecanoe_mod, 'get_layer_settings', None)
-    build_tippecanoe_command = getattr(tippecanoe_mod, 'build_tippecanoe_command', None)
-    BASE_COMMAND = getattr(tippecanoe_mod, 'BASE_COMMAND', None)
-except Exception:
-    print("Warning: Could not import tippecanoe template. Using fallback settings.")
-    get_layer_settings = None
-    build_tippecanoe_command = None
-    BASE_COMMAND = None
+
+def _import_tippecanoe_template():
+    """Import tippecanoe template with proper path setup for worker processes"""
+    try:
+        # Add scripts directory to path if not already there
+        scripts_dir = Path(__file__).resolve().parent
+        if str(scripts_dir) not in sys.path:
+            sys.path.insert(0, str(scripts_dir))
+        
+        tippecanoe_mod = importlib.import_module('tippecanoe')
+        return (
+            getattr(tippecanoe_mod, 'get_layer_settings', None),
+            getattr(tippecanoe_mod, 'build_tippecanoe_command', None),
+            getattr(tippecanoe_mod, 'BASE_COMMAND', None)
+        )
+    except Exception as e:
+        # Only print warning once in main process, not in workers
+        if __name__ == '__main__' or not hasattr(sys, '_called_from_test'):
+            pass  # Suppress warning in worker processes
+        return None, None, None
+
+# Try to import template at module load
+get_layer_settings, build_tippecanoe_command, BASE_COMMAND = _import_tippecanoe_template()
 
 # Set up project paths - aligned with config.py
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -180,6 +193,9 @@ def detect_geometry_type(file_path):
 def get_layer_tippecanoe_settings(layer_name, filename_or_path=None):
     """Get layer-specific tippecanoe settings based on layer name and filename/path
     
+    First tries to load settings from tippecanoe.py template (LAYER_SETTINGS).
+    Falls back to hardcoded detection logic if template not available or no match.
+    
     Common options have been consolidated into the base tippecanoe command:
     - --buffer=8 (most layers, higher quality)
     - --no-polygon-splitting (polygon layers)
@@ -212,6 +228,19 @@ def get_layer_tippecanoe_settings(layer_name, filename_or_path=None):
         filename = None
         file_path = None
     
+    # PRIORITY 1: Try to get settings from tippecanoe template if available
+    # Re-import in worker processes if needed
+    global get_layer_settings
+    if get_layer_settings is None:
+        get_layer_settings, _, _ = _import_tippecanoe_template()
+    
+    if get_layer_settings is not None and filename:
+        template_settings = get_layer_settings(filename)
+        if template_settings:
+            print(f"  Using template settings for {filename} ({len(template_settings)} options)")
+            return template_settings
+    
+    # PRIORITY 2: Fallback to automatic detection if no template match
     # Determine layer type from layer name or filename
     layer_type = None
     detection_method = None

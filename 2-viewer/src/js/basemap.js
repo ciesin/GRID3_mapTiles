@@ -36,9 +36,9 @@ class OvertureMap {
                 [24.0, -4.0]  // Northeast coordinates [lng, lat]
             ],
             // center: [-74.986763650502, 44.66997929549087],
-            center: [23.0671, -4.8057],
+            center: [29.27671722615806, -6.551481836801701],
             zoom: 12,
-            minZoom: 8,
+            minZoom: 9,
             maxZoom: 15,
             showTileBoundaries: false,
             clampToBounds: false,
@@ -54,6 +54,7 @@ class OvertureMap {
         this.layerDrawOrder = {
             // Base layers (0-9)
             'background': 1,
+            'tile-grid': 999,  // Tile grid overlay (always on top)
 
 
             // Land use and land cover (20-39)
@@ -75,9 +76,9 @@ class OvertureMap {
             'hills': 35,
 
             // Water features (40-49)
+            'water-lines': 39,           // Rivers, streams, canals
             'water-polygons': 40,        // Water body fills
             'water-polygon-outlines': 41, // Water body outlines
-            'water-lines': 42,           // Rivers, streams, canals
             
             // Contour lines (50-59)
             'contours': 32,       // Contour lines
@@ -284,42 +285,42 @@ class OvertureMap {
     /**
      * Show user-friendly error message for PMTiles issues
      */
-    showPMTilesError() {
-        const mapContainer = document.getElementById(this.containerId);
-        const errorOverlay = document.createElement('div');
-        errorOverlay.style.cssText = `
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            right: 10px;
-            background: rgba(231, 76, 60, 0.95);
-            color: white;
-            padding: 15px;
-            border-radius: 5px;
-            font-family: sans-serif;
-            font-size: 14px;
-            z-index: 10000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-        `;
-        errorOverlay.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                <div>
-                    <strong>⚠️ Tile Loading Issue</strong><br>
-                    GitHub Pages doesn't fully support the byte-serving required by PMTiles.<br>
-                    <small>Consider hosting tiles on a CDN for better reliability.</small>
-                </div>
-                <button onclick="this.parentElement.parentElement.remove()" style="background: none; border: none; color: white; font-size: 18px; cursor: pointer; padding: 0 5px;">×</button>
-            </div>
-        `;
-        mapContainer.appendChild(errorOverlay);
+    // showPMTilesError() {
+    //     const mapContainer = document.getElementById(this.containerId);
+    //     const errorOverlay = document.createElement('div');
+    //     errorOverlay.style.cssText = `
+    //         position: absolute;
+    //         top: 10px;
+    //         left: 10px;
+    //         right: 10px;
+    //         background: rgba(231, 76, 60, 0.95);
+    //         color: white;
+    //         padding: 15px;
+    //         border-radius: 5px;
+    //         font-family: sans-serif;
+    //         font-size: 14px;
+    //         z-index: 10000;
+    //         box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    //     `;
+    //     errorOverlay.innerHTML = `
+    //         <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+    //             <div>
+    //                 <strong>⚠️ Tile Loading Issue</strong><br>
+    //                 GitHub Pages doesn't fully support the byte-serving required by PMTiles.<br>
+    //                 <small>Consider hosting tiles on a CDN for better reliability.</small>
+    //             </div>
+    //             <button onclick="this.parentElement.parentElement.remove()" style="background: none; border: none; color: white; font-size: 18px; cursor: pointer; padding: 0 5px;">×</button>
+    //         </div>
+    //     `;
+    //     mapContainer.appendChild(errorOverlay);
         
-        // Auto-remove after 10 seconds
-        setTimeout(() => {
-            if (errorOverlay.parentElement) {
-                errorOverlay.remove();
-            }
-        }, 10000);
-    }
+    //     // Auto-remove after 10 seconds
+    //     setTimeout(() => {
+    //         if (errorOverlay.parentElement) {
+    //             errorOverlay.remove();
+    //         }
+    //     }, 10000);
+    // }
     
     /**
      * Create the MapLibre map instance
@@ -475,7 +476,7 @@ class OvertureMap {
                 console.error('This is likely due to hosting limitations. See DEPLOYMENT_OPTIONS.md for solutions.');
                 
                 // Show user-friendly message
-                this.showPMTilesError();
+                // this.showPMTilesError();
             } else {
                 console.error(`Map error detected for source: ${sourceId}, tile: ${tileUrl}`);
                 console.error('Error message:', errorMsg);
@@ -616,8 +617,85 @@ class OvertureMap {
             compact: isMobile // Compact on mobile, expanded on desktop
         }), 'bottom-right');
         
+        // Add zoom level display
+        this.addZoomDisplay();
+        
+        // Add tile grid control and layer
+        this.addTileGrid();
+        
         // Add layer legend control
         this.addLayerLegend();
+    }
+    
+    /**
+     * Add zoom level display control
+     */
+    addZoomDisplay() {
+        const zoomDisplay = document.createElement('div');
+        zoomDisplay.className = 'zoom-display';
+        zoomDisplay.id = 'zoom-display';
+        
+        const updateZoom = () => {
+            const zoom = this.map.getZoom();
+            zoomDisplay.textContent = `Zoom: ${zoom.toFixed(1)}`;
+        };
+        
+        this.map.on('zoom', updateZoom);
+        updateZoom(); // Initial display
+        
+        document.getElementById(this.containerId).appendChild(zoomDisplay);
+    }
+    
+    /**
+     * Add tile grid overlay and toggle control
+     */
+    addTileGrid() {
+        // Create tile grid control checkbox
+        const tileGridControl = document.createElement('div');
+        tileGridControl.className = 'tile-grid-control';
+        tileGridControl.innerHTML = `
+            <label>
+                <input type="checkbox" id="tile-grid-toggle" />
+                Tile Grid
+            </label>
+        `;
+        
+        document.getElementById(this.containerId).appendChild(tileGridControl);
+        
+        // Add tile grid source and layer after map loads
+        this.map.on('load', () => {
+            // Add tile grid source (using debug tiles style)
+            if (!this.map.getSource('tile-grid-source')) {
+                this.map.addSource('tile-grid-source', {
+                    type: 'vector',
+                    tiles: [
+                        'data:application/x-protobuf;base64,'
+                    ],
+                    maxzoom: 22
+                });
+            }
+            
+            // Add tile grid layer using tile boundaries
+            if (!this.map.getLayer('tile-grid')) {
+                // Use maplibre's built-in tile boundary rendering
+                this.map.showTileBoundaries = false; // We'll control this with our checkbox
+            }
+        });
+        
+        // Handle checkbox toggle
+        const checkbox = tileGridControl.querySelector('#tile-grid-toggle');
+        checkbox.addEventListener('change', (e) => {
+            this.toggleTileGrid(e.target.checked);
+        });
+    }
+    
+    /**
+     * Toggle tile grid visibility
+     */
+    toggleTileGrid(visible) {
+        if (this.map) {
+            this.map.showTileBoundaries = visible;
+        }
     }
     
     
@@ -714,8 +792,8 @@ class OvertureMap {
                 ["linear"],
                 ["zoom"],
                 0, 1,
-                9, 0.7,
-                11, 0.4,
+                8, 0.5,
+                11, 0.25,
                 16, 0.15
             ],
             "hillshade-shadow-color": [
@@ -745,28 +823,35 @@ class OvertureMap {
             source: "contours",
             "source-layer": "contours",
             paint: {
-                "line-color": "rgba(139, 69, 19, 0.4)",  // Neutral brown
-                "line-width": [
-                    "interpolate",
-                    ["linear"],
-                    ["zoom"],
-                    8.5, [
-                        "case",
-                        ["==", ["get", "level"], 1], 0.15,  // Major contours
-                        0.07                                 // Minor contours
-                    ],
-                    10.5, [
-                        "case", 
-                        ["==", ["get", "level"], 1], 0.35,  // Major contours
-                        0.2                               // Minor contours
-                    ],
-                    13.5, [
-                        "case",
-                        ["==", ["get", "level"], 1], 0.6,  // Major contours
-                        0.3                              // Minor contours
-                    ]
+            "line-color": "rgba(139, 69, 19, 0.4)",  // Neutral brown
+            "line-width": [
+                "interpolate",
+                ["linear"],
+                ["zoom"],
+                8.5, [
+                "case",
+                ["==", ["get", "level"], 1], 0.15,  // Major contours
+                0.07                                 // Minor contours
                 ],
-                "line-opacity": 1  // Simple neutral opacity - will be overridden
+                10.5, [
+                "case", 
+                ["==", ["get", "level"], 1], 0.35,  // Major contours
+                0.2                               // Minor contours
+                ],
+                13.5, [
+                "case",
+                ["==", ["get", "level"], 1], 0.6,  // Major contours
+                0.3                              // Minor contours
+                ]
+            ],
+            // Ramp opacity from 0 at zoom 11 to 1 at zoom 15
+            "line-opacity": [
+                "interpolate",
+                ["exponential", 1.5],
+                ["zoom"],
+                11, 0.25,
+                13, 1
+            ]
             },
             layout: {
                 "line-join": "round",

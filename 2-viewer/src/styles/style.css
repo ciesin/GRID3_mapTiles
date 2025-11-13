@@ -103,6 +103,53 @@ body {
             }
         }
         
+        /* Zoom display styles */
+        .zoom-display {
+            position: absolute;
+            bottom: 50px;
+            left: 10px;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 8px 12px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            font-family: monospace;
+            font-size: 12px;
+            font-weight: bold;
+            color: #333;
+            pointer-events: none;
+        }
+
+        /* Tile grid control styles */
+        .tile-grid-control {
+            position: absolute;
+            bottom: 80px;
+            left: 10px;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 8px 12px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            color: #333;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .tile-grid-control:hover {
+            background-color: rgba(255, 255, 255, 1);
+        }
+
+        .tile-grid-control input[type="checkbox"] {
+            margin-right: 6px;
+            cursor: pointer;
+        }
+
+        .tile-grid-control label {
+            cursor: pointer;
+        }
+
         /* Map legend styles */
         #map-legend {
             position: absolute;

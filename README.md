@@ -2,6 +2,35 @@
 
 Data processing pipeline for generating PMTiles basemaps.
 
+## Quick Start for New Users
+
+### Option 1: Automated Setup (Recommended)
+```bash
+./setup.sh
+```
+This interactive script will:
+- Ask for your data disk location
+- Create the necessary directory structure
+- Configure both processing and server `.env` files
+
+### Option 2: Manual Setup
+```bash
+cd 1-processing
+cp .env.example .env
+# Edit .env and set DATA_DISK to your preferred location (e.g., external drive)
+# Example: DATA_DISK=/Volumes/MyExternalDrive/mapTiles
+```
+
+### Data Structure
+The pipeline will automatically create this structure on your data disk:
+```
+${DATA_DISK}/
+└── data/
+    ├── 1-input/          # Source data (Overture, custom datasets)
+    ├── 2-scratch/        # Temporary processing files
+    └── 3-pmtiles/        # Generated PMTiles (served by 3-server)
+```
+
 ## Structure
 
 ```
@@ -136,7 +165,8 @@ Docker-based tile server stack for serving PMTiles (via Caddy) and dynamic PostG
 ```bash
 cd 3-server
 cp .env.example .env
-# Edit .env with your configuration
+# Edit .env and set DATA_DISK to match your 1-processing/.env configuration
+# This ensures the server can find your generated PMTiles
 ```
 
 ### Start services
