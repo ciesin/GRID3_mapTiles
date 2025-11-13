@@ -1,6 +1,7 @@
 import maplibregl from 'maplibre-gl';
 import { Protocol } from 'pmtiles';
 import { PMTiles } from 'pmtiles';
+import { tileConfig } from './config.js';
 
 // Lazy load contour functionality
 let mlcontour = null;
@@ -128,22 +129,27 @@ class OvertureMap {
     /**
      * Initialize the PMTiles protocol and create the map
      */
-    init() {
+    async init() {
         // Initialize PMTiles protocol
         this.protocol = new Protocol();
         maplibregl.addProtocol("pmtiles", this.protocol.tile);
         
-        // Load the style configuration
-        this.loadStyle().then(async style => {
+        try {
+            // Detect and select the best tile endpoint (Caddy server or GitHub Pages)
+            await tileConfig.selectBestEndpoint();
+            console.log('Tile configuration:', tileConfig.getInfo());
+            
+            // Load the style configuration
+            const style = await this.loadStyle();
             this.createMap(style);
             this.setupEventHandlers();
             this.addControls();
-        }).catch(error => {
+        } catch (error) {
             console.error('Failed to load map style:', error);
             // Show user-friendly error message
             const mapContainer = document.getElementById(this.containerId);
             mapContainer.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; font-family: sans-serif; color: #e74c3c; text-align: center; padding: 20px;"><div><h3>Map Loading Error</h3><p>Unable to load map tiles. This may be due to hosting limitations.<br>Please try refreshing the page or contact the administrator.</p></div></div>';
-        });
+        }
     }
     
     /**
@@ -203,51 +209,23 @@ class OvertureMap {
     }
 
     /**
-     * Update PMTiles URLs to be absolute paths for production deployment
-     * Also adds error handling for GitHub Pages hosting issues
+     * Update PMTiles URLs using the configured endpoint (Caddy server or GitHub Pages)
+     * Automatically handles fallback and proper URL construction
      */
     updatePMTilesUrls(style) {
-        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        const isGitHubPages = window.location.hostname.includes('github.io');
-        
-        // For GitHub Pages, we need to include the repo name in the path
-        const repoName = isGitHubPages ? window.location.pathname.split('/')[1] : '';
-        const basePath = isGitHubPages ? `/${repoName}` : '';
-        
-        // console.log('Updating PMTiles URLs:', { 
-        //     isLocalhost, 
-        //     isGitHubPages, 
-        //     repoName, 
-        //     basePath 
-        // });
+        console.log('Updating PMTiles URLs with endpoint:', tileConfig.currentEndpoint);
         
         for (const [sourceId, source] of Object.entries(style.sources)) {
             if (source.type === 'vector' && source.url && source.url.startsWith('pmtiles://tiles/')) {
                 const tilePath = source.url.replace('pmtiles://tiles/', '');
                 
-                let newUrl;
-                if (isLocalhost) {
-                    // Localhost: use relative path
-                    newUrl = `pmtiles://./tiles/${tilePath}`;
-                } else {
-                    // Production: use absolute path with proper base
-                    newUrl = `pmtiles://${basePath}/tiles/${tilePath}`;
-                }
+                // Use the tile config to get the proper URL
+                const newUrl = tileConfig.getPMTilesUrl(tilePath);
                 
-                // console.log(`${sourceId}: ${source.url} → ${newUrl}`);
+                console.log(`${sourceId}: ${source.url} → ${newUrl}`);
                 source.url = newUrl;
-                
-                // // Add warning for GitHub Pages users
-                // if (isGitHubPages) {
-                //     console.warn(`PMTiles on GitHub Pages may have byte-serving issues. Consider using a CDN for ${sourceId}.`);
-                // }
             }
         }
-        
-        // // If on GitHub Pages, add error handling for missing tiles
-        // if (isGitHubPages) {
-        //     this.addGitHubPagesWarning();
-        // }
     }
     
     /**

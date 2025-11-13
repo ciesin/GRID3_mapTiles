@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/copy-tiles.js",
     "preview": "vite preview",
     "convert-tiles": "node scripts/convert-pmtiles.js",
     "serve-vector": "node scripts/serve-with-vector-tiles.js"
