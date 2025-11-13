@@ -17,16 +17,16 @@ Note: get_layer_settings() matches on base filename, ignoring extensions.
 LAYER_SETTINGS = {
     # Building footprints - high detail at close zooms
     'buildings.fgb': [
-        '--no-polygon-splitting',
-        '--detect-shared-borders',
+        # '--no-polygon-splitting',
+        # '--detect-shared-borders',
         '--simplification=6',  # Increased from 4 for better tile sizes
-        '--drop-rate=0.15',  # Increased from 0.05 to reduce features
+        '--drop-rate=0.2',  # Increased from 0.05 to reduce features
         '--low-detail=12',
-        '--full-detail=14',  # Reduced from 15 to cap detail at zoom 13
+        # '--full-detail=13',  # Reduced from 15 to cap detail at zoom 14
         '--coalesce-smallest-as-needed',
         '--drop-densest-as-needed',
         '--extend-zooms-if-still-dropping-maximum=15',
-        '--maximum-zoom=15',
+        '--maximum-zoom=14',
         '--minimum-zoom=12',
         '--maximum-tile-bytes=2097152', 
         '--buffer=12'
@@ -58,7 +58,7 @@ LAYER_SETTINGS = {
         '--coalesce-densest-as-needed',
         '--drop-densest-as-needed',
         '--minimum-zoom=11',
-        '--maximum-zoom=14', 
+        # '--maximum-zoom=14', 
         '--maximum-tile-bytes=2097152' 
     ],
 
@@ -66,15 +66,19 @@ LAYER_SETTINGS = {
         '--no-polygon-splitting',
         '--detect-shared-borders',
         '--simplification=4',  # Reduced from 10 for better detail preservation
-        '--drop-rate=0.15',  # Reduced from 0.40 to keep more features
+        '--drop-rate=0.2',  # Reduced from 0.40 to keep more features
         '--low-detail=11',  # Increased from 8 to preserve detail at lower zooms
-        '--full-detail=13',  # Increased from 12 for better detail at mid-zooms
+        '--full-detail=14',  # Increased from 12 for better detail at mid-zooms
         '--minimum-detail=11',  # Increased from 10
+        # '--no-duplication',
+        '--buffer=16',
+        '--hilbert',
         '--coalesce-densest-as-needed',
         '--drop-densest-as-needed',
         '--minimum-zoom=9',
-        '--maximum-zoom=13', 
-        '--maximum-tile-bytes=2097152' 
+        '--extend-zooms-if-still-dropping-maximum=12',
+        # '--maximum-zoom=13', 
+        '--maximum-tile-bytes=4194304' 
     ],
 
     'land_residential.fgb': [
@@ -113,28 +117,33 @@ LAYER_SETTINGS = {
         # '--drop-smallest',
         '--simplification=5', 
         '--minimum-detail=5',  # Added to ensure minimum detail level
-        '--minimum-zoom=9',
-        '--maximum-zoom=13',
+        '--minimum-zoom=8',
+        '--no-simplification-of-shared-nodes',
+        '--maximum-zoom=14',
         '--no-clipping',
-        # '--extend-zooms-if-still-dropping-maximum=13',
+        '--extend-zooms-if-still-dropping-maximum=14',
         '--coalesce-smallest-as-needed',
-        '--maximum-tile-bytes=2097152',  # Increased limit to 2MB for road density
+        '--maximum-tile-bytes=4194304',  # Increased limit to 4MB for road density
         '--drop-densest-as-needed',  # Drop densest features when tiles get too large
+        '-j', '{"*":["any",[">=","$zoom",11],["!=","class","path"]]}',  # Exclude class=path below zoom 11
     ],
 
     # Water polygons - enhanced detail at zoom 13+
     'water.fgb': [
-        '--no-polygon-splitting',
-        '--detect-shared-borders',
-        '--simplification=5',  # Added for geometry simplification
-        '--drop-rate=0.15',  # Added to manage feature count
-        '--extend-zooms-if-still-dropping-maximum=14',
-        '--no-clipping',
+        # '--no-polygon-splitting',
+        # '--detect-shared-borders',
+        # '--simplification=6', 
+        # '--drop-rate=0.15', 
+        '--extend-zooms-if-still-dropping-maximum=13',
+        # '--no-clipping',
+        '--buffer=16',
+        '--hilbert',
         '--drop-densest-as-needed',
-        '--coalesce-smallest-as-needed',
-        '--maximum-tile-bytes=2097152',
-        '--minimum-zoom=9',  # Added minimum zoom
-        '--maximum-zoom=14'
+        '--no-simplification-of-shared-nodes',
+        # '--maximum-tile-bytes=4194304',
+        '--minimum-zoom=9',  
+        # '--maximum-zoom=13',
+        '-j', '{"*":["all",["any",[">=","$zoom",12],["!=","class","stream"]],["any",[">=","$zoom",10],["==","$type","Polygon"]]]}',  # Exclude streams below x, lines below y
     ],
 
     # Point features - places and placenames

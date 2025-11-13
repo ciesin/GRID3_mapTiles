@@ -36,10 +36,10 @@ class OvertureMap {
                 [24.0, -4.0]  // Northeast coordinates [lng, lat]
             ],
             // center: [-74.986763650502, 44.66997929549087],
-            center: [29.27671722615806, -6.551481836801701],
+            center: [29.364553210135895, -3.3701086791652917],
             zoom: 12,
             minZoom: 9,
-            maxZoom: 15,
+            maxZoom: 15.5,
             showTileBoundaries: false,
             clampToBounds: false,
             useVectorTiles: false, // Set to true to use traditional vector tiles instead of PMTiles

@@ -156,7 +156,7 @@
       "paint": {
       "fill-color": [
         "interpolate",
-        ["exponential", 2],
+        ["exponential", 1.5],
         ["zoom"],
         9, [
           "match",
@@ -284,37 +284,79 @@
         "visibility": "visible"
       },
       "paint": {
-      "line-color": "#59CBE8",
-      "line-width": [
-        "interpolate",
-        ["exponential", 1.5],
-        ["zoom"],
-        10, [
-        "match",
-        ["get", "subtype"],
-        "river", 1,
-        "stream", 0.7,
-        "canal", 0.7,
-        0.5
+        "line-color": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          13, "#59CBE8",
+          14, "#9ADBE8"
         ],
-        14, [
-        "match",
-        ["get", "subtype"],
-        "river", 3,
-        "stream", 2,
-        "canal", 2,
-        1
+        "line-width": [
+          "interpolate",
+          ["exponential", 1.5],
+          ["zoom"],
+          10, [
+            "match",
+            ["get", "subtype"],
+            "river", 1,
+            "stream", 0.5,
+            "canal", 0.2,
+            0.5
+          ],
+          14, [
+            "match",
+            ["get", "subtype"],
+            "river", 3,
+            "stream", 2,
+            "canal", 1,
+            1
+          ],
+          18, [
+            "match",
+            ["get", "subtype"],
+            "river", 6,
+            "stream", 4,
+            "canal", 2,
+            2
+          ]
         ],
-        18, [
-        "match",
-        ["get", "subtype"],
-        "river", 6,
-        "stream", 4,
-        "canal", 4,
-        2
+        "line-opacity": [
+          "interpolate",
+          ["exponential", 2],
+          ["zoom"],
+          10, [
+            "match",
+            ["get", "subtype"],
+            "river", 0,
+            "stream", 0,
+            "canal", 0,
+            0
+          ],
+          11, [
+            "match",
+            ["get", "subtype"],
+            "river", 1,
+            "stream", 0,
+            "canal", 0,
+            0.75
+          ],
+          13, [
+            "match",
+            ["get", "subtype"],
+            "river", 1,
+            "stream", 1,
+            "canal", 0,
+            0.75
+          ],
+          14, [
+            "match",
+            ["get", "subtype"],
+            "river", 1,
+            "stream", 1,
+            "canal", 1,
+            1
+          ]
         ]
-      ],
-      "line-opacity": 1
       }
     },
     {
@@ -529,14 +571,14 @@
           "interpolate",
           ["linear"],
           ["zoom"],
-          10, [
+          9, [
             "match",
             ["get", "class"],
             "motorway", 1.6,
             "trunk", 1.33,
-            "primary", 1.47,
-            "secondary", 1.2,
-            "tertiary", 0.93,
+            "primary", 2,
+            "secondary", 1.5,
+            "tertiary", 1,
             "residential", 0.8,
             "unclassified", 0.8,
             0.8
@@ -582,7 +624,7 @@
           "interpolate",
           ["linear"],
           ["zoom"],
-          8, [
+          10, [
             "match",
             ["get", "class"],
             "motorway", 0,
@@ -890,8 +932,8 @@
           "interpolate",
           ["exponential", 1.5],
           ["zoom"],
-          8, 0.25,
-          16, 1
+          12, 0,
+          15, 1
         ]
       }
     },
