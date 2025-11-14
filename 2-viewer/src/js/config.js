@@ -131,12 +131,7 @@ export class TileConfig {
             ? this.endpoints.caddy.pmtiles 
             : this.endpoints.github.pmtiles;
 
-        // For Caddy server, use HTTP URL directly
-        if (this.currentEndpoint === 'caddy') {
-            return `pmtiles://${endpoint}/${tileName}`;
-        }
-
-        // For GitHub Pages or local, use relative/absolute paths
+        // Always use pmtiles:// protocol - it handles both HTTP and file URLs
         return `pmtiles://${endpoint}/${tileName}`;
     }
 

@@ -745,8 +745,8 @@ def create_tilejson(tile_dir=None, extent=None, output_file=None):
     tilejson = {
         "tilejson": "3.0.0",
         "name": "Basemap Tiles",
-        "minzoom": 0,
-        "maxzoom": 16,
+        "minzoom": 7,
+        "maxzoom": 15,
         "bounds": [xmin, ymin, xmax, ymax],
         "tiles": [],
         "vector_layers": []

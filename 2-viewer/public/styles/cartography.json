@@ -44,7 +44,7 @@
     },
     "settlement-extents-tiles": {
       "type": "vector",
-      "url": "pmtiles://tiles/GRID3_COD_Settlement_Extents_v3_1.pmtiles"
+      "url": "pmtiles://tiles/settlement_extents.pmtiles"
     },
     "health-facilities-tiles": {
       "type": "vector",
@@ -52,11 +52,11 @@
     },
     "health-zones-tiles": {
       "type": "vector",
-      "url": "pmtiles://tiles/GRID3_COD_health_zones_v5_0.pmtiles"
+      "url": "pmtiles://tiles/health_zones.pmtiles"
     },
     "health-areas-tiles": {
       "type": "vector",
-      "url": "pmtiles://tiles/GRID3_COD_health_areas_v5_0.pmtiles"
+      "url": "pmtiles://tiles/health_areas.pmtiles"
     },
     "esri": {
       "type": "vector",
@@ -272,6 +272,77 @@
         "line-color": "#59CBE8",
         "line-width": 1,
         "line-opacity": 1
+      }
+    },
+    {
+      "id": "water-lines-casing",
+      "type": "line",
+      "source": "water-tiles",
+      "source-layer": "water",
+      "filter": ["==", ["geometry-type"], "LineString"],
+      "layout": {
+        "visibility": "visible"
+      },
+      "paint": {
+        "line-color": "#59CBE8",
+        "line-width": [
+          "interpolate",
+          ["exponential", 1.5],
+          ["zoom"],
+          10, [
+            "match",
+            ["get", "subtype"],
+            "river", 0,
+            "stream", 0,
+            "canal", 0,
+            0
+          ],
+          14, [
+            "match",
+            ["get", "subtype"],
+            "river", 5,
+            "stream", 3.5,
+            "canal", 2.5,
+            2.5
+          ]
+        ],
+        "line-opacity": [
+          "interpolate",
+          ["exponential", 2],
+          ["zoom"],
+          10, [
+            "match",
+            ["get", "subtype"],
+            "river", 0,
+            "stream", 0,
+            "canal", 0,
+            0
+          ],
+          11, [
+            "match",
+            ["get", "subtype"],
+            "river", 1,
+            "stream", 0.5,
+            "canal", 0.25,
+            0.75
+          ],
+          13, [
+            "match",
+            ["get", "subtype"],
+            "river", 1,
+            "stream", 1,
+            "canal", 0,
+            0.75
+          ],
+          14, [
+            "match",
+            ["get", "subtype"],
+            "river", 1,
+            "stream", 1,
+            "canal", 1,
+            1
+          ]
+        ]
       }
     },
     {
@@ -914,7 +985,7 @@
       "type": "fill",
       "source": "buildings-tiles",
       "source-layer": "buildings",
-      "minzoom": 5,
+      "minzoom": 10,
       "layout": {
         "visibility": "visible"
       },
@@ -989,7 +1060,7 @@
       "id": "settlement-extents-fill",
       "type": "fill",
       "source": "settlement-extents-tiles",
-      "source-layer": "GRID3-COD-Settlement-Extents-v3-1",
+      "source-layer": "settlement-extents",
       "minzoom": 8,
       "layout": {
       "visibility": "visible"
@@ -1031,7 +1102,7 @@
       "id": "settlement-extents-outlines",
       "type": "line",
       "source": "settlement-extents-tiles",
-      "source-layer": "GRID3-COD-Settlement-Extents-v3-1",
+      "source-layer": "settlement-extents",
       "minzoom": 8,
       "layout": {
         "visibility": "visible"
@@ -1041,7 +1112,7 @@
           "interpolate",
           ["linear"],
           ["zoom"],
-          10, [
+          8, [
         "match",
         ["get", "type"],
         "Built-up Area", "#F5F5F5",
@@ -1183,7 +1254,7 @@
       "id": "health-areas",
       "type": "fill",
       "source": "health-areas-tiles",
-      "source-layer": "GRID3_COD_health_areas_v5_0",
+      "source-layer": "health-areas",
       "minzoom": 8,
       "maxzoom": 16,
       "layout": {
@@ -1199,8 +1270,8 @@
       "id": "health-areas-outline",
       "type": "line",
       "source": "health-areas-tiles",
-      "source-layer": "GRID3_COD_health_areas_v5_0",
-      "minzoom": 12.5,
+      "source-layer": "health-areas",
+      "minzoom": 8,
       "layout": {
       "visibility": "visible"
       },
@@ -1209,34 +1280,27 @@
         "interpolate",
         ["linear"],
         ["zoom"],
-        9, "#FF6A1300",
-        13, "#FF9E1B",
-        15, "#FF8200"
+        9, "#FF6A13",
+        13, "#FF8200",
+        15, "#FF9E1B"
       ],
       "line-width": [
         "interpolate",
         ["linear"],
         ["zoom"],
         8, 0.5,
-        14, 1
+        14, 2
       ],
-      "line-opacity": 1,
-      "line-dasharray": [3, 6],
-      "line-offset": [
-        "interpolate",
-        ["linear"],
-        ["zoom"],
-        8, -0.5,
-        13, -1
-      ]
+      "line-dasharray": [2, 2],
+      "line-opacity": 0.5
       }
     },
     {
       "id": "health-areas-centerline",
       "type": "line",
       "source": "health-areas-tiles",
-      "source-layer": "health_areas",
-      "minzoom": 12.5,
+      "source-layer": "health-areas",
+      "minzoom": 8,
       "layout": {
       "visibility": "visible"
       },
@@ -1246,14 +1310,14 @@
         "interpolate",
         ["linear"],
         ["zoom"],
-        8, 0.25,
-        15, 0.5
+        8, 1,
+        15, 2
       ],
       "line-opacity": [
         "interpolate",
         ["exponential", 1.5],
         ["zoom"],
-        13, 0,
+        8, 0,
         15, 0.85
       ]
       }
@@ -1262,7 +1326,7 @@
       "id": "health-zones",
       "type": "fill",
       "source": "health-zones-tiles",
-      "source-layer": "health_zones",
+      "source-layer": "health-zones",
       "minzoom": 8,
       "maxzoom": 16,
       "layout": {
@@ -1278,8 +1342,8 @@
       "id": "health-zones-outline",
       "type": "line",
       "source": "health-zones-tiles",
-      "source-layer": "health_zones",
-      "minzoom": 10,
+      "source-layer": "health-zones",
+      "minzoom": 6,
       "layout": {
         "visibility": "visible"
       },
@@ -1288,36 +1352,28 @@
           "interpolate",
           ["linear"],
           ["zoom"],
-          10, "#00843D",
+          6, "#00843D",
           13, "#00B74F"
         ],
         "line-width": [
           "interpolate",
           ["linear"],
           ["zoom"],
-          9, 0.25,
-          14, 1.2
+          6, 0.5,
+          14, 3.5
         ],
-        "line-opacity": 1,
-        "line-dasharray": [4, 2],
-              "line-offset": [
-        "interpolate",
-        ["linear"],
-        ["zoom"],
-        8, -0.5,
-        13, -1
-      ]
+        "line-opacity": 1
       }
     },
     {
       "id": "health-zones-labels",
       "type": "symbol",
       "source": "health-zones-tiles",
-      "source-layer": "health_zones",
+      "source-layer": "health-zones",
       "minzoom": 11.25,
       "maxzoom": 14,
       "layout": {
-      "visibility": "visible",
+      "visibility": "none",
       "text-field": ["concat", "ZS ", ["get", "zonesante"]],
       "text-font": ["Metropolis Bold"],
       "text-size": [
@@ -1352,12 +1408,12 @@
     {
       "id": "health-areas-labels",
       "type": "symbol",
-      "source": "health-zones-tiles",
-      "source-layer": "health_areas",
+      "source": "health-areas-tiles",
+      "source-layer": "health-areas",
       "minzoom": 13,
       "maxzoom": 15.5,
       "layout": {
-      "visibility": "visible",
+      "visibility": "none",
       "text-field": ["concat", "AS ", ["get", "airesante"]],
       "text-font": ["Open Sans Semibold"],
       "text-size": [

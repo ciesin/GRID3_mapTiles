@@ -15,20 +15,6 @@ COPY (
     SELECT
         subtype,
         class,
-        geometry -- DuckDB v.1.1.0 will autoload this as a `geometry` type
-    FROM read_parquet('s3://overturemaps-us-west-2/release/' || getvariable('overture_release') || '/theme=base/type=land/*', filename=true, hive_partitioning=1)
-    WHERE
-        bbox.xmin < $extent_xmax AND bbox.xmax > $extent_xmin
-        AND bbox.ymin < $extent_ymax AND bbox.ymax > $extent_ymin
-) TO '{{overture_data_dir}}/land.parquet'
-WITH (FORMAT PARQUET, COMPRESSION 'ZSTD');
-
--- break
-
-COPY (
-    SELECT
-        subtype,
-        class,
         surface,
         geometry -- DuckDB v.1.1.0 will autoload this as a `geometry` type
     FROM read_parquet('s3://overturemaps-us-west-2/release/' || getvariable('overture_release') || '/theme=base/type=land_use/*', filename=true, hive_partitioning=1)

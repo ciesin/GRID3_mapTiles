@@ -10,27 +10,34 @@ Usage:
     
 Note: get_layer_settings() matches on base filename, ignoring extensions.
       So 'buildings.fgb' will match 'buildings.geojsonseq' in LAYER_SETTINGS.
+
+Shared Boundary Handling:
+    Administrative layers (health_areas, health_zones, provinces) use:
+    - --no-polygon-splitting: Keeps polygons intact across tile boundaries
+    - --no-simplification-of-shared-nodes: Ensures shared boundaries are simplified 
+      identically in adjacent features (replaces deprecated --detect-shared-borders)
+    - --coalesce-densest-as-needed: Merges features while maintaining coverage
+    
+    This creates properly nested boundary polygons where adjacent administrative
+    units share exact boundary coordinates, similar to TopoJSON topology.
 """
 
 # Direct mapping of layer files to their tippecanoe settings
 # Extension-agnostic: 'buildings.geojsonseq' will match 'buildings.fgb', 'buildings.geojson', etc.
 LAYER_SETTINGS = {
     # Building footprints - high detail at close zooms
-    'buildings.fgb': [
-        # '--no-polygon-splitting',
-        # '--detect-shared-borders',
-        '--simplification=6',  # Increased from 4 for better tile sizes
-        '--drop-rate=0.2',  # Increased from 0.05 to reduce features
-        '--low-detail=12',
-        # '--full-detail=13',  # Reduced from 15 to cap detail at zoom 14
-        '--coalesce-smallest-as-needed',
-        '--drop-densest-as-needed',
-        '--extend-zooms-if-still-dropping-maximum=15',
-        '--maximum-zoom=14',
-        '--minimum-zoom=12',
-        '--maximum-tile-bytes=2097152', 
-        '--buffer=12'
-    ],
+    # 'buildings.fgb': [
+    #     '--no-polygon-splitting',
+    #     '--detect-shared-borders',
+    #     '--simplification=8',  # Increased from 4 for better tile sizes
+    #     '--drop-rate=0.2',  # Increased from 0.05 to reduce features
+    #     '--coalesce-smallest-as-needed',
+    #     '--drop-densest-as-needed',
+    #     '--extend-zooms-if-still-dropping-maximum=15',
+    #     '--maximum-zoom=15',
+    #     '--minimum-zoom=12',
+    #     '--buffer=12'
+    # ],
 
     # Infrastructure polygons
     'infrastructure.fgb': [
@@ -42,7 +49,7 @@ LAYER_SETTINGS = {
         '--drop-densest-as-needed',
         '--minimum-zoom=9',  # Increased from 8 to reduce lower zoom tiles
         '--maximum-zoom=13',  # Reduced from 15, supersample beyond
-        '--maximum-tile-bytes=2097152' 
+        # '--maximum-tile-bytes=2097152' 
     ],
 
     # Land use polygons 
@@ -59,7 +66,7 @@ LAYER_SETTINGS = {
         '--drop-densest-as-needed',
         '--minimum-zoom=11',
         # '--maximum-zoom=14', 
-        '--maximum-tile-bytes=2097152' 
+        # '--maximum-tile-bytes=2097152' 
     ],
 
     'land_cover.fgb': [
@@ -67,18 +74,18 @@ LAYER_SETTINGS = {
         '--detect-shared-borders',
         '--simplification=4',  # Reduced from 10 for better detail preservation
         '--drop-rate=0.2',  # Reduced from 0.40 to keep more features
-        '--low-detail=11',  # Increased from 8 to preserve detail at lower zooms
-        '--full-detail=14',  # Increased from 12 for better detail at mid-zooms
+        # '--full-detail=14',  # Increased from 12 for better detail at mid-zooms
         '--minimum-detail=11',  # Increased from 10
         # '--no-duplication',
         '--buffer=16',
         '--hilbert',
         '--coalesce-densest-as-needed',
         '--drop-densest-as-needed',
-        '--minimum-zoom=9',
-        '--extend-zooms-if-still-dropping-maximum=12',
+        '--minimum-zoom=7',
+        '--extend-zooms-if-still-dropping-maximum=13',
+        '-zg'
         # '--maximum-zoom=13', 
-        '--maximum-tile-bytes=4194304' 
+        # '--maximum-tile-bytes=4194304' 
     ],
 
     'land_residential.fgb': [
@@ -88,10 +95,10 @@ LAYER_SETTINGS = {
         '--drop-rate=0.2',  # Increased from 0.1
         '--coalesce-densest-as-needed',
         '--drop-densest-as-needed',
-        '--extend-zooms-if-still-dropping-maximum=15',
-        '--minimum-zoom=9',  # Increased from 8
-        '--maximum-zoom=15',  
-        '--maximum-tile-bytes=2097152' 
+        '--extend-zooms-if-still-dropping-maximum=13',
+        '--minimum-zoom=7',  # Increased from 8
+        # '--maximum-zoom=15',  
+        # '--maximum-tile-bytes=2097152' 
     ],
 
     'land.fgb': [
@@ -104,9 +111,9 @@ LAYER_SETTINGS = {
         '--minimum-detail=11',  # Added to ensure minimum detail level
         '--coalesce-densest-as-needed',
         '--drop-densest-as-needed',
-        '--minimum-zoom=9',
+        '--minimum-zoom=7',
         '--maximum-zoom=13',  
-        '--maximum-tile-bytes=2097152' 
+        # '--maximum-tile-bytes=2097152' 
     ],
 
     # Roads - linear features with line-specific optimizations
@@ -117,13 +124,13 @@ LAYER_SETTINGS = {
         # '--drop-smallest',
         '--simplification=5', 
         '--minimum-detail=5',  # Added to ensure minimum detail level
-        '--minimum-zoom=8',
+        '--minimum-zoom=7',
         '--no-simplification-of-shared-nodes',
         '--maximum-zoom=14',
         '--no-clipping',
         '--extend-zooms-if-still-dropping-maximum=14',
         '--coalesce-smallest-as-needed',
-        '--maximum-tile-bytes=4194304',  # Increased limit to 4MB for road density
+        # '--maximum-tile-bytes=4194304',  # Increased limit to 4MB for road density
         '--drop-densest-as-needed',  # Drop densest features when tiles get too large
         '-j', '{"*":["any",[">=","$zoom",11],["!=","class","path"]]}',  # Exclude class=path below zoom 11
     ],
@@ -134,16 +141,16 @@ LAYER_SETTINGS = {
         # '--detect-shared-borders',
         # '--simplification=6', 
         # '--drop-rate=0.15', 
-        '--extend-zooms-if-still-dropping-maximum=13',
+        '--extend-zooms-if-still-dropping-maximum=14',
         # '--no-clipping',
         '--buffer=16',
         '--hilbert',
         '--drop-densest-as-needed',
         '--no-simplification-of-shared-nodes',
         # '--maximum-tile-bytes=4194304',
-        '--minimum-zoom=9',  
+        '--minimum-zoom=7',
         # '--maximum-zoom=13',
-        '-j', '{"*":["all",["any",[">=","$zoom",12],["!=","class","stream"]],["any",[">=","$zoom",10],["==","$type","Polygon"]]]}',  # Exclude streams below x, lines below y
+        '-j', '{"*":["all",["any",[">=","$zoom",12],["!=","class","stream"]],["any",[">=","$zoom",10],["==","$type","Polygon"]]]}',  # Any streams below zoom 12, only polygons below zoom 10
     ],
 
     # Point features - places and placenames
@@ -163,76 +170,86 @@ LAYER_SETTINGS = {
         '--maximum-zoom=16'
     ],
 
-    # GRID3 health areas
-    'GRID3_COD_health_areas_v5_0.geojsonseq': [
-        '--no-polygon-splitting',
-        '--detect-shared-borders',
-        '--simplification=8',
-        '--drop-rate=0.08',
-        '--low-detail=9',
-        '--full-detail=14',
-        '--coalesce-smallest-as-needed',
-        '--extend-zooms-if-still-dropping',
-        '--maximum-zoom=14',
-        '--minimum-zoom=7'
+    # Administrative boundaries - health areas
+    # Nested administrative polygons requiring shared boundary topology
+    'health_areas.fgb': [
+        '--no-polygon-splitting',  # Keep polygons intact across tile boundaries
+        '--no-simplification-of-shared-nodes',  # Preserve shared boundaries identically
+        # '--simplification=3',  # Moderate simplification while preserving topology
+        # '--drop-rate=0.05',  # Minimal dropping to preserve boundary integrity
+        # '--low-detail=9',
+        # '--full-detail=14',
+        '--coalesce-densest-as-needed',  # Merge features when needed, maintaining coverage
+        '--extend-zooms-if-still-dropping-maximum=14',
+        # '--maximum-zoom=14',
+        '--minimum-zoom=7',
+        '--buffer=8'  # Standard buffer for proper rendering
     ],
 
-    # GRID3 health facilities (points)
-    'GRID3_COD_health_facilities_v5_0.geojsonseq': [
-        '--cluster-distance=15',
-        '--drop-rate=0.0',
-        '--no-feature-limit',
-        '--extend-zooms-if-still-dropping',
-        '--maximum-zoom=16',
-        '--minimum-zoom=9'
-    ],
 
-    # GRID3 health zones
-    'GRID3_COD_health_zones_v5_0.geojsonseq': [
-        '--no-polygon-splitting',
-        '--detect-shared-borders',
-        '--simplification=10',
-        '--drop-rate=0.08',
-        '--low-detail=8',
-        '--full-detail=13',
-        '--coalesce-smallest-as-needed',
-        '--extend-zooms-if-still-dropping',
-        '--maximum-zoom=13',
-        '--minimum-zoom=6'
-    ],
 
-    # GRID3 settlement extents
-    'GRID3_COD_Settlement_Extents_v3_1.geojsonseq': [
-        '--no-polygon-splitting',
-        '--detect-shared-borders',
-        '--simplification=10',
-        '--drop-rate=0.25',
-        '--low-detail=11',
-        '--full-detail=14',
-        '--coalesce-smallest-as-needed',
-        '--gamma=0.8',
-        '--maximum-zoom=13',
+    # Administrative boundaries - health zones
+    # Higher-level nested administrative polygons
+    'health_zones.fgb': [
+        '--no-polygon-splitting',  # Keep polygons intact across tile boundaries
+        '--no-simplification-of-shared-nodes',  # Preserve shared boundaries identically
+        # '--simplification=3',  # Higher simplification acceptable at this admin level
+        # '--drop-rate=0.05',  # Minimal dropping to preserve boundary integrity
+        # '--low-detail=8',
+        # '--full-detail=13',
+        '--coalesce-densest-as-needed',  # Merge features when needed, maintaining coverage
+        '--extend-zooms-if-still-dropping-maximum=14',
+        # '--maximum-zoom=13',
         '--minimum-zoom=6',
-        '--cluster-distance=2',
-        '--minimum-detail=8'
+        '--buffer=8'
     ],
 
-    # GRID3 settlement names (points)
-    'GRID3_COD_settlement_names_v5_0.geojsonseq': [
-        '--cluster-distance=8',
-        '--drop-rate=0.0',
-        '--no-feature-limit',
+    # Settlement extents - very numerous small polygons
+    # Heavily optimized for lower zoom levels due to high feature count
+    # Filtered by type: Built-up Area (z10+), Small Settlement Area (z11+), Hamlet (z12+)
+    'settlement_extents.fgb': [
+        '--no-polygon-splitting',
+        '--no-simplification-of-shared-nodes',
+        '--simplification=10',  # Higher simplification for many small features
+        # '--drop-rate=0.4',  # Aggressive dropping at low zooms due to high count
+        # '--low-detail=10',  # Start showing detail at min zoom
+        # '--full-detail=14',
+        # '--minimum-detail=8',
+        '--coalesce-smallest-as-needed',  # Merge smallest settlements at low zooms
+        '--drop-smallest-as-needed',  # Drop smallest when tiles too large
+        '--gamma=1.2',  # Reduce density of clustered settlements
+        '--extend-zooms-if-still-dropping-maximum=14',
+        # '--maximum-zoom=14',
+        # '--minimum-zoom=8',  
+        # '--maximum-tile-bytes=2097152',
+        '--buffer=8',
+        # Filter by settlement type and zoom level
+        # '-j', '{"*":["any",["all",[">=","$zoom",8],["all",["!=","type","Hamlet"],["!=","type","Small settlement area"]]],["all",[">=","$zoom",9],["==","type","Small settlement area"]],["all",[">=","$zoom",12],["==","type","Hamlet"]]]}'
+        ],
+
+    # Administrative boundaries - provinces (top-level admin units)
+    # Large-scale administrative boundaries with strict topology preservation
+    'provinces.fgb': [
+        '--no-polygon-splitting',  # Essential for continuous coverage
+        '--no-simplification-of-shared-nodes',  # Preserve provincial boundaries exactly
+        '--simplification=10',  # Higher simplification for large-scale features
+        '--drop-rate=0.0',  # Never drop provincial boundaries
+        '--low-detail=6',
+        '--full-detail=12',
+        '--coalesce-densest-as-needed',  # Maintain full coverage
         '--extend-zooms-if-still-dropping',
-        '--maximum-zoom=16',
-        '--minimum-zoom=7'
-    ]
+        '--maximum-zoom=12',
+        '--minimum-zoom=3',  # Visible from very low zoom levels
+        '--buffer=8'
+    ],
+    
 }
 
 # Base tippecanoe command flags that apply to all layers
 BASE_COMMAND = [
     '--buffer=8',
     '--drop-smallest',
-    '--maximum-tile-bytes=2097152',  # default for all layers
+    # '--maximum-tile-bytes=2097152',  # default for all layers
     '--preserve-input-order',
     '--coalesce-densest-as-needed',
     '--drop-fraction-as-needed',

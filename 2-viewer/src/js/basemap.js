@@ -31,22 +31,20 @@ class OvertureMap {
     constructor(containerId, options = {}) {
         this.containerId = containerId;
         this.options = {
-            // Default fallback bounds (DRC area) - will be replaced by PMTiles bounds
-            bounds: [
-                [22.0, -6.0], // Southwest coordinates [lng, lat]
-                [24.0, -4.0]  // Northeast coordinates [lng, lat]
-            ],
-            // center: [-74.986763650502, 44.66997929549087],
-            center: [29.364553210135895, -3.3701086791652917],
-            zoom: 12,
-            minZoom: 9,
+            // Bounds and center will be auto-detected from tilejson.json
+            bounds: null,
+            center: null,
+            zoom: 8,
+            minZoom: 7,
             maxZoom: 15.5,
             showTileBoundaries: false,
             clampToBounds: false,
             useVectorTiles: false, // Set to true to use traditional vector tiles instead of PMTiles
-            useCustomCenter: true, // If true, use custom center. If false, auto-center to PMTiles extent
             ...options
         };
+        
+        // Store tile metadata
+        this.tileMetadata = null;
         
         this.map = null;
         this.protocol = null;
@@ -77,6 +75,7 @@ class OvertureMap {
             'hills': 35,
 
             // Water features (40-49)
+            'water-lines-casing': 38,   // linear feature bg
             'water-lines': 39,           // Rivers, streams, canals
             'water-polygons': 40,        // Water body fills
             'water-polygon-outlines': 41, // Water body outlines
@@ -139,6 +138,9 @@ class OvertureMap {
             await tileConfig.selectBestEndpoint();
             console.log('Tile configuration:', tileConfig.getInfo());
             
+            // Load tile metadata from tilejson
+            await this.loadTileMetadata();
+            
             // Load the style configuration
             const style = await this.loadStyle();
             this.createMap(style);
@@ -149,6 +151,83 @@ class OvertureMap {
             // Show user-friendly error message
             const mapContainer = document.getElementById(this.containerId);
             mapContainer.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; font-family: sans-serif; color: #e74c3c; text-align: center; padding: 20px;"><div><h3>Map Loading Error</h3><p>Unable to load map tiles. This may be due to hosting limitations.<br>Please try refreshing the page or contact the administrator.</p></div></div>';
+        }
+    }
+    
+    /**
+     * Load and parse tilejson.json to extract bounds and other metadata
+     */
+    async loadTileMetadata() {
+        try {
+            // Try to get tilejson from the configured tile endpoint
+            let tilejsonUrl;
+            
+            if (tileConfig.currentEndpoint === 'caddy') {
+                // Use Caddy server endpoint
+                tilejsonUrl = `${tileConfig.endpoints.caddy.pmtiles}/tilejson.json`;
+                console.log('Using Caddy server for tilejson:', tilejsonUrl);
+            } else {
+                // Use GitHub Pages or local fallback
+                const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                const isGitHubPages = window.location.hostname.includes('github.io');
+                const repoName = isGitHubPages ? window.location.pathname.split('/')[1] : '';
+                const basePath = isGitHubPages ? `/${repoName}` : '';
+                const tileDir = isLocalhost ? './tiles' : `${basePath}/tiles`;
+                tilejsonUrl = `${tileDir}/tilejson.json`;
+                console.log("Using GitHub Pages/local for tilejson:", tilejsonUrl);
+            }
+            
+            console.log('Loading tile metadata from:', tilejsonUrl);
+            
+            const response = await fetch(tilejsonUrl);
+            if (!response.ok) {
+                throw new Error(`Failed to load tilejson: ${response.statusText}`);
+            }
+            
+            this.tileMetadata = await response.json();
+            console.log('Tile metadata loaded:', this.tileMetadata);
+            
+            // Extract bounds from tilejson
+            if (this.tileMetadata.bounds && this.tileMetadata.bounds.length === 4) {
+                const [west, south, east, north] = this.tileMetadata.bounds;
+                this.options.bounds = [
+                    [west, south],  // Southwest coordinates
+                    [east, north]   // Northeast coordinates
+                ];
+                
+                // Calculate center from bounds
+                this.options.center = [
+                    (west + east) / 2,
+                    (south + north) / 2
+                ];
+                
+                console.log('Bounds set from tilejson:', this.options.bounds);
+                console.log('Center calculated:', this.options.center);
+            }
+            
+            // Only update zoom levels from tilejson if not explicitly set in options
+            // Check if values are still defaults (not overridden by user)
+            const defaultMinZoom = 7;
+            const defaultMaxZoom = 15.5;
+            
+            if (this.tileMetadata.minzoom !== undefined && this.options.minZoom === defaultMinZoom) {
+                this.options.minZoom = this.tileMetadata.minzoom;
+                console.log('MinZoom set from tilejson:', this.options.minZoom);
+            }
+            if (this.tileMetadata.maxzoom !== undefined && this.options.maxZoom === defaultMaxZoom) {
+                this.options.maxZoom = this.tileMetadata.maxzoom;
+                console.log('MaxZoom set from tilejson:', this.options.maxZoom);
+            }
+            
+        } catch (error) {
+            console.error('Error loading tile metadata:', error);
+            console.warn('Using default bounds and center');
+            // Set fallback bounds and center
+            this.options.bounds = [
+                [20.5, -7.5],  // Southwest
+                [23.5, -4.0]   // Northeast
+            ];
+            this.options.center = [22.0, -5.75];
         }
     }
     
@@ -224,6 +303,9 @@ class OvertureMap {
                 
                 console.log(`${sourceId}: ${source.url} → ${newUrl}`);
                 source.url = newUrl;
+                
+                // Mark as optional to suppress errors for missing tiles
+                source.optional = true;
             }
         }
     }
@@ -334,16 +416,9 @@ class OvertureMap {
         this.map = new maplibregl.Map({
             container: this.containerId,
             style: style,
-            // Use custom center if enabled, otherwise we'll set it after tiles load
-            ...(this.options.useCustomCenter ? {
-                center: this.options.center,
-                zoom: this.options.zoom
-            } : {
-                bounds: this.options.bounds,
-                fitBoundsOptions: {
-                    padding: 20
-                }
-            }),
+            // Initialize with center and zoom from options
+            center: this.options.center,
+            zoom: this.options.zoom,
             minZoom: this.options.minZoom,
             maxZoom: this.options.maxZoom,
             
@@ -415,12 +490,6 @@ class OvertureMap {
             // debugging
             // this.printLayerOrder();
             
-            
-            // Auto-center to bounds if useCustomCenter is false
-            if (!this.options.useCustomCenter) {
-                this.map.fitBounds(this.options.bounds, { padding: 20 });
-            }
-            
             // Update camera bounds if clampToBounds is enabled
             if (this.options.clampToBounds) {
                 console.log('Camera bounds set to:', this.options.bounds);
@@ -447,6 +516,12 @@ class OvertureMap {
             const errorMsg = e.error.message;
             const sourceId = e.sourceId || 'unknown source';
             const tileUrl = e.tile || 'unknown tile';
+            
+            // Suppress errors for placeholder/optional sources
+            const source = sourceId ? this.map.getSource(sourceId) : null;
+            if (source && source._options?.optional) {
+                return; // Silently ignore errors for optional sources
+            }
             
             if (errorMsg.includes('content-length') || errorMsg.includes('Byte Serving')) {
                 console.error(`PMTiles byte-serving error detected for source: ${sourceId}, tile: ${tileUrl}`);

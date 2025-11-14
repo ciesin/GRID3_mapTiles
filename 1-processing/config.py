@@ -89,14 +89,15 @@ DEFAULT_CONFIG = {
         "tippecanoe_template": TIPPECANOE_TEMPLATE,
     },
     "extent": {
-        # Default extent - Brooklyn, Prospect Park area
+        # Read from environment variables (.env file)
+        # Falls back to Brooklyn example if not set
         "coordinates": (
-            -73.98257744202017,  # lon_min
-            40.64773925613089,   # lat_min
-            -73.9562859766083,   # lon_max
-            40.67679734614368    # lat_max
+            float(os.environ.get('EXTENT_WEST', '-73.98257744202017')),  # lon_min (west)
+            float(os.environ.get('EXTENT_SOUTH', '40.64773925613089')),   # lat_min (south)
+            float(os.environ.get('EXTENT_EAST', '-73.9562859766083')),   # lon_max (east)
+            float(os.environ.get('EXTENT_NORTH', '40.67679734614368'))    # lat_max (north)
         ),
-        "buffer_degrees": 0.0
+        "buffer_degrees": float(os.environ.get('EXTENT_BUFFER', '0.0'))
     },
     "download": {
         "verbose": True,
