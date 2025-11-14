@@ -1305,7 +1305,7 @@
       "visibility": "visible"
       },
       "paint": {
-      "line-color": "#BBBCBC",
+      "line-color": "#ffff",
       "line-width": [
         "interpolate",
         ["linear"],

@@ -47,8 +47,8 @@ LAYER_SETTINGS = {
         '--drop-rate=0.2',  # Increased from 0.1
         '--coalesce-densest-as-needed',
         '--drop-densest-as-needed',
-        '--minimum-zoom=9',  # Increased from 8 to reduce lower zoom tiles
-        '--maximum-zoom=13',  # Reduced from 15, supersample beyond
+        # '--minimum-zoom=9',  # Increased from 8 to reduce lower zoom tiles
+        # '--maximum-zoom=13',  # Reduced from 15, supersample beyond
         # '--maximum-tile-bytes=2097152' 
     ],
 
@@ -64,7 +64,7 @@ LAYER_SETTINGS = {
         '--extend-zooms-if-still-dropping-maximum=14',
         '--coalesce-densest-as-needed',
         '--drop-densest-as-needed',
-        '--minimum-zoom=11',
+        # '--minimum-zoom=11',
         # '--maximum-zoom=14', 
         # '--maximum-tile-bytes=2097152' 
     ],
@@ -81,9 +81,8 @@ LAYER_SETTINGS = {
         '--hilbert',
         '--coalesce-densest-as-needed',
         '--drop-densest-as-needed',
-        '--minimum-zoom=7',
+        # '--minimum-zoom=7',
         '--extend-zooms-if-still-dropping-maximum=13',
-        '-zg'
         # '--maximum-zoom=13', 
         # '--maximum-tile-bytes=4194304' 
     ],
@@ -96,7 +95,7 @@ LAYER_SETTINGS = {
         '--coalesce-densest-as-needed',
         '--drop-densest-as-needed',
         '--extend-zooms-if-still-dropping-maximum=13',
-        '--minimum-zoom=7',  # Increased from 8
+        # '--minimum-zoom=7',  # Increased from 8
         # '--maximum-zoom=15',  
         # '--maximum-tile-bytes=2097152' 
     ],
@@ -111,8 +110,8 @@ LAYER_SETTINGS = {
         '--minimum-detail=11',  # Added to ensure minimum detail level
         '--coalesce-densest-as-needed',
         '--drop-densest-as-needed',
-        '--minimum-zoom=7',
-        '--maximum-zoom=13',  
+        # '--minimum-zoom=7',
+        # '--maximum-zoom=13',  
         # '--maximum-tile-bytes=2097152' 
     ],
 
@@ -124,9 +123,9 @@ LAYER_SETTINGS = {
         # '--drop-smallest',
         '--simplification=5', 
         '--minimum-detail=5',  # Added to ensure minimum detail level
-        '--minimum-zoom=7',
+        # '--minimum-zoom=7',
         '--no-simplification-of-shared-nodes',
-        '--maximum-zoom=14',
+        # '--maximum-zoom=14',
         '--no-clipping',
         '--extend-zooms-if-still-dropping-maximum=14',
         '--coalesce-smallest-as-needed',
@@ -148,7 +147,7 @@ LAYER_SETTINGS = {
         '--drop-densest-as-needed',
         '--no-simplification-of-shared-nodes',
         # '--maximum-tile-bytes=4194304',
-        '--minimum-zoom=7',
+        # '--minimum-zoom=7',
         # '--maximum-zoom=13',
         '-j', '{"*":["all",["any",[">=","$zoom",12],["!=","class","stream"]],["any",[">=","$zoom",10],["==","$type","Polygon"]]]}',  # Any streams below zoom 12, only polygons below zoom 10
     ],
@@ -159,7 +158,7 @@ LAYER_SETTINGS = {
         '--drop-rate=0.0',
         '--no-feature-limit',
         '--extend-zooms-if-still-dropping',
-        '--maximum-zoom=16'
+        # '--maximum-zoom=16'
     ],
 
     'placenames.geojson': [
@@ -167,7 +166,7 @@ LAYER_SETTINGS = {
         '--drop-rate=0.0',
         '--no-feature-limit',
         '--extend-zooms-if-still-dropping',
-        '--maximum-zoom=16'
+        # '--maximum-zoom=16'
     ],
 
     # Administrative boundaries - health areas
@@ -182,7 +181,7 @@ LAYER_SETTINGS = {
         '--coalesce-densest-as-needed',  # Merge features when needed, maintaining coverage
         '--extend-zooms-if-still-dropping-maximum=14',
         # '--maximum-zoom=14',
-        '--minimum-zoom=7',
+        # '--minimum-zoom=7',
         '--buffer=8'  # Standard buffer for proper rendering
     ],
 
@@ -200,7 +199,7 @@ LAYER_SETTINGS = {
         '--coalesce-densest-as-needed',  # Merge features when needed, maintaining coverage
         '--extend-zooms-if-still-dropping-maximum=14',
         # '--maximum-zoom=13',
-        '--minimum-zoom=6',
+        # '--minimum-zoom=6',
         '--buffer=8'
     ],
 
@@ -210,11 +209,11 @@ LAYER_SETTINGS = {
     'settlement_extents.fgb': [
         '--no-polygon-splitting',
         '--no-simplification-of-shared-nodes',
-        '--simplification=10',  # Higher simplification for many small features
+        '--simplification=8',  # Higher simplification for many small features
         # '--drop-rate=0.4',  # Aggressive dropping at low zooms due to high count
         # '--low-detail=10',  # Start showing detail at min zoom
         # '--full-detail=14',
-        # '--minimum-detail=8',
+        '--minimum-detail=8',
         '--coalesce-smallest-as-needed',  # Merge smallest settlements at low zooms
         '--drop-smallest-as-needed',  # Drop smallest when tiles too large
         '--gamma=1.2',  # Reduce density of clustered settlements
@@ -222,9 +221,9 @@ LAYER_SETTINGS = {
         # '--maximum-zoom=14',
         # '--minimum-zoom=8',  
         # '--maximum-tile-bytes=2097152',
-        '--buffer=8',
+        '--buffer=12',
         # Filter by settlement type and zoom level
-        # '-j', '{"*":["any",["all",[">=","$zoom",8],["all",["!=","type","Hamlet"],["!=","type","Small settlement area"]]],["all",[">=","$zoom",9],["==","type","Small settlement area"]],["all",[">=","$zoom",12],["==","type","Hamlet"]]]}'
+        '-j', '{"*":["any",["all",[">=","$zoom",8],["all",["!=","type","Hamlet"],["!=","type","Small settlement area"]]],["all",[">=","$zoom",9],["==","type","Small settlement area"]],["all",[">=","$zoom",12],["==","type","Hamlet"]]]}'
         ],
 
     # Administrative boundaries - provinces (top-level admin units)
@@ -238,8 +237,8 @@ LAYER_SETTINGS = {
         '--full-detail=12',
         '--coalesce-densest-as-needed',  # Maintain full coverage
         '--extend-zooms-if-still-dropping',
-        '--maximum-zoom=12',
-        '--minimum-zoom=3',  # Visible from very low zoom levels
+        # '--maximum-zoom=12',
+        # '--minimum-zoom=3',  # Visible from very low zoom levels
         '--buffer=8'
     ],
     
@@ -248,6 +247,8 @@ LAYER_SETTINGS = {
 # Base tippecanoe command flags that apply to all layers
 BASE_COMMAND = [
     '--buffer=8',
+    '-zg',
+    '-Bg',
     '--drop-smallest',
     # '--maximum-tile-bytes=2097152',  # default for all layers
     '--preserve-input-order',

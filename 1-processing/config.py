@@ -72,6 +72,33 @@ TIPPECANOE_TEMPLATE = SCRIPTS_DIR / "tippecanoe.template"
 
 
 # Default processing configuration
+def _get_env_required(name):
+    val = os.environ.get(name)
+    if val is None:
+        raise RuntimeError(
+            "Required environment variable(s) not set. "
+            "Please set EXTENT_WEST, EXTENT_SOUTH, EXTENT_EAST, EXTENT_NORTH in your .env or environment."
+        )
+    try:
+        return float(val)
+    except ValueError:
+        raise RuntimeError(f"Environment variable '{name}' must be a valid number, got: {val!r}")
+
+# Read required extent values (error out if any are missing or invalid)
+_west = _get_env_required("EXTENT_WEST")
+_south = _get_env_required("EXTENT_SOUTH")
+_east = _get_env_required("EXTENT_EAST")
+_north = _get_env_required("EXTENT_NORTH")
+
+# Basic sanity checks
+if not (_west < _east and _south < _north):
+    raise RuntimeError(
+        "Invalid extent coordinates: ensure EXTENT_WEST < EXTENT_EAST and EXTENT_SOUTH < EXTENT_NORTH."
+    )
+
+# Optional buffer (defaults to 0.0 if not set)
+_buffer_degrees = float(os.environ.get("EXTENT_BUFFER", "0.0"))
+
 DEFAULT_CONFIG = {
     "paths": {
         "project_root": PROJECT_ROOT,
@@ -89,15 +116,9 @@ DEFAULT_CONFIG = {
         "tippecanoe_template": TIPPECANOE_TEMPLATE,
     },
     "extent": {
-        # Read from environment variables (.env file)
-        # Falls back to Brooklyn example if not set
-        "coordinates": (
-            float(os.environ.get('EXTENT_WEST', '-73.98257744202017')),  # lon_min (west)
-            float(os.environ.get('EXTENT_SOUTH', '40.64773925613089')),   # lat_min (south)
-            float(os.environ.get('EXTENT_EAST', '-73.9562859766083')),   # lon_max (east)
-            float(os.environ.get('EXTENT_NORTH', '40.67679734614368'))    # lat_max (north)
-        ),
-        "buffer_degrees": float(os.environ.get('EXTENT_BUFFER', '0.0'))
+        # Now required: will raise if not provided
+        "coordinates": (_west, _south, _east, _north),
+        "buffer_degrees": _buffer_degrees
     },
     "download": {
         "verbose": True,
