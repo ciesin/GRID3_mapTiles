@@ -107,7 +107,7 @@ class OvertureMap {
             'health-zones': 86,        // Health administrative zones (fill)
             'health-zones-outline': 85, // Health zones outline
             'health-areas-outline': 87, // Health areas outline
-            'health-areas-centerline': 86,
+            'health-areas-centerline': 84,
 
             // Points of interest (90-99)
             'places': 90,              // Place points/circles
@@ -845,9 +845,7 @@ class OvertureMap {
                 ["linear"],
                 ["zoom"],
                 0, 1,
-                8, 0.5,
-                11, 0.25,
-                16, 0.15
+                14, 0.15
             ],
             "hillshade-shadow-color": [
                 "interpolate",

@@ -1,0 +1,23 @@
+{
+  "wetland": {
+    "width": 32,
+    "height": 32,
+    "x": 0,
+    "y": 0,
+    "pixelRatio": 2
+  },
+  "swamp": {
+    "width": 32,
+    "height": 32,
+    "x": 64,
+    "y": 0,
+    "pixelRatio": 2
+  },
+  "marsh": {
+    "width": 32,
+    "height": 32,
+    "x": 128,
+    "y": 0,
+    "pixelRatio": 2
+  }
+}

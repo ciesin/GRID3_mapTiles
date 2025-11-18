@@ -58,15 +58,12 @@ LAYER_SETTINGS = {
         '--detect-shared-borders',
         '--simplification=4',  # Reduced from 10 for better detail preservation
         '--drop-rate=0.15',  # Reduced from 0.40 to keep more features
-        '--low-detail=11',  # Increased from 8 to preserve detail at lower zooms
+        '--low-detail=10',  # Increased from 8 to preserve detail at lower zooms
         '--full-detail=13',  # Increased from 12 for better detail at mid-zooms
-        '--minimum-detail=11',  # Increased from 10
+        '--minimum-detail=10',  # Increased from 10
         '--extend-zooms-if-still-dropping-maximum=14',
         '--coalesce-densest-as-needed',
         '--drop-densest-as-needed',
-        # '--minimum-zoom=11',
-        # '--maximum-zoom=14', 
-        # '--maximum-tile-bytes=2097152' 
     ],
 
     'land_cover.fgb': [
@@ -77,14 +74,11 @@ LAYER_SETTINGS = {
         # '--full-detail=14',  # Increased from 12 for better detail at mid-zooms
         '--minimum-detail=11',  # Increased from 10
         # '--no-duplication',
-        '--buffer=16',
+        '--buffer=0',
         '--hilbert',
         '--coalesce-densest-as-needed',
         '--drop-densest-as-needed',
-        # '--minimum-zoom=7',
         '--extend-zooms-if-still-dropping-maximum=13',
-        # '--maximum-zoom=13', 
-        # '--maximum-tile-bytes=4194304' 
     ],
 
     'land_residential.fgb': [
@@ -104,15 +98,12 @@ LAYER_SETTINGS = {
         '--no-polygon-splitting',
         '--detect-shared-borders',
         '--simplification=4',  # Reduced from 10 for better detail preservation
-        '--drop-rate=0.1',  # Reduced from 0.2 to keep more features
+        '--drop-rate=0.2',
         '--low-detail=9',  # Added to preserve detail at lower zooms
         '--full-detail=13',  # Added for better detail at mid-zooms
         '--minimum-detail=11',  # Added to ensure minimum detail level
         '--coalesce-densest-as-needed',
         '--drop-densest-as-needed',
-        # '--minimum-zoom=7',
-        # '--maximum-zoom=13',  
-        # '--maximum-tile-bytes=2097152' 
     ],
 
     # Roads - linear features with line-specific optimizations
@@ -121,26 +112,24 @@ LAYER_SETTINGS = {
         '--buffer=16',
         # '--drop-rate=0.15',
         # '--drop-smallest',
-        '--simplification=5', 
-        '--minimum-detail=5',  # Added to ensure minimum detail level
-        # '--minimum-zoom=7',
+        '--simplification=1', 
+        # '--minimum-detail=5',  # Added to ensure minimum detail level
         '--no-simplification-of-shared-nodes',
-        # '--maximum-zoom=14',
         '--no-clipping',
-        '--extend-zooms-if-still-dropping-maximum=14',
+        '--extend-zooms-if-still-dropping-maximum=15',
         '--coalesce-smallest-as-needed',
         # '--maximum-tile-bytes=4194304',  # Increased limit to 4MB for road density
-        '--drop-densest-as-needed',  # Drop densest features when tiles get too large
+        # '--drop-densest-as-needed',  # Drop densest features when tiles get too large
         '-j', '{"*":["any",[">=","$zoom",11],["!=","class","path"]]}',  # Exclude class=path below zoom 11
     ],
 
     # Water polygons - enhanced detail at zoom 13+
     'water.fgb': [
-        # '--no-polygon-splitting',
-        # '--detect-shared-borders',
-        # '--simplification=6', 
+        '--no-polygon-splitting',
+        '--detect-shared-borders',
+        '--simplification=1', 
         # '--drop-rate=0.15', 
-        '--extend-zooms-if-still-dropping-maximum=14',
+        '--extend-zooms-if-still-dropping-maximum=15',
         # '--no-clipping',
         '--buffer=16',
         '--hilbert',
@@ -149,39 +138,37 @@ LAYER_SETTINGS = {
         # '--maximum-tile-bytes=4194304',
         # '--minimum-zoom=7',
         # '--maximum-zoom=13',
-        '-j', '{"*":["all",["any",[">=","$zoom",12],["!=","class","stream"]],["any",[">=","$zoom",10],["==","$type","Polygon"]]]}',  # Any streams below zoom 12, only polygons below zoom 10
+        # '-j', '{"*":["all",["any",[">=","$zoom",12],["!=","class","stream"]],["any",[">=","$zoom",10],["==","$type","Polygon"]]]}',  # Any streams below zoom 12, only polygons below zoom 10
     ],
 
-    # Point features - places and placenames
-    'places.geojson': [
-        '--cluster-distance=10',
-        '--drop-rate=0.0',
-        '--no-feature-limit',
-        '--extend-zooms-if-still-dropping',
-        # '--maximum-zoom=16'
-    ],
+    # # Point features - places and placenames
+    # 'places.geojson': [
+    #     '--cluster-distance=10',
+    #     '--drop-rate=0.0',
+    #     '--no-feature-limit',
+    #     '--extend-zooms-if-still-dropping',
+    #     # '--maximum-zoom=16'
+    # ],
 
-    'placenames.geojson': [
-        '--cluster-distance=10',
-        '--drop-rate=0.0',
-        '--no-feature-limit',
-        '--extend-zooms-if-still-dropping',
-        # '--maximum-zoom=16'
-    ],
+    # 'placenames.geojson': [
+    #     '--cluster-distance=10',
+    #     '--drop-rate=0.0',
+    #     '--no-feature-limit',
+    #     '--extend-zooms-if-still-dropping',
+    #     # '--maximum-zoom=16'
+    # ],
 
     # Administrative boundaries - health areas
     # Nested administrative polygons requiring shared boundary topology
     'health_areas.fgb': [
         '--no-polygon-splitting',  # Keep polygons intact across tile boundaries
         '--no-simplification-of-shared-nodes',  # Preserve shared boundaries identically
-        # '--simplification=3',  # Moderate simplification while preserving topology
-        # '--drop-rate=0.05',  # Minimal dropping to preserve boundary integrity
-        # '--low-detail=9',
-        # '--full-detail=14',
+        '--simplification=1',
+        '--low-detail=8',
+        '--full-detail=12',
         '--coalesce-densest-as-needed',  # Merge features when needed, maintaining coverage
-        '--extend-zooms-if-still-dropping-maximum=14',
-        # '--maximum-zoom=14',
-        # '--minimum-zoom=7',
+        '--extend-zooms-if-still-dropping-maximum=16',
+        '--no-tiny-polygon-reduction',
         '--buffer=8'  # Standard buffer for proper rendering
     ],
 
@@ -192,16 +179,50 @@ LAYER_SETTINGS = {
     'health_zones.fgb': [
         '--no-polygon-splitting',  # Keep polygons intact across tile boundaries
         '--no-simplification-of-shared-nodes',  # Preserve shared boundaries identically
-        # '--simplification=3',  # Higher simplification acceptable at this admin level
-        # '--drop-rate=0.05',  # Minimal dropping to preserve boundary integrity
-        # '--low-detail=8',
-        # '--full-detail=13',
+        '--simplification=1', 
+        '--low-detail=8',
+        '--full-detail=12',
         '--coalesce-densest-as-needed',  # Merge features when needed, maintaining coverage
-        '--extend-zooms-if-still-dropping-maximum=14',
-        # '--maximum-zoom=13',
-        # '--minimum-zoom=6',
+        '--extend-zooms-if-still-dropping-maximum=16',
+        '--no-tiny-polygon-reduction',
         '--buffer=8'
     ],
+
+    # Health zone centroids - point labels for interior placement
+    # One point per health zone, guaranteed inside polygon
+    'health_zones_centroids.fgb': [
+        '--drop-rate=0.0',  # Never drop - one label per zone
+        '--minimum-zoom=5',  # Start 2 levels earlier than areas (matches interior label config)
+        '--maximum-zoom=16',
+        '--no-feature-limit',  # Ensure all centroid points are included
+        '--no-tile-size-limit',  # Small point layer, allow all features
+        '--buffer=64'  # Large buffer to prevent label clipping at tile edges
+    ],
+
+    # Health area centroids - point labels for interior placement  
+    # One point per health area, guaranteed inside polygon
+    'health_areas_centroids.fgb': [
+        '--drop-rate=0.0',  # Never drop - one label per area
+        '--minimum-zoom=7',  # Start at overview level (matches interior label config)
+        '--maximum-zoom=16',
+        '--no-feature-limit',  # Ensure all centroid points are included
+        '--no-tile-size-limit',  # Small point layer, allow all features
+        '--buffer=64'  # Large buffer to prevent label clipping at tile edges
+    ],
+
+    # Water centerlines - linear features for labeling elongated water bodies
+    # Medial axis lines through lakes, reservoirs, and other polygonal water features
+    # Label-only layer: simplification is acceptable for text placement
+    # 'water_centerlines.fgb': [
+    #     '--simplification=4',  # Simplify geometry - labels don't need precise curves
+    #     '--drop-rate=0.1',  # Drop smaller features at lower zooms
+    #     '--minimum-zoom=10',  # Start showing centerline labels at mid-zoom
+    #     '--maximum-zoom=16',
+    #     # '--buffer=64',  # Large buffer to prevent label clipping
+    #     '--drop-smallest-as-needed',  # Drop smallest water bodies when tiles too large
+    #     '--coalesce-smallest-as-needed',  # Merge small nearby features
+    #     '--extend-zooms-if-still-dropping-maximum=14'  # Ensure features appear eventually
+    # ],
 
     # Settlement extents - very numerous small polygons
     # Heavily optimized for lower zoom levels due to high feature count
@@ -209,21 +230,14 @@ LAYER_SETTINGS = {
     'settlement_extents.fgb': [
         '--no-polygon-splitting',
         '--no-simplification-of-shared-nodes',
-        '--simplification=8',  # Higher simplification for many small features
-        # '--drop-rate=0.4',  # Aggressive dropping at low zooms due to high count
-        # '--low-detail=10',  # Start showing detail at min zoom
-        # '--full-detail=14',
+        '--simplification=5',  # Higher simplification for many small features
+        '--drop-rate=0.2', 
         '--minimum-detail=8',
         '--coalesce-smallest-as-needed',  # Merge smallest settlements at low zooms
         '--drop-smallest-as-needed',  # Drop smallest when tiles too large
-        '--gamma=1.2',  # Reduce density of clustered settlements
+        '--gamma=1.4',  # Reduce density of clustered settlements
         '--extend-zooms-if-still-dropping-maximum=14',
-        # '--maximum-zoom=14',
-        # '--minimum-zoom=8',  
-        # '--maximum-tile-bytes=2097152',
         '--buffer=12',
-        # Filter by settlement type and zoom level
-        '-j', '{"*":["any",["all",[">=","$zoom",8],["all",["!=","type","Hamlet"],["!=","type","Small settlement area"]]],["all",[">=","$zoom",9],["==","type","Small settlement area"]],["all",[">=","$zoom",12],["==","type","Hamlet"]]]}'
         ],
 
     # Administrative boundaries - provinces (top-level admin units)
