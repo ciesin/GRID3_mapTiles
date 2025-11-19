@@ -460,8 +460,22 @@ class OvertureMap {
      */
     setupEventHandlers() {
         // Map load event
-        this.map.on('load', () => {
+        this.map.on('load', async () => {
             console.log('Map loaded successfully!');
+            
+            // Load and add pattern images
+            try {
+                const specklesImage = await this.map.loadImage('/sprites/processing/speckles-1.png');
+                this.map.addImage('speckles-1', specklesImage.data);
+                console.log('Pattern image loaded: speckles-1');
+                
+                // Apply pattern to water polygons after image is loaded
+                this.map.setPaintProperty('water-polygons', 'fill-pattern', 'speckles-1');
+                console.log('Applied speckles-1 pattern to water-polygons layer');
+            } catch (error) {
+                console.error('Failed to load pattern image:', error);
+            }
+            
             // console.log('Available sources:', Object.keys(this.map.getStyle().sources));
             
             // Check if layers exist and are visible
@@ -844,7 +858,7 @@ class OvertureMap {
                 "interpolate",
                 ["linear"],
                 ["zoom"],
-                0, 1,
+                6, 0.5,
                 14, 0.15
             ],
             "hillshade-shadow-color": [
@@ -879,7 +893,7 @@ class OvertureMap {
                 "interpolate",
                 ["linear"],
                 ["zoom"],
-                8.5, [
+                8, [
                 "case",
                 ["==", ["get", "level"], 1], 0.15,  // Major contours
                 0.07                                 // Minor contours
@@ -900,7 +914,7 @@ class OvertureMap {
                 "interpolate",
                 ["exponential", 1.5],
                 ["zoom"],
-                11, 0.25,
+                10, 0.25,
                 13, 1
             ]
             },

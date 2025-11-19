@@ -26,18 +26,17 @@ Shared Boundary Handling:
 # Extension-agnostic: 'buildings.geojsonseq' will match 'buildings.fgb', 'buildings.geojson', etc.
 LAYER_SETTINGS = {
     # Building footprints - high detail at close zooms
-    # 'buildings.fgb': [
-    #     '--no-polygon-splitting',
-    #     '--detect-shared-borders',
-    #     '--simplification=8',  # Increased from 4 for better tile sizes
-    #     '--drop-rate=0.2',  # Increased from 0.05 to reduce features
-    #     '--coalesce-smallest-as-needed',
-    #     '--drop-densest-as-needed',
-    #     '--extend-zooms-if-still-dropping-maximum=15',
-    #     '--maximum-zoom=15',
-    #     '--minimum-zoom=12',
-    #     '--buffer=12'
-    # ],
+    'buildings.fgb': [
+        '--no-polygon-splitting',
+        '--detect-shared-borders',
+        '--simplification=5',  # Increased from 4 for better tile sizes
+        '--drop-rate=0.2',  # Increased from 0.05 to reduce features
+        '--coalesce-smallest-as-needed',
+        '--drop-densest-as-needed',
+        '--extend-zooms-if-still-dropping-maximum=15',
+        '--minimum-zoom=11',
+        '--buffer=12'
+    ],
 
     # Infrastructure polygons
     'infrastructure.fgb': [

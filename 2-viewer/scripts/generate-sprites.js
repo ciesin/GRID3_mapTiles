@@ -46,15 +46,30 @@ async function generateSprites() {
     .filter(f => f.endsWith('.svg'))
     .map(f => ({
       name: path.basename(f, '.svg'),
-      path: path.join(SPRITES_DIR, f)
+      path: path.join(SPRITES_DIR, f),
+      type: 'svg'
     }));
 
-  if (svgFiles.length === 0) {
-    console.log('No SVG files found in sprites directory');
+  // Find all PNG files in processing directory
+  const processingDir = path.join(SPRITES_DIR, 'processing');
+  const pngFiles = fs.existsSync(processingDir)
+    ? fs.readdirSync(processingDir)
+        .filter(f => f.endsWith('.png'))
+        .map(f => ({
+          name: path.basename(f, '.png'),
+          path: path.join(processingDir, f),
+          type: 'png'
+        }))
+    : [];
+
+  const allFiles = [...svgFiles, ...pngFiles];
+
+  if (allFiles.length === 0) {
+    console.log('No SVG or PNG files found');
     return;
   }
 
-  console.log(`Found ${svgFiles.length} SVG files:`, svgFiles.map(f => f.name).join(', '));
+  console.log(`Found ${svgFiles.length} SVG files and ${pngFiles.length} PNG files:`, allFiles.map(f => f.name).join(', '));
 
   for (const config of CONFIGS) {
     const { scale, suffix } = config;
@@ -62,7 +77,7 @@ async function generateSprites() {
     // Calculate total canvas size (simple horizontal layout)
     const spriteWidth = 32;
     const spriteHeight = 32;
-    const totalWidth = spriteWidth * scale * svgFiles.length;
+    const totalWidth = spriteWidth * scale * allFiles.length;
     const totalHeight = spriteHeight * scale;
 
     const canvas = createCanvas(totalWidth, totalHeight);
@@ -71,22 +86,32 @@ async function generateSprites() {
     const metadata = {};
     let xOffset = 0;
 
-    // Process each SVG
-    for (const svgFile of svgFiles) {
-      console.log(`Processing ${svgFile.name} at ${scale}x...`);
+    // Process each file
+    for (const file of allFiles) {
+      console.log(`Processing ${file.name} (${file.type}) at ${scale}x...`);
       
-      const spriteCanvas = await svgToCanvas(
-        svgFile.path,
-        spriteWidth,
-        spriteHeight,
-        scale
-      );
+      let spriteCanvas;
+      
+      if (file.type === 'svg') {
+        spriteCanvas = await svgToCanvas(
+          file.path,
+          spriteWidth,
+          spriteHeight,
+          scale
+        );
+      } else if (file.type === 'png') {
+        // Load PNG and resize if needed
+        const img = await loadImage(file.path);
+        spriteCanvas = createCanvas(spriteWidth * scale, spriteHeight * scale);
+        const spriteCtx = spriteCanvas.getContext('2d');
+        spriteCtx.drawImage(img, 0, 0, spriteWidth * scale, spriteHeight * scale);
+      }
 
       // Draw onto main canvas
       ctx.drawImage(spriteCanvas, xOffset, 0);
 
       // Add metadata
-      metadata[svgFile.name] = {
+      metadata[file.name] = {
         width: spriteWidth,
         height: spriteHeight,
         x: xOffset / scale,

@@ -223,12 +223,13 @@ def generate_centerlines(input_file, output_file, simplify_tolerance=5.0,
             try:
                 geom = row.geometry
 
-                # Make valid geometry (fix topology problems)
-                geom = make_valid(geom)
-
                 # Handle MultiPolygon by processing largest polygon
                 if geom.geom_type == 'MultiPolygon':
                     geom = max(geom.geoms, key=lambda g: g.area)
+
+                # Fix only if invalid
+                if not geom.is_valid:
+                    geom = make_valid(geom)
 
                 # (optional) remove tiny holes if water polygons are noisy
                 # import pygeoops as pgo
@@ -238,28 +239,39 @@ def generate_centerlines(input_file, output_file, simplify_tolerance=5.0,
                 if simplify_tolerance and simplify_tolerance > 0:
                     geom = geom.simplify(simplify_tolerance, preserve_topology=True)
 
+                # Skip unhelpful shapes (too narrow or circular)
+                bounds = geom.bounds
+                w = bounds[2] - bounds[0]
+                h = bounds[3] - bounds[1]
+                short = min(w, h)
+                if short < 5.0:
+                    continue
+                aspect = (max(w, h) / max(1e-9, short))
+                if aspect < 1.4:
+                    continue
+
                 # Skip very small polygons (area in square meters)
                 if geom.area < 1.0 or len(list(geom.exterior.coords)) < 4:
                     continue
 
-                # Calculate interpolation distance based on geometry dimensions (in meters)
-                bounds = geom.bounds
-                width = bounds[2] - bounds[0]
-                height = bounds[3] - bounds[1]
-                max_dim = max(width, height)
+                # Compute spacing from a point budget
                 perimeter = geom.length
                 area = geom.area
-
-                # Shape complexity factor
                 complexity = perimeter / (4 * (area ** 0.5)) if area > 0 else 1.0
+                complexity = min(2.0, max(0.6, complexity))
 
-                # Adaptive interpolation based on complexity and border_density
-                interpolation = max_dim / (border_density * min(2, complexity))
+                BASE_PTS = int(50 * border_density) if border_density else 1000
+                BASE_PTS = max(400, min(2000, BASE_PTS))
+                target_pts = int(BASE_PTS * complexity)
+                target_pts = max(600, min(2000, target_pts))
 
-                # Hard cap to avoid extremely large values; ensure at least 0.05m
-                interpolation = max(0.05, min(interpolation, 2.0))
+                interpolation = perimeter / target_pts
+                interpolation = max(1.0, min(interpolation, 50.0))
+                est_pts = max(4, int(perimeter / interpolation))
+                if est_pts > 10000:
+                    interpolation = max(interpolation, perimeter / 10000.0)
 
-                # Compute centerline using Centerline (must be available)
+                # Build centerline
                 try:
                     raw = Centerline(geom, interpolation_distance=interpolation).geometry
                 except Exception as e:
@@ -270,10 +282,12 @@ def generate_centerlines(input_file, output_file, simplify_tolerance=5.0,
                 if raw.is_empty:
                     continue
 
-                # Stitch ridges into continuous polylines
+                # Stitch ridges (cheap first)
                 try:
-                    snapped = snap(raw, raw, interpolation * 1.5)
-                    merged = linemerge(unary_union(snapped))
+                    snapped = snap(raw, raw, interpolation * 1.25)
+                    merged = linemerge(snapped)
+                    if merged.is_empty:
+                        merged = linemerge(unary_union(snapped))  # expensive; only if needed
                     centerline = merged if not merged.is_empty else raw
                 except Exception:
                     centerline = raw
