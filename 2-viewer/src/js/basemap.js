@@ -259,6 +259,7 @@ class OvertureMap {
     
     /**
      * Load the MapLibre style from JSON file (handles GH Pages base path and local dev)
+     * Automatically filters out missing PMTiles sources
      */
     async loadStyle() {
         try {
@@ -298,6 +299,12 @@ class OvertureMap {
                 this.updateVectorTileUrls(style);
             } else {
                 this.updatePMTilesUrls(style);
+                // Filter to only include available PMTiles
+                console.log('🔍 Checking which PMTiles files are available...');
+                const filteredStyle = await this.filterAvailableSources(style);
+                console.log(`✅ Loaded ${Object.keys(filteredStyle.sources).length} sources and ${filteredStyle.layers.length} layers`);
+                // Update style reference
+                Object.assign(style, filteredStyle);
             }
 
             // Add contour sources and layers to the style
@@ -311,6 +318,81 @@ class OvertureMap {
             console.error('Error loading style:', error);
             return this.getBasicStyle();
         }
+    }
+
+    /**
+     * Check if a PMTiles file exists
+     */
+    async checkPMTilesExists(url) {
+        try {
+            const response = await fetch(url, {
+                method: 'HEAD',
+                signal: AbortSignal.timeout(3000)
+            });
+            return response.ok;
+        } catch (error) {
+            return false;
+        }
+    }
+
+    /**
+     * Filter style to only include sources/layers for available PMTiles
+     */
+    async filterAvailableSources(style) {
+        const availableSources = new Set();
+        const endpoint = tileConfig.currentEndpoint === 'caddy' 
+            ? tileConfig.endpoints.caddy.pmtiles 
+            : tileConfig.endpoints.github.pmtiles;
+
+        // Check each PMTiles source
+        const checkPromises = [];
+        for (const [sourceId, source] of Object.entries(style.sources)) {
+            if (source.url && source.url.includes('pmtiles://')) {
+                const fileName = source.url.split('/').pop();
+                const checkUrl = `${endpoint}/${fileName}`;
+                checkPromises.push(
+                    this.checkPMTilesExists(checkUrl).then(exists => ({
+                        sourceId,
+                        exists
+                    }))
+                );
+            } else {
+                // Keep non-PMTiles sources (like esri)
+                availableSources.add(sourceId);
+            }
+        }
+
+        const results = await Promise.all(checkPromises);
+        results.forEach(({ sourceId, exists }) => {
+            if (exists) {
+                availableSources.add(sourceId);
+            } else {
+                console.warn(`!!!!!!! Skipping missing source: ${sourceId}`);
+            }
+        });
+
+        // Filter sources
+        const filteredSources = {};
+        for (const [sourceId, source] of Object.entries(style.sources)) {
+            if (availableSources.has(sourceId)) {
+                filteredSources[sourceId] = source;
+            }
+        }
+
+        // Filter layers that reference missing sources
+        const filteredLayers = style.layers.filter(layer => {
+            if (layer.source && !availableSources.has(layer.source)) {
+                console.warn(`!!!!!!!!! Skipping layer '${layer.id}' (missing source: ${layer.source})`);
+                return false;
+            }
+            return true;
+        });
+
+        return {
+            ...style,
+            sources: filteredSources,
+            layers: filteredLayers
+        };
     }
 
     /**
@@ -432,6 +514,33 @@ class OvertureMap {
      * Setup map event handlers
      */
     setupEventHandlers() {
+        // Add error handling with suppression for expected missing tile errors
+        this.map.on('error', (e) => {
+            if (e.error) {
+                const errorMsg = e.error.message || '';
+                // Suppress 404 errors for missing tiles (we already handled this)
+                if (errorMsg.includes('404') || errorMsg.includes('Not Found')) {
+                    return; // Silently ignore - we filtered these already
+                }
+                // PMTiles-specific errors (non-404)
+                if (errorMsg.includes('pmtiles')) {
+                    console.error('PMTiles Error:', errorMsg);
+                    console.error('Check that:');
+                    console.error('1. PMTiles files are properly served with HTTP range request support');
+                    console.error('2. CORS headers are configured correctly');
+                    console.error('3. File paths are correct');
+                }
+                // Tile loading errors (non-404)
+                else if (errorMsg.includes('tile') || errorMsg.includes('source')) {
+                    console.warn('Tile loading issue:', errorMsg);
+                }
+                // Other errors
+                else {
+                    console.error('Map error:', e.error);
+                }
+            }
+        });
+
         // Map load event
         this.map.on('load', async () => {
             console.log('Map loaded successfully!');
@@ -485,33 +594,6 @@ class OvertureMap {
             //         }
             //     });
             // }, 1000);
-        });
-        
-        // Add PMTiles-specific error handling
-        this.map.on('error', (e) => {
-            if (e.error && e.error.message) {
-            const errorMsg = e.error.message;
-            const sourceId = e.sourceId || 'unknown source';
-            const tileUrl = e.tile || 'unknown tile';
-            
-            // Suppress errors for placeholder/optional sources
-            const source = sourceId ? this.map.getSource(sourceId) : null;
-            if (source && source._options?.optional) {
-                return; // Silently ignore errors for optional sources
-            }
-            
-            if (errorMsg.includes('content-length') || errorMsg.includes('Byte Serving')) {
-                console.error(`PMTiles byte-serving error detected for source: ${sourceId}, tile: ${tileUrl}`);
-                console.error('Error message:', errorMsg);
-                console.error('This is likely due to hosting limitations. See DEPLOYMENT_OPTIONS.md for solutions.');
-                
-                // Show user-friendly message
-                // this.showPMTilesError();
-            } else {
-                console.error(`Map error detected for source: ${sourceId}, tile: ${tileUrl}`);
-                console.error('Error message:', errorMsg);
-            }
-            }
         });
         
         // Source loading feedback

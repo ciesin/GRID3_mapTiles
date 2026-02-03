@@ -8,9 +8,10 @@ RUN apk add --no-cache gettext
 # Copy Caddyfile template
 COPY Caddyfile.template /etc/caddy/Caddyfile.template
 
-# Copy entrypoint script
+# Copy entrypoint script and ensure Unix line endings
 COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+RUN chmod +x /entrypoint.sh && \
+    sed -i 's/\r$//' /entrypoint.sh
 
 # Expose ports
 EXPOSE 8080 8443

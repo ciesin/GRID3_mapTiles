@@ -31,10 +31,25 @@ print_warning() {
 # Check if .env exists
 if [ ! -f .env ]; then
     print_warning ".env file not found. Creating from .env.example..."
-    cp .env.example .env
+    if [ -f .env.example ]; then
+        cp .env.example .env
+    else
+        print_error ".env.example not found. Please create .env file manually."
+        exit 1
+    fi
     print_warning "Please edit .env file with your configuration before starting services."
     exit 1
 fi
+
+# Source environment variables
+source .env
+
+# Set defaults if not specified in .env
+HOST_IP=${HOST_IP:-127.0.0.1}
+CADDY_HTTP_PORT=${CADDY_HTTP_PORT:-3002}
+MARTIN_PORT=${MARTIN_PORT:-3001}
+POSTGRES_PORT=${POSTGRES_PORT:-5432}
+PGADMIN_PORT=${PGADMIN_PORT:-3004}
 
 # Make entrypoint executable
 chmod +x caddy/entrypoint.sh 2>/dev/null || true
@@ -52,12 +67,14 @@ case "${1:-}" in
         docker-compose ps
         echo ""
         echo -e "${GREEN}Access points:${NC}"
-        echo "  Web Interface: http://10.0.0.1:3002"
-        echo "  Martin API: http://10.0.0.1:3001"
-        echo "  PostgreSQL: 10.0.0.1:5432"
+        echo "  Web Interface: http://${HOST_IP}:${CADDY_HTTP_PORT}"
+        echo "  Martin API: http://${HOST_IP}:${MARTIN_PORT}"
+        echo "  PostgreSQL: ${HOST_IP}:${POSTGRES_PORT}"
         if [ "${2:-}" = "tools" ]; then
-            echo "  pgAdmin: http://10.0.0.1:3004"
+            echo "  pgAdmin: http://${HOST_IP}:${PGADMIN_PORT}"
         fi
+        echo ""
+        echo -e "${YELLOW}Note: If accessing from another machine, replace ${HOST_IP} with your server's IP address${NC}"
         ;;
     
     stop)
@@ -91,16 +108,16 @@ case "${1:-}" in
         echo ""
         print_header "Health Checks"
         echo -n "Caddy: "
-        curl -s http://10.0.0.1:3002/health > /dev/null && echo -e "${GREEN}OK${NC}" || echo -e "${RED}FAIL${NC}"
+        curl -s http://${HOST_IP}:${CADDY_HTTP_PORT}/health > /dev/null && echo -e "${GREEN}OK${NC}" || echo -e "${RED}FAIL${NC}"
         echo -n "Martin: "
-        curl -s http://10.0.0.1:3001/health > /dev/null && echo -e "${GREEN}OK${NC}" || echo -e "${RED}FAIL${NC}"
+        curl -s http://${HOST_IP}:${MARTIN_PORT}/health > /dev/null && echo -e "${GREEN}OK${NC}" || echo -e "${RED}FAIL${NC}"
         echo -n "PostGIS: "
         docker-compose exec -T postgis pg_isready > /dev/null 2>&1 && echo -e "${GREEN}OK${NC}" || echo -e "${RED}FAIL${NC}"
         ;;
     
     catalog)
         print_header "Martin Tile Catalog"
-        curl -s http://10.0.0.1:3002/catalog | python3 -m json.tool || curl -s http://10.0.0.1:3002/catalog
+        curl -s http://${HOST_IP}:${CADDY_HTTP_PORT}/catalog | python3 -m json.tool || curl -s http://${HOST_IP}:${CADDY_HTTP_PORT}/catalog
         ;;
     
     psql)

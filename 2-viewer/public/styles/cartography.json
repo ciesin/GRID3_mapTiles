@@ -7,33 +7,41 @@
     "delay": 0
   },
   "sources": {
+    "addresses-tiles": {
+      "type": "vector",
+      "url": "pmtiles://tiles/addresses.pmtiles"
+    },
+    "base-tiles": {
+      "type": "vector",
+      "url": "pmtiles://tiles/base.pmtiles"
+    },
     "buildings-tiles": {
       "type": "vector",
       "url": "pmtiles://tiles/buildings.pmtiles"
     },
     "infrastructure-tiles": {
       "type": "vector",
-      "url": "pmtiles://tiles/infrastructure.pmtiles"
+      "url": "pmtiles://tiles/base.pmtiles"
     },
     "land-tiles": {
       "type": "vector",
-      "url": "pmtiles://tiles/land.pmtiles"
+      "url": "pmtiles://tiles/base.pmtiles"
     },
     "land-cover-tiles": {
       "type": "vector",
-      "url": "pmtiles://tiles/land_cover.pmtiles"
+      "url": "pmtiles://tiles/base.pmtiles"
     },
     "land-residential-tiles": {
       "type": "vector",
-      "url": "pmtiles://tiles/land_residential.pmtiles"
+      "url": "pmtiles://tiles/base.pmtiles"
     },
     "land-use-tiles": {
       "type": "vector",
-      "url": "pmtiles://tiles/land_use.pmtiles"
+      "url": "pmtiles://tiles/base.pmtiles"
     },
     "placenames-tiles": {
       "type": "vector",
-      "url": "pmtiles://tiles/placenames.pmtiles"
+      "url": "pmtiles://tiles/base.pmtiles"
     },
     "places-tiles": {
       "type": "vector",
@@ -41,43 +49,43 @@
     },
     "settlement-names-tiles": {
       "type": "vector",
-      "url": "pmtiles://tiles/settlement_names.pmtiles"
+      "url": "pmtiles://tiles/base.pmtiles"
     },
     "roads-tiles": {
       "type": "vector",
-      "url": "pmtiles://tiles/roads.pmtiles"
+      "url": "pmtiles://tiles/transportation.pmtiles"
     },
     "water-tiles": {
       "type": "vector",
-      "url": "pmtiles://tiles/water.pmtiles"
+      "url": "pmtiles://tiles/base.pmtiles"
     },
     "water-centerlines-tiles": {
       "type": "vector",
-      "url": "pmtiles://tiles/water_centerlines.pmtiles"
+      "url": "pmtiles://tiles/base.pmtiles"
     },
     "settlement-extents-tiles": {
       "type": "vector",
-      "url": "pmtiles://tiles/settlement_extents.pmtiles"
+      "url": "pmtiles://tiles/base.pmtiles"
     },
     "health-facilities-tiles": {
       "type": "vector",
-      "url": "pmtiles://tiles/health_facilities.pmtiles"
+      "url": "pmtiles://tiles/base.pmtiles"
     },
     "health-zones-tiles": {
       "type": "vector",
-      "url": "pmtiles://tiles/health_zones.pmtiles"
+      "url": "pmtiles://tiles/divisions.pmtiles"
     },
     "health-zones-centroids-tiles": {
       "type": "vector",
-      "url": "pmtiles://tiles/health_zones_centroids.pmtiles"
+      "url": "pmtiles://tiles/divisions.pmtiles"
     },
     "health-areas-tiles": {
       "type": "vector",
-      "url": "pmtiles://tiles/health_areas.pmtiles"
+      "url": "pmtiles://tiles/divisions.pmtiles"
     },
     "health-areas-centroids-tiles": {
       "type": "vector",
-      "url": "pmtiles://tiles/health_areas_centroids.pmtiles"
+      "url": "pmtiles://tiles/divisions.pmtiles"
     },
     "esri": {
       "type": "vector",
@@ -152,7 +160,7 @@
           "bunker",
           "#d6d3d1",
           "water_hazard",
-          "#ffffff00",
+          "#A4DBE8",
           "track",
           "#f97316",
           "camp_site",
@@ -219,7 +227,7 @@
       "id": "land-cover",
       "type": "fill",
       "source": "land-cover-tiles",
-      "source-layer": "land-cover",
+      "source-layer": "land_cover",
       "layout": {
         "visibility": "visible"
       },
@@ -251,11 +259,11 @@
             "heath",
             "#c7e0b2",
             "wetland",
-            "#ffffff00",
+            "#A4DBE8",
             "swamp",
-            "#ffffff00",
+            "#A4DBE8",
             "marsh",
-            "#ffffff00",
+            "#A4DBE8",
             "crop",
             "#f7eab7",
             "cropland",
@@ -301,11 +309,11 @@
             "heath",
             "#769b4a",
             "wetland",
-            "#ffffff00",
+            "#A4DBE8",
             "swamp",
-            "#ffffff00",
+            "#A4DBE8",
             "marsh",
-            "#ffffff00",
+            "#A4DBE8",
             "crop",
             "#e6c76a",
             "cropland",
@@ -337,7 +345,7 @@
       "id": "land-cover-wetlands-fill",
       "type": "fill",
       "source": "land-cover-tiles",
-      "source-layer": "land-cover",
+      "source-layer": "land_cover",
       "filter": [
         "in",
         ["get", "subtype"],
@@ -356,7 +364,7 @@
       "id": "land-cover-wetlands-pattern",
       "type": "fill",
       "source": "land-cover-tiles",
-      "source-layer": "land-cover",
+      "source-layer": "land_cover",
       "filter": [
         "in",
         ["get", "subtype"],
@@ -390,7 +398,7 @@
           "tree",
           "#006400",
           "wetland",
-          "#4fc3f700",
+          "#A4DBE8",
           "land",
           "#f0f0f0",
           "physical",
@@ -567,7 +575,7 @@
       "source-layer": "water-centerlines",
       "minzoom": 10,
       "layout": {
-        "visibility": "visible",
+        "visibility": "none",
         "text-field": [
           "case",
           ["==", ["get", "subtype"], "lake"],
@@ -618,7 +626,7 @@
       "id": "roads-solid",
       "type": "line",
       "source": "roads-tiles",
-      "source-layer": "roads",
+      "source-layer": "segment",
       "filter": [
         "any",
         ["==", "class", "motorway"],
@@ -857,7 +865,7 @@
       "id": "roads-solid-casing",
       "type": "line",
       "source": "roads-tiles",
-      "source-layer": "roads",
+      "source-layer": "segment",
       "filter": [
         "any",
         ["==", "class", "motorway"],
@@ -1020,7 +1028,7 @@
       "id": "roads-dashed",
       "type": "line",
       "source": "roads-tiles",
-      "source-layer": "roads",
+      "source-layer": "segment",
       "minzoom": 11.5,
       "filter": [
         "any",
@@ -1310,7 +1318,7 @@
       "id": "buildings",
       "type": "fill",
       "source": "buildings-tiles",
-      "source-layer": "buildings",
+      "source-layer": "building",
       "minzoom": 12,
       "layout": {
         "visibility": "none"
@@ -1342,7 +1350,7 @@
       "id": "buildings-flat",
       "type": "fill",
       "source": "buildings-tiles",
-      "source-layer": "buildings",
+      "source-layer": "building",
       "minzoom": 11,
       "maxzoom": 14,
       "layout": {
@@ -1373,7 +1381,7 @@
       "id": "buildings-extrusion",
       "type": "fill-extrusion",
       "source": "buildings-tiles",
-      "source-layer": "buildings",
+      "source-layer": "building",
       "minzoom": 14,
       "layout": {
         "visibility": "visible"
@@ -1397,7 +1405,7 @@
       "id": "building-outlines",
       "type": "line",
       "source": "buildings-tiles",
-      "source-layer": "buildings",
+      "source-layer": "building",
       "minzoom": 11,
       "layout": {
         "visibility": "visible"
@@ -1440,7 +1448,7 @@
       "id": "places",
       "type": "circle",
       "source": "places-tiles",
-      "source-layer": "places",
+      "source-layer": "place",
       "minzoom": 15,
       "paint": {
         "circle-radius": 2,
@@ -1456,7 +1464,7 @@
       "source-layer": "settlement-extents",
       "minzoom": 8,
       "layout": {
-        "visibility": "visible"
+        "visibility": "none"
       },
       "paint": {
         "fill-color": [
@@ -1506,7 +1514,7 @@
       "source-layer": "settlement-extents",
       "minzoom": 8,
       "layout": {
-        "visibility": "visible"
+        "visibility": "none"
       },
       "paint": {
         "line-color": [
@@ -2059,7 +2067,7 @@
       "id": "health-facilities",
       "type": "circle",
       "source": "places-tiles",
-      "source-layer": "places",
+      "source-layer": "place",
       "minzoom": 13.5,
       "layout": {
         "visibility": "visible"
