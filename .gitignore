@@ -38,7 +38,14 @@ input/
 # caddy config
 
 # Environment configuration
-**/.env
+.env
+.env.local
+.env.*.local
+
+# But keep template environment files
+!.env.example
+!.env.development
+!.env.production
 
 # Docker volumes
 /volumes/

@@ -6,13 +6,22 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
 export default defineConfig(({ mode }) => {
-  // Load env from repository root (one level up)
-  const env = loadEnv(mode, resolve(__dirname, '..'), '')
+  // Load env from current directory
+  const env = loadEnv(mode, __dirname, '')
   
   // Make selected env vars available to the app with VITE_ prefix
   const envWithPrefix = {
-    VITE_CADDY_HOST: env.HOST_IP || '127.0.0.1',
-    VITE_CADDY_PORT: env.CADDY_HTTP_PORT || '3002'
+    VITE_CADDY_HOST: env.VITE_CADDY_HOST || '127.0.0.1',
+    VITE_CADDY_PORT: env.VITE_CADDY_PORT || '3002',
+    VITE_ENVIRONMENT: env.VITE_ENVIRONMENT || mode,
+    VITE_PMTILES_SOURCE: env.VITE_PMTILES_SOURCE || 'auto',
+    VITE_CLOUDFLARE_WORKER_URL: env.VITE_CLOUDFLARE_WORKER_URL || '',
+  }
+  
+  console.log('Building with environment:', mode);
+  console.log('PMTiles source:', envWithPrefix.VITE_PMTILES_SOURCE);
+  if (envWithPrefix.VITE_CLOUDFLARE_WORKER_URL) {
+    console.log('Cloudflare Worker URL:', envWithPrefix.VITE_CLOUDFLARE_WORKER_URL);
   }
   
   return {
@@ -75,6 +84,9 @@ export default defineConfig(({ mode }) => {
   define: {
     // Expose env vars to the app
     'import.meta.env.VITE_CADDY_HOST': JSON.stringify(envWithPrefix.VITE_CADDY_HOST),
-    'import.meta.env.VITE_CADDY_PORT': JSON.stringify(envWithPrefix.VITE_CADDY_PORT)
+    'import.meta.env.VITE_CADDY_PORT': JSON.stringify(envWithPrefix.VITE_CADDY_PORT),
+    'import.meta.env.VITE_ENVIRONMENT': JSON.stringify(envWithPrefix.VITE_ENVIRONMENT),
+    'import.meta.env.VITE_PMTILES_SOURCE': JSON.stringify(envWithPrefix.VITE_PMTILES_SOURCE),
+    'import.meta.env.VITE_CLOUDFLARE_WORKER_URL': JSON.stringify(envWithPrefix.VITE_CLOUDFLARE_WORKER_URL)
   }
 }})

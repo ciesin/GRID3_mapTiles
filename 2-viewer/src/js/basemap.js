@@ -325,6 +325,17 @@ class OvertureMap {
      */
     async checkPMTilesExists(url) {
         try {
+            // For Cloudflare Worker URLs, check the TileJSON endpoint
+            if (tileConfig.isUsingCloudflare()) {
+                // Cloudflare worker serves TileJSON at /{name}.json
+                const response = await fetch(url, {
+                    method: 'GET',
+                    signal: AbortSignal.timeout(3000)
+                });
+                return response.ok;
+            }
+            
+            // For local files and Caddy, use HEAD request
             const response = await fetch(url, {
                 method: 'HEAD',
                 signal: AbortSignal.timeout(3000)
@@ -340,16 +351,29 @@ class OvertureMap {
      */
     async filterAvailableSources(style) {
         const availableSources = new Set();
-        const endpoint = tileConfig.currentEndpoint === 'caddy' 
-            ? tileConfig.endpoints.caddy.pmtiles 
-            : tileConfig.endpoints.github.pmtiles;
+        
+        // Determine check URL based on endpoint type
+        let getCheckUrl;
+        if (tileConfig.isUsingCloudflare()) {
+            // For Cloudflare, check the TileJSON endpoint
+            getCheckUrl = (fileName) => {
+                const name = fileName.replace('.pmtiles', '');
+                return `${tileConfig.endpoints.cloudflare.url}/${name}.json`;
+            };
+        } else {
+            // For Caddy and local files, check the file directly
+            const endpoint = tileConfig.currentEndpoint === 'caddy' 
+                ? tileConfig.endpoints.caddy.pmtiles 
+                : tileConfig.endpoints.local.pmtiles;
+            getCheckUrl = (fileName) => `${endpoint}/${fileName}`;
+        }
 
         // Check each PMTiles source
         const checkPromises = [];
         for (const [sourceId, source] of Object.entries(style.sources)) {
             if (source.url && source.url.includes('pmtiles://')) {
                 const fileName = source.url.split('/').pop();
-                const checkUrl = `${endpoint}/${fileName}`;
+                const checkUrl = getCheckUrl(fileName);
                 checkPromises.push(
                     this.checkPMTilesExists(checkUrl).then(exists => ({
                         sourceId,
@@ -367,7 +391,7 @@ class OvertureMap {
             if (exists) {
                 availableSources.add(sourceId);
             } else {
-                console.warn(`!!!!!!! Skipping missing source: ${sourceId}`);
+                console.warn(`⚠️  Skipping missing source: ${sourceId}`);
             }
         });
 
@@ -382,7 +406,7 @@ class OvertureMap {
         // Filter layers that reference missing sources
         const filteredLayers = style.layers.filter(layer => {
             if (layer.source && !availableSources.has(layer.source)) {
-                console.warn(`!!!!!!!!! Skipping layer '${layer.id}' (missing source: ${layer.source})`);
+                console.warn(`⚠️  Skipping layer '${layer.id}' (missing source: ${layer.source})`);
                 return false;
             }
             return true;
@@ -396,8 +420,8 @@ class OvertureMap {
     }
 
     /**
-     * Update PMTiles URLs using the configured endpoint (Caddy server or GitHub Pages)
-     * Automatically handles fallback and proper URL construction
+     * Update PMTiles URLs using the configured endpoint
+     * Handles Cloudflare Worker, Caddy server, or local files
      */
     updatePMTilesUrls(style) {
         console.log('Updating PMTiles URLs with endpoint:', tileConfig.currentEndpoint);
@@ -409,8 +433,23 @@ class OvertureMap {
                 // Use the tile config to get the proper URL
                 const newUrl = tileConfig.getPMTilesUrl(tilePath);
                 
-                console.log(`${sourceId}: ${source.url} → ${newUrl}`);
-                source.url = newUrl;
+                console.log(`  ${sourceId}: ${source.url} → ${newUrl}`);
+                
+                // For Cloudflare Worker, use 'tiles' array instead of 'url'
+                // because we're serving individual tiles, not a PMTiles archive via the protocol
+                if (tileConfig.isUsingCloudflare()) {
+                    delete source.url;
+                    // Cloudflare worker pattern: https://worker-url/{name}/{z}/{x}/{y}.{ext}
+                    const name = tilePath.replace('.pmtiles', '');
+                    source.tiles = [`${tileConfig.endpoints.cloudflare.url}/${name}/{z}/{x}/{y}.pbf`];
+                    // Add attribution if needed
+                    if (!source.attribution) {
+                        source.attribution = '© Overture Maps Foundation';
+                    }
+                } else {
+                    // For Caddy and local files, use pmtiles:// protocol
+                    source.url = newUrl;
+                }
                 
                 // Mark as optional to suppress errors for missing tiles
                 source.optional = true;
