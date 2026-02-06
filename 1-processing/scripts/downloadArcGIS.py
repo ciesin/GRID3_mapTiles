@@ -51,6 +51,81 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import multiprocessing
 
 
+def validate_query_params(params: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Validate and sanitize query parameters to conform to ArcGIS Feature Service API specification.
+    
+    Ensures all parameters match the official API spec from:
+    https://developers.arcgis.com/rest/services-reference/enterprise/query-feature-service-layer/
+    
+    Args:
+        params: Dictionary of query parameters
+        
+    Returns:
+        Validated and sanitized parameter dictionary
+        
+    Raises:
+        ValueError: If critical parameters are invalid
+    """
+    validated = params.copy()
+    
+    # Validate spatial reference parameters - must be integers or JSON objects, not strings
+    for sr_param in ['inSR', 'outSR', 'defaultSR']:
+        if sr_param in validated:
+            val = validated[sr_param]
+            if isinstance(val, str):
+                # Try to convert string to integer
+                if val.isdigit():
+                    validated[sr_param] = int(val)
+                else:
+                    raise ValueError(f"{sr_param} must be an integer WKID or spatial reference JSON object, got string: '{val}'")
+    
+    # Validate geometry type
+    valid_geometry_types = [
+        'esriGeometryPoint', 
+        'esriGeometryMultipoint', 
+        'esriGeometryPolyline', 
+        'esriGeometryPolygon', 
+        'esriGeometryEnvelope'
+    ]
+    if 'geometryType' in validated and validated['geometryType'] not in valid_geometry_types:
+        raise ValueError(f"geometryType must be one of {valid_geometry_types}, got: '{validated['geometryType']}'")
+    
+    # Validate spatial relationship
+    valid_spatial_rels = [
+        'esriSpatialRelIntersects',
+        'esriSpatialRelContains',
+        'esriSpatialRelCrosses',
+        'esriSpatialRelEnvelopeIntersects',
+        'esriSpatialRelIndexIntersects',
+        'esriSpatialRelOverlaps',
+        'esriSpatialRelTouches',
+        'esriSpatialRelWithin',
+        'esriSpatialRelRelation'
+    ]
+    if 'spatialRel' in validated and validated['spatialRel'] not in valid_spatial_rels:
+        raise ValueError(f"spatialRel must be one of {valid_spatial_rels}, got: '{validated['spatialRel']}'")
+    
+    # Validate boolean parameters - must be strings 'true' or 'false'
+    bool_params = ['returnGeometry', 'returnIdsOnly', 'returnCountOnly', 'returnExtentOnly', 
+                   'returnDistinctValues', 'returnZ', 'returnM', 'returnCentroid', 
+                   'returnTrueCurves', 'returnExceededLimitFeatures']
+    for param in bool_params:
+        if param in validated:
+            val = validated[param]
+            if isinstance(val, bool):
+                validated[param] = 'true' if val else 'false'
+            elif val not in ['true', 'false']:
+                raise ValueError(f"{param} must be 'true' or 'false', got: '{val}'")
+    
+    # Validate response format
+    valid_formats = ['html', 'json', 'geojson', 'pbf']
+    if 'f' in validated and validated['f'] not in valid_formats:
+        raise ValueError(f"f (response format) must be one of {valid_formats}, got: '{validated['f']}'")
+    
+    return validated
+
+
 def test_service_connection(service_url: str, verbose: bool = True) -> Dict[str, Any]:
     """
     Test connection to ArcGIS Feature Server and retrieve service metadata.
@@ -211,7 +286,13 @@ def get_feature_count(service_url: str, where_clause: str = "1=1", extent: Optio
         params['geometry'] = f"{lon_min},{lat_min},{lon_max},{lat_max}"
         params['geometryType'] = 'esriGeometryEnvelope'
         params['spatialRel'] = 'esriSpatialRelIntersects'
-        params['inSR'] = '4326'
+        params['inSR'] = 4326
+    
+    # Validate parameters before sending request
+    try:
+        params = validate_query_params(params)
+    except ValueError as e:
+        raise ValueError(f"Invalid query parameters: {e}")
     
     if verbose:
         print(f"\n[DEBUG] Requesting feature count from: {base_url}")
@@ -312,7 +393,8 @@ def download_with_spatial_chunking(
     where_clause: str,
     extent: Tuple[float, float, float, float],
     max_record_count: int,
-    verbose: bool = True
+    verbose: bool = True,
+    timeout: int = 60
 ) -> list:
     """
     Download features using spatial chunking for non-paginated services.
@@ -326,6 +408,7 @@ def download_with_spatial_chunking(
         extent: Bounding box (lon_min, lat_min, lon_max, lat_max)
         max_record_count: Max features per request (from service metadata)
         verbose: Show progress messages
+        timeout: Request timeout in seconds
         
     Returns:
         List of all features combined from all chunks
@@ -384,7 +467,7 @@ def download_with_spatial_chunking(
                 'returnGeometry': 'true',
                 'f': 'geojson',
                 'resultRecordCount': max_record_count,
-                'outSR': '4326'
+                'outSR': 4326
             }
             
             # Add spatial filter for this chunk
@@ -392,11 +475,41 @@ def download_with_spatial_chunking(
             params['geometry'] = f"{lon_min},{lat_min},{lon_max},{lat_max}"
             params['geometryType'] = 'esriGeometryEnvelope'
             params['spatialRel'] = 'esriSpatialRelIntersects'
-            params['inSR'] = '4326'
+            params['inSR'] = 4326
             
             params.update(existing_params)
             
+            # Validate parameters before sending request
+            try:
+                params = validate_query_params(params)
+            except ValueError as e:
+                if verbose:
+                    print(f"[ERROR] Chunk {idx} - Invalid parameters: {e}")
+                continue
+            
             response = requests.get(base_url, params=params, timeout=timeout)
+            
+            # Handle bad request (HTTP 400) with detailed error message
+            if response.status_code == 400:
+                try:
+                    error_data = response.json()
+                    error_msg = error_data.get('error', {})
+                    if isinstance(error_msg, dict):
+                        error_details = f"Code: {error_msg.get('code', 'N/A')}, Message: {error_msg.get('message', 'N/A')}"
+                        error_details += f", Details: {error_msg.get('details', [])}"
+                    else:
+                        error_details = str(error_msg)
+                    if verbose:
+                        print(f"\n[ERROR] Chunk {idx} - 400 Bad Request")
+                        print(f"[ERROR] Error details: {error_details}")
+                        print(f"[ERROR] Request URL: {base_url}")
+                        print(f"[ERROR] Request params: {params}")
+                except:
+                    if verbose:
+                        print(f"\n[ERROR] Chunk {idx} - 400 Bad Request")
+                        print(f"[ERROR] Response: {response.text[:500]}")
+                continue
+            
             response.raise_for_status()
             
             data = response.json()
@@ -443,6 +556,83 @@ def download_with_spatial_chunking(
         print(f"\n[INFO] Spatial chunking complete: {len(all_features):,} total features")
     
     return all_features
+
+
+def get_objectid_range(service_url: str, where_clause: str = "1=1", extent: Optional[Tuple[float, float, float, float]] = None, timeout: int = 60, verbose: bool = False) -> Tuple[int, int]:
+    """
+    Get the minimum and maximum OBJECTID for the dataset.
+    
+    Args:
+        service_url: Full URL to the FeatureServer layer
+        where_clause: SQL where clause
+        extent: Optional spatial extent filter
+        timeout: Request timeout in seconds
+        verbose: Print debug info
+    
+    Returns:
+        Tuple of (min_oid, max_oid)
+    """
+    query_url = f"{service_url.rstrip('/')}/query"
+    
+    # Get min OBJECTID
+    params_min = {
+        'where': where_clause,
+        'returnGeometry': 'false',
+        'outFields': 'OBJECTID',
+        'orderByFields': 'OBJECTID ASC',
+        'resultRecordCount': 1,
+        'f': 'json'
+    }
+    
+    # Add spatial filter if provided
+    if extent:
+        lon_min, lat_min, lon_max, lat_max = extent
+        params_min['geometry'] = f"{lon_min},{lat_min},{lon_max},{lat_max}"
+        params_min['geometryType'] = 'esriGeometryEnvelope'
+        params_min['spatialRel'] = 'esriSpatialRelIntersects'
+        params_min['inSR'] = 4326
+    
+    # Validate parameters
+    try:
+        params_min = validate_query_params(params_min)
+    except ValueError as e:
+        raise ValueError(f"Invalid query parameters for OBJECTID range: {e}")
+    
+    try:
+        response = requests.get(query_url, params=params_min, timeout=timeout)
+        response.raise_for_status()
+        data = response.json()
+        
+        if 'error' in data or not data.get('features'):
+            raise Exception(f"Failed to get min OBJECTID: {data.get('error', 'No features returned')}")
+        
+        min_oid = data['features'][0]['attributes']['OBJECTID']
+        
+        # Get max OBJECTID
+        params_max = params_min.copy()
+        params_max['orderByFields'] = 'OBJECTID DESC'
+        
+        # Validate max params
+        params_max = validate_query_params(params_max)
+        
+        response = requests.get(query_url, params=params_max, timeout=timeout)
+        response.raise_for_status()
+        data = response.json()
+        
+        if 'error' in data or not data.get('features'):
+            raise Exception(f"Failed to get max OBJECTID: {data.get('error', 'No features returned')}")
+        
+        max_oid = data['features'][0]['attributes']['OBJECTID']
+        
+        if verbose:
+            print(f"[INFO] OBJECTID range: {min_oid} to {max_oid}")
+        
+        return (min_oid, max_oid)
+        
+    except Exception as e:
+        if verbose:
+            print(f"[WARNING] Failed to get OBJECTID range, falling back to count-based estimate: {e}")
+        return (1, None)  # Fallback
 
 
 def esri_json_to_geojson(esri_feature: dict) -> dict:
@@ -558,7 +748,7 @@ def download_features_paginated(
     # X parallel workers
     # todo: >1 workers triggers 400 error
     if max_workers is None:
-        max_workers = 1
+        max_workers = 4
     
     if verbose:
         print(f"\n[INFO] Starting download from: {base_url}")
@@ -620,186 +810,242 @@ def download_features_paginated(
                 where_clause=where_clause,
                 extent=extent,
                 max_record_count=service_max_records,
-                verbose=verbose
+                verbose=verbose,
+                timeout=timeout
             )
     
     # Use service's max record count for optimal chunk sizes
     chunk_size = service_max_records
     
-    # Track which format works (GeoJSON or ESRI JSON)
-    # Start with GeoJSON, fall back to JSON if it fails
-    output_format = 'geojson'
-    
-    # Standard pagination approach with parallel downloading
-    def download_chunk(offset: int, chunk_num: int, retry_count: int = 0) -> Tuple[int, list, Optional[str]]:
-        """Download a single chunk of features with retry logic. Returns (offset, features, error)."""
-        nonlocal output_format
-        max_retries = 3
-        retry_delay = 2  # seconds
-        
-        params = {
-            'where': where_clause,
-            'outFields': '*',
-            'returnGeometry': 'true',
-            'f': output_format,  # Use working format (geojson or json)
-            'resultOffset': offset,
-            'resultRecordCount': chunk_size,
-            'outSR': '4326'
-        }
-        
-        # Add spatial filter if extent provided
-        if extent:
-            lon_min, lat_min, lon_max, lat_max = extent
-            params['geometry'] = f"{lon_min},{lat_min},{lon_max},{lat_max}"
-            params['geometryType'] = 'esriGeometryEnvelope'
-            params['spatialRel'] = 'esriSpatialRelIntersects'
-            params['inSR'] = '4326'
-        
-        params.update(existing_params)
-        
-        # DEBUG: Print parameters for first chunk or on error
-        if verbose and (offset == 0 or retry_count > 0):
-            print(f"\n[DEBUG] Chunk {chunk_num} (offset {offset}):")
-            print(f"  URL: {base_url}")
-            print(f"  Parameters:")
-            for key, value in sorted(params.items()):
-                print(f"    {key}: {value}")
-        
-        try:
-            response = requests.get(base_url, params=params, timeout=timeout)
-            
-            # DEBUG: Print response details on error
-            if response.status_code != 200 and verbose:
-                print(f"\n[DEBUG] HTTP {response.status_code} Response:")
-                print(f"  URL: {response.url}")
-                print(f"  Headers: {dict(response.headers)}")
-                try:
-                    print(f"  Body: {response.text[:500]}")
-                except:
-                    pass
-            
-            # Handle rate limiting (HTTP 429)
-            if response.status_code == 429:
-                if retry_count < max_retries:
-                    # Exponential backoff: 2s, 4s, 8s
-                    wait_time = retry_delay * (2 ** retry_count)
-                    
-                    # Check Retry-After header if provided
-                    if 'Retry-After' in response.headers:
-                        wait_time = max(wait_time, int(response.headers['Retry-After']))
-                    
-                    if verbose:
-                        print(f"\n[WARNING] Rate limited at offset {offset}, retrying in {wait_time}s (attempt {retry_count + 1}/{max_retries})")
-                    
-                    time.sleep(wait_time)
-                    return download_chunk(offset, chunk_num, retry_count + 1)
-                else:
-                    return (offset, [], f"Rate limit exceeded after {max_retries} retries")
-            
-            response.raise_for_status()
-            
-            data = response.json()
-            
-            if 'error' in data:
-                # If GeoJSON format failed with HTTP 400, try ESRI JSON format
-                if data['error'].get('code') == 400 and output_format == 'geojson' and retry_count == 0:
-                    if verbose:
-                        print(f"\n[INFO] GeoJSON format not supported, switching to ESRI JSON format")
-                    output_format = 'json'  # Switch to ESRI JSON (nonlocal will update for all chunks)
-                    return download_chunk(offset, chunk_num, retry_count + 1)  # Retry with JSON
-                
-                error_msg = f"ArcGIS API Error at offset {offset}: {data['error']}"
-                if verbose:
-                    print(f"\n[ERROR] API returned error for chunk {chunk_num}:")
-                    print(f"  Error details: {data['error']}")
-                    print(f"  Full response: {data}")
-                    print(f"  Request URL: {response.url}")
-                return (offset, [], error_msg)
-            
-            features = data.get('features', [])
-            
-            # If we got ESRI JSON format, convert to GeoJSON
-            if output_format == 'json' and features:
-                features = [esri_json_to_geojson(f) for f in features]
-            
-            # Check rate limit headers and warn if getting close
-            if 'x-esri-org-request-units-per-min' in response.headers:
-                units_info = response.headers['x-esri-org-request-units-per-min']
-                # Parse: "usage=2;max=6000"
-                try:
-                    parts = dict(item.split('=') for item in units_info.split(';'))
-                    usage = int(parts.get('usage', 0))
-                    max_units = int(parts.get('max', 0))
-                    if max_units > 0 and usage > max_units * 0.8:  # >80% of limit
-                        if verbose:
-                            print(f"\n[WARNING] High API usage: {usage}/{max_units} units/min")
-                except:
-                    pass
-            
-            return (offset, features, None)
-            
-        except requests.exceptions.Timeout:
-            if retry_count < max_retries:
-                wait_time = retry_delay * (2 ** retry_count)
-                if verbose:
-                    print(f"\n[WARNING] Timeout at offset {offset}, retrying in {wait_time}s")
-                time.sleep(wait_time)
-                return download_chunk(offset, chunk_num, retry_count + 1)
-            return (offset, [], f"Timeout after {max_retries} retries")
-            
-        except Exception as e:
-            if retry_count < max_retries:
-                wait_time = retry_delay * (2 ** retry_count)
-                if verbose:
-                    print(f"\n[WARNING] Error at offset {offset}: {e}, retrying in {wait_time}s")
-                time.sleep(wait_time)
-                return download_chunk(offset, chunk_num, retry_count + 1)
-            return (offset, [], str(e))
-    
-    # Calculate offsets for all chunks
-    offsets = list(range(0, total_count, chunk_size))
+    # Get OBJECTID range for downloading (needed even in sequential mode to avoid offset limits)
+    # Many services have max offset limits (e.g., 2000-5000) that cause 400 errors on large datasets
+    min_oid, max_oid = get_objectid_range(service_url, where_clause, extent, timeout, verbose)
+    if max_oid is None:
+        # Fallback: estimate based on count
+        max_oid = total_count
     
     if verbose:
-        print(f"[INFO] Downloading {len(offsets)} chunks of {chunk_size} features each")
-        print(f"[INFO] Using {max_workers} parallel workers")
+        print(f"[INFO] Using OBJECTID range-based downloading (avoids offset limits)")
+        print(f"[INFO] OBJECTID range: {min_oid} to {max_oid} ({max_oid - min_oid + 1} features)")
+    
+    # Worker function: downloads an OBJECTID range by paginating within it
+    def download_oid_range(worker_id: int, oid_start: int, oid_end: int) -> Tuple[int, list, Optional[str]]:
+        """Download all features in an OBJECTID range by paginating. Returns (worker_id, features, error)."""
+        all_worker_features = []
+        current_oid = oid_start  # Track the last OBJECTID we've seen
+        
+        # Build base WHERE clause for this worker's OBJECTID range
+        # We'll update the lower bound as we paginate to avoid offset limits
+        if where_clause != "1=1":
+            base_where = f"({where_clause})"
+        else:
+            base_where = ""
+        
+        while current_oid < oid_end:
+            # Build WHERE clause for current page using OBJECTID-based pagination
+            # This avoids offset limits by using "OBJECTID >= X AND OBJECTID < Y"
+            if base_where:
+                combined_where = f"{base_where} AND (OBJECTID >= {current_oid} AND OBJECTID < {oid_end})"
+            else:
+                combined_where = f"OBJECTID >= {current_oid} AND OBJECTID < {oid_end}"
+            
+            params = {
+                'where': combined_where,
+                'outFields': '*',
+                'returnGeometry': 'true',
+                'f': 'geojson',
+                'resultRecordCount': chunk_size,
+                'outSR': 4326
+            }
+            
+            # Note: We do NOT add the spatial filter here because the OBJECTID range
+            # was already obtained using the spatial filter. Re-applying it can cause
+            # conflicts with some ArcGIS services that don't support combining
+            # OBJECTID filtering with geometry filtering in the same query.
+            # The OBJECTIDs already represent spatially-filtered features.
+            
+            params.update(existing_params)
+            
+            # Validate parameters before sending request
+            try:
+                params = validate_query_params(params)
+            except ValueError as e:
+                return (worker_id, [], f"Invalid parameters: {e}")
+            
+            # Debug: Log parameters on first request if verbose
+            if verbose and current_oid == oid_start:
+                print(f"\n[DEBUG] Worker {worker_id} first request parameters:")
+                print(f"[DEBUG] URL: {base_url}")
+                print(f"[DEBUG] Params: {json.dumps(params, indent=2)}")
+            
+            # Make request with retry logic
+            for attempt in range(3):
+                try:
+                    response = requests.get(base_url, params=params, timeout=timeout)
+                    
+                    # Debug: On first 400 error, show full details
+                    if response.status_code == 400 and verbose and current_oid == oid_start:
+                        print(f"\n[DEBUG] Worker {worker_id} - Full request URL:")
+                        print(f"[DEBUG] {response.url}")
+                        print(f"\n[DEBUG] Response text:")
+                        print(f"[DEBUG] {response.text}")
+                    
+                    # Handle rate limiting (HTTP 429)
+                    if response.status_code == 429:
+                        wait_time = 2 * (2 ** attempt)
+                        if 'Retry-After' in response.headers:
+                            wait_time = max(wait_time, int(response.headers['Retry-After']))
+                        if verbose:
+                            print(f"\n[WARNING] Worker {worker_id} rate limited, waiting {wait_time}s")
+                        time.sleep(wait_time)
+                        continue
+                    
+                    # Handle bad request (HTTP 400) with detailed error message
+                    if response.status_code == 400:
+                        try:
+                            error_data = response.json()
+                            error_msg = error_data.get('error', {})
+                            if isinstance(error_msg, dict):
+                                error_details = f"Code: {error_msg.get('code', 'N/A')}, Message: {error_msg.get('message', 'N/A')}"
+                                error_details += f", Details: {error_msg.get('details', [])}"
+                            else:
+                                error_details = str(error_msg)
+                            if verbose:
+                                print(f"\n[ERROR] Worker {worker_id} - 400 Bad Request")
+                                print(f"[ERROR] Error details: {error_details}")
+                                print(f"[ERROR] Request URL: {base_url}")
+                                print(f"[ERROR] Request params: {params}")
+                        except:
+                            if verbose:
+                                print(f"\n[ERROR] Worker {worker_id} - 400 Bad Request")
+                                print(f"[ERROR] Response: {response.text[:500]}")
+                        return (worker_id, [], f"400 Bad Request at OBJECTID {current_oid}: {error_details if 'error_details' in locals() else 'See logs'}")
+                    
+                    response.raise_for_status()
+                    data = response.json()
+                    
+                    if 'error' in data:
+                        return (worker_id, [], f"API error at OBJECTID {current_oid}: {data['error']}")
+                    
+                    features = data.get('features', [])
+                    
+                    if features:
+                        all_worker_features.extend(features)
+                        pbar.update(len(features))
+                        
+                        # Update current_oid to the highest OBJECTID we've seen
+                        # This allows us to continue pagination without using offsets
+                        max_feature_oid = max(f.get('properties', {}).get('OBJECTID', current_oid) for f in features)
+                        current_oid = max_feature_oid + 1  # Next query starts after this OBJECTID
+                    
+                    # Check rate limit headers
+                    if 'x-esri-org-request-units-per-min' in response.headers:
+                        units_info = response.headers['x-esri-org-request-units-per-min']
+                        try:
+                            parts = dict(item.split('=') for item in units_info.split(';'))
+                            usage = int(parts.get('usage', 0))
+                            max_units = int(parts.get('max', 0))
+                            if max_units > 0 and usage > max_units * 0.8:
+                                if verbose:
+                                    print(f"\n[WARNING] High API usage: {usage}/{max_units} units/min")
+                        except:
+                            pass
+                    
+                    # Check if we're done with this OBJECTID range
+                    if len(features) < chunk_size:
+                        # Got fewer features than requested, we're done with this range
+                        return (worker_id, all_worker_features, None)
+                    
+                    # If no features returned or we've moved past the end, we're done
+                    if not features or current_oid >= oid_end:
+                        return (worker_id, all_worker_features, None)
+                    
+                    break  # Success, continue to next page (while True loop)
+                    
+                except requests.exceptions.Timeout:
+                    if attempt < 2:
+                        wait_time = 2 * (2 ** attempt)
+                        if verbose:
+                            print(f"\n[WARNING] Worker {worker_id} timeout at OBJECTID {current_oid}, retrying in {wait_time}s")
+                        time.sleep(wait_time)
+                    else:
+                        return (worker_id, [], f"Timeout after 3 retries at OBJECTID {current_oid}")
+                        
+                except Exception as e:
+                    if attempt < 2:
+                        wait_time = 2 * (2 ** attempt)
+                        if verbose:
+                            print(f"\n[WARNING] Worker {worker_id} error at OBJECTID {current_oid}: {e}, retrying in {wait_time}s")
+                        time.sleep(wait_time)
+                    else:
+                        return (worker_id, [], f"Error at OBJECTID {current_oid}: {str(e)}")
+            else:
+                # If we didn't break (all retries failed), return error
+                return (worker_id, [], f"All retries failed at OBJECTID {current_oid}")
+        
+        # Shouldn't reach here (while True loop should return inside), but for safety
+        return (worker_id, all_worker_features, None)
+    
+    # Prepare worker assignments based on mode
+    # Always use OBJECTID ranges to avoid offset limits (many services fail at offset > 2000-5000)
+    oid_range = max_oid - min_oid + 1
+    
+    if max_workers and max_workers > 1:
+        # Parallel mode: Split OBJECTID range among workers
+        oid_chunk_size = max(1, oid_range // max_workers)  # Divide range among workers
+        
+        workers = []
+        for i in range(max_workers):
+            oid_start = min_oid + (i * oid_chunk_size)
+            oid_end = min_oid + ((i + 1) * oid_chunk_size) if i < max_workers - 1 else max_oid + 1
+            workers.append((i, oid_start, oid_end))
+        
+        if verbose:
+            print(f"[INFO] Downloading with {max_workers} parallel workers")
+            for i, (worker_id, oid_start, oid_end) in enumerate(workers):
+                print(f"  Worker {i}: OBJECTID {oid_start} to {oid_end-1} (~{oid_end - oid_start} features)")
+    else:
+        # Sequential mode: Single worker downloads entire OBJECTID range
+        workers = [(0, min_oid, max_oid + 1)]
+        if verbose:
+            print(f"[INFO] Downloading {total_count:,} features sequentially using OBJECTID range {min_oid} to {max_oid}")
+    
+    if verbose:
+        print(f"[INFO] Using {max_workers or 1} parallel workers")
         print(f"[INFO] Rate limit protection: 3 retries with exponential backoff")
     
-    # Download chunks in parallel with rate limiting protection
+    # Download in parallel with rate limiting protection
     all_features = []
     errors = []
-    chunk_delay = 0.1  # Small delay between chunk submissions (100ms) to avoid burst rate limiting
     
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        # Submit download tasks with small delays to avoid burst rate limiting
-        future_to_offset = {}
-        for idx, offset in enumerate(offsets):
-            future = executor.submit(download_chunk, offset, idx)
-            future_to_offset[future] = offset
-            # Small delay between submissions to spread out initial requests
-            if idx < len(offsets) - 1:  # Don't delay after last submission
-                time.sleep(chunk_delay)
-        
-        # Setup progress bar
-        pbar = tqdm(total=total_count, desc="Downloading features", disable=not verbose)
+    # Setup progress bar BEFORE starting workers (so it exists when they reference it)
+    pbar = tqdm(total=total_count, desc="Downloading features", disable=not verbose)
+    
+    with ThreadPoolExecutor(max_workers=max_workers or 1) as executor:
+        # Submit workers - each will paginate through its assigned OBJECTID range
+        futures = []
+        for worker_id, oid_start, oid_end in workers:
+            future = executor.submit(download_oid_range, worker_id, oid_start, oid_end)
+            futures.append(future)
         
         # Collect results as they complete
-        for future in as_completed(future_to_offset):
-            offset, features, error = future.result()
+        for future in as_completed(futures):
+            worker_id, features, error = future.result()
             
             if error:
-                errors.append(f"Chunk at offset {offset}: {error}")
+                errors.append(f"Worker {worker_id}: {error}")
                 if verbose:
                     print(f"\n[ERROR] {errors[-1]}")
             else:
                 all_features.extend(features)
-                pbar.update(len(features))
+                # Note: pbar.update() already called inside worker function
         
         pbar.close()
     
     if verbose:
-        print(f"\n[INFO] Downloaded {len(all_features):,} features in {len(offsets)} chunks")
+        print(f"\n[INFO] Downloaded {len(all_features):,} features total")
         if errors:
-            print(f"[WARNING] {len(errors)} chunks had errors:")
+            print(f"[WARNING] {len(errors)} workers had errors:")
             for error in errors[:5]:  # Show first 5 errors
                 print(f"  - {error}")
             if len(errors) > 5:
