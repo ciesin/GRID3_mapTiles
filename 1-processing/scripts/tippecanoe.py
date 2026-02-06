@@ -457,10 +457,21 @@ def build_tippecanoe_command(input_file, output_file, layer_name, extent=None, u
     """
     import os
     
+    # Convert Windows paths to WSL format if needed
+    def to_wsl_path(path):
+        if len(path) >= 2 and path[1] == ':':
+            drive = path[0].lower()
+            rest = path[2:].replace('\\', '/')
+            return f'/mnt/{drive}{rest}'
+        return path
+    
+    input_file = to_wsl_path(input_file)
+    output_file = to_wsl_path(output_file)
+    
     filename = os.path.basename(input_file)
     
-    # Start with base command
-    cmd = ['tippecanoe', '-fo', output_file, '-l', layer_name] + BASE_COMMAND
+    # Start with base command (run tippecanoe in WSL)
+    cmd = ['wsl', 'tippecanoe', '-fo', output_file, '-l', layer_name] + BASE_COMMAND
     
     # Add layer-specific settings
     layer_settings = get_layer_settings(filename)

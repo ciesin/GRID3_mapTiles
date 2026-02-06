@@ -74,6 +74,30 @@ OUTPUT_DIR = DATA_DIR / "3-pmtiles"
 TILE_DIR = OUTPUT_DIR
 PUBLIC_TILES_DIR = PROJECT_ROOT.parent / "2-viewer" / "public" / "tiles"
 
+def windows_to_wsl_path(path):
+    """Convert Windows path to WSL path format
+    
+    Args:
+        path: Path object or string (e.g., 'C:\\Users\\...')
+        
+    Returns:
+        str: WSL-formatted path (e.g., '/mnt/c/Users/...')
+    """
+    path_str = str(path)
+    
+    # Check if already a WSL path
+    if path_str.startswith('/mnt/'):
+        return path_str
+    
+    # Convert Windows path to WSL format
+    # C:\Users\... -> /mnt/c/Users/...
+    if len(path_str) >= 2 and path_str[1] == ':':
+        drive = path_str[0].lower()
+        rest = path_str[2:].replace('\\', '/')
+        return f'/mnt/{drive}{rest}'
+    
+    return path_str
+
 def validate_geojson(file_path):
     """Validate and clean GeoJSON files (skip for binary formats)"""
     # Skip validation for non-JSON formats
@@ -470,17 +494,22 @@ def get_tippecanoe_command(input_path, tile_path, layer_name, extent=None, use_o
         list: Command arguments for subprocess.run()
     """
     
+    # Convert Windows paths to WSL format for tippecanoe
+    input_wsl = windows_to_wsl_path(input_path)
+    output_wsl = windows_to_wsl_path(tile_path)
+    
     # Try to use tippecanoe.py's build_tippecanoe_command if available
     # This provides centralized zoom level extraction from Overture cartography
     if build_tippecanoe_command is not None:
         try:
-            return build_tippecanoe_command(
-                str(input_path), 
-                str(tile_path), 
+            cmd = build_tippecanoe_command(
+                input_wsl,  # Use WSL path
+                output_wsl,  # Use WSL path
                 layer_name, 
                 extent=extent,
                 use_overture_zooms=use_overture_zooms
             )
+            return cmd
         except Exception as e:
             # Fall through to manual command building
             pass
@@ -488,8 +517,8 @@ def get_tippecanoe_command(input_path, tile_path, layer_name, extent=None, use_o
     # Fallback: Manual command building (original implementation)
     # Base tippecanoe command with common optimizations
     base_cmd = [
-        'tippecanoe',
-        '-fo', str(tile_path),  # Force overwrite output to PMTiles
+        'wsl', 'tippecanoe',  # Run tippecanoe in WSL
+        '-fo', output_wsl,  # Force overwrite output to PMTiles (WSL path)
         '-l', layer_name,       # Layer name
         '--buffer=8',           # Higher quality buffer (most layers)
         '--drop-smallest',      # Quality optimization
@@ -520,8 +549,8 @@ def get_tippecanoe_command(input_path, tile_path, layer_name, extent=None, use_o
     # Add layer-specific settings
     base_cmd.extend(layer_settings)
     
-    # Add input file at the end
-    base_cmd.append(str(input_path))
+    # Add input file at the end (use WSL path)
+    base_cmd.append(input_wsl)
     
     return base_cmd
 
