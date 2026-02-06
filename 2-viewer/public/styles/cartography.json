@@ -9,103 +9,83 @@
   "sources": {
     "addresses-tiles": {
       "type": "vector",
-      "url": "pmtiles://tiles/addresses.pmtiles",
-      "maxzoom": 22
+      "url": "pmtiles://tiles/addresses.pmtiles"
     },
     "base-tiles": {
       "type": "vector",
-      "url": "pmtiles://tiles/base.pmtiles",
-      "maxzoom": 22
+      "url": "pmtiles://tiles/base.pmtiles"
     },
     "buildings-tiles": {
       "type": "vector",
-      "url": "pmtiles://tiles/buildings.pmtiles",
-      "maxzoom": 22
+      "url": "pmtiles://tiles/buildings.pmtiles"
     },
     "infrastructure-tiles": {
       "type": "vector",
-      "url": "pmtiles://tiles/base.pmtiles",
-      "maxzoom": 22
+      "url": "pmtiles://tiles/base.pmtiles"
     },
     "land-tiles": {
       "type": "vector",
-      "url": "pmtiles://tiles/base.pmtiles",
-      "maxzoom": 22
+      "url": "pmtiles://tiles/base.pmtiles"
     },
     "land-cover-tiles": {
       "type": "vector",
-      "url": "pmtiles://tiles/base.pmtiles",
-      "maxzoom": 22
+      "url": "pmtiles://tiles/base.pmtiles"
     },
     "land-residential-tiles": {
       "type": "vector",
-      "url": "pmtiles://tiles/base.pmtiles",
-      "maxzoom": 22
+      "url": "pmtiles://tiles/base.pmtiles"
     },
     "land-use-tiles": {
       "type": "vector",
-      "url": "pmtiles://tiles/base.pmtiles",
-      "maxzoom": 22
+      "url": "pmtiles://tiles/base.pmtiles"
     },
     "placenames-tiles": {
       "type": "vector",
-      "url": "pmtiles://tiles/base.pmtiles",
-      "maxzoom": 22
+      "url": "pmtiles://tiles/base.pmtiles"
     },
     "places-tiles": {
       "type": "vector",
-      "url": "pmtiles://tiles/places.pmtiles",
-      "maxzoom": 22
+      "url": "pmtiles://tiles/places.pmtiles"
     },
     "settlement-names-tiles": {
       "type": "vector",
-      "url": "pmtiles://tiles/base.pmtiles",
-      "maxzoom": 22
+      "url": "pmtiles://tiles/base.pmtiles"
     },
     "roads-tiles": {
       "type": "vector",
-      "url": "pmtiles://tiles/transportation.pmtiles",
-      "maxzoom": 22
+      "url": "pmtiles://tiles/transportation.pmtiles"
     },
     "water-tiles": {
       "type": "vector",
-      "url": "pmtiles://tiles/base.pmtiles",
-      "maxzoom": 22
+      "url": "pmtiles://tiles/base.pmtiles"
     },
     "water-centerlines-tiles": {
       "type": "vector",
-      "url": "pmtiles://tiles/base.pmtiles",
-      "maxzoom": 22
+      "url": "pmtiles://tiles/base.pmtiles"
     },
     "settlement-extents-tiles": {
       "type": "vector",
-      "url": "pmtiles://tiles/base.pmtiles",
-      "maxzoom": 22
+      "url": "pmtiles://tiles/base.pmtiles"
     },
     "health-facilities-tiles": {
       "type": "vector",
-      "url": "pmtiles://tiles/base.pmtiles",
-      "maxzoom": 22
+      "url": "pmtiles://tiles/base.pmtiles"
     },
     "health-zones-tiles": {
       "type": "vector",
-      "url": "pmtiles://tiles/divisions.pmtiles",
-      "maxzoom": 22
+      "url": "pmtiles://tiles/divisions.pmtiles"
     },
     "health-zones-centroids-tiles": {
       "type": "vector",
-      "url": "pmtiles://tiles/divisions.pmtiles",
-      "maxzoom": 22
+      "url": "pmtiles://tiles/divisions.pmtiles"
     },
     "health-areas-tiles": {
       "type": "vector",
-      "url": "pmtiles://tiles/divisions.pmtiles",
-      "maxzoom": 22
+      "url": "pmtiles://tiles/divisions.pmtiles"
     },
     "health-areas-centroids-tiles": {
       "type": "vector",
-      "url": "pmtiles://tiles/divisions.pmtiles",
-      "maxzoom": 22
+      "url": "pmtiles://tiles/divisions.pmtiles"
     },
     "esri": {
       "type": "vector",
@@ -248,6 +228,8 @@
       "type": "fill",
       "source": "land-cover-tiles",
       "source-layer": "land_cover",
+      "minzoom": 6,
+      "maxzoom": 22,
       "layout": {
         "visibility": "visible"
       },
@@ -372,6 +354,7 @@
         ["literal", ["wetland", "swamp", "marsh"]]
       ],
       "minzoom": 9,
+      "maxzoom": 22,
       "layout": {
         "visibility": "visible"
       },
@@ -391,6 +374,7 @@
         ["literal", ["wetland", "swamp", "marsh"]]
       ],
       "minzoom": 9,
+      "maxzoom": 22,
       "layout": {
         "visibility": "visible"
       },
@@ -404,6 +388,8 @@
       "type": "fill",
       "source": "land-tiles",
       "source-layer": "land",
+      "minzoom": 6,
+      "maxzoom": 22,
       "layout": {
         "visibility": "none"
       },
@@ -441,6 +427,8 @@
       "source": "water-tiles",
       "source-layer": "water",
       "filter": ["==", ["geometry-type"], "Polygon"],
+      "minzoom": 6,
+      "maxzoom": 22,
       "layout": {
         "visibility": "visible"
       },
@@ -454,6 +442,8 @@
       "type": "line",
       "source": "water-tiles",
       "source-layer": "water",
+      "minzoom": 10,
+      "maxzoom": 22,
       "layout": {
         "visibility": "visible"
       },
@@ -519,6 +509,8 @@
       "source": "water-tiles",
       "source-layer": "water",
       "filter": ["==", ["geometry-type"], "LineString"],
+      "minzoom": 7,
+      "maxzoom": 22,
       "layout": {
         "visibility": "visible"
       },
@@ -658,6 +650,8 @@
         ["==", "class", "unclassified"],
         ["!has", "class"]
       ],
+      "minzoom": 8,
+      "maxzoom": 22,
       "layout": {
         "visibility": "visible"
       },
@@ -897,6 +891,8 @@
         ["==", "class", "unclassified"],
         ["!has", "class"]
       ],
+      "minzoom": 8,
+      "maxzoom": 22,
       "layout": {
         "visibility": "visible"
       },
@@ -1050,7 +1046,7 @@
       "source": "roads-tiles",
       "source-layer": "segment",
       "minzoom": 11.5,
-      "maxzoom": 16,
+      "maxzoom": 22,
       "filter": [
         "any",
         ["==", "class", "service"],
@@ -1343,7 +1339,7 @@
       "source": "buildings-tiles",
       "source-layer": "building",
       "minzoom": 12,
-      "maxzoom": 17,
+      "maxzoom": 22,
       "layout": {
         "visibility": "none"
       },
@@ -1407,7 +1403,7 @@
       "source": "buildings-tiles",
       "source-layer": "building",
       "minzoom": 13,
-      "maxzoom": 16,
+      "maxzoom": 22,
       "layout": {
         "visibility": "visible"
       },
@@ -1432,7 +1428,7 @@
       "source": "buildings-tiles",
       "source-layer": "building",
       "minzoom": 11,
-      "maxzoom": 16,
+      "maxzoom": 22,
       "layout": {
         "visibility": "visible"
       },
