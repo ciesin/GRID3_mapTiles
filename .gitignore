@@ -62,10 +62,6 @@ input/
 *.backup
 *.bak
 
-# SQL dumps
-*.sql
-!sql/*.sql
-
 # OS files
 .DS_Store
 Thumbs.db
