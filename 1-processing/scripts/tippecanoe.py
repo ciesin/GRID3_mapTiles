@@ -470,8 +470,8 @@ def build_tippecanoe_command(input_file, output_file, layer_name, extent=None, u
     
     filename = os.path.basename(input_file)
     
-    # Start with base command (run tippecanoe in WSL)
-    cmd = ['wsl', 'tippecanoe', '-fo', output_file, '-l', layer_name] + BASE_COMMAND
+    # Start with base command
+    cmd = ['tippecanoe', '-fo', output_file, '-l', layer_name] + BASE_COMMAND
     
     # Add layer-specific settings
     layer_settings = get_layer_settings(filename)

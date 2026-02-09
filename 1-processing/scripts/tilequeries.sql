@@ -16,28 +16,29 @@ SET VARIABLE overture_release = '2026-01-21.0';
 -- 1. LAND USE (NON-RESIDENTIAL)
 ----------------------------------------------------------------------
 
-COPY (
-    SELECT
-        id,
-        subtype,
-        class,
-        surface,
-        names,
-        level,
-        geometry  -- DuckDB v1.1.0+ treats this as GEOMETRY
-    FROM read_parquet(
-        's3://overturemaps-us-west-2/release/' ||
-        getvariable('overture_release') ||
-        '/theme=base/type=land_use/*',
-        filename = true,
-        hive_partitioning = 1
-    )
-    WHERE
-        subtype <> 'residential'
-        AND bbox.xmin < $extent_xmax AND bbox.xmax > $extent_xmin
-        AND bbox.ymin < $extent_ymax AND bbox.ymax > $extent_ymin
-) TO '{{overture_data_dir}}/land_use.parquet'
-WITH (FORMAT PARQUET, COMPRESSION 'ZSTD');
+-- COPY (
+--     SELECT
+--         id,
+--         subtype,
+--         class,
+--         surface,
+--         names,
+--         geometry  -- DuckDB v1.1.0+ treats this as GEOMETRY
+--     FROM read_parquet(
+--         's3://overturemaps-us-west-2/release/' ||
+--         getvariable('overture_release') ||
+--         '/theme=base/type=land_use/*',
+--         filename = true,
+--         hive_partitioning = 1
+--     )
+--     WHERE
+--         subtype <> 'residential'
+--         AND bbox.xmin < $extent_xmax AND bbox.xmax > $extent_xmin
+--         AND bbox.ymin < $extent_ymax AND bbox.ymax > $extent_ymin
+-- ) TO '{{overture_data_dir}}/land_use.parquet'
+-- WITH (FORMAT PARQUET, COMPRESSION 'ZSTD');
+
+-- break
 
 ----------------------------------------------------------------------
 -- 2. LAND USE (RESIDENTIAL ONLY)
@@ -50,7 +51,6 @@ COPY (
         class,
         surface,
         names,
-        level,
         geometry
     FROM read_parquet(
         's3://overturemaps-us-west-2/release/' ||
@@ -66,6 +66,8 @@ COPY (
 ) TO '{{overture_data_dir}}/land_residential.parquet'
 WITH (FORMAT PARQUET, COMPRESSION 'ZSTD');
 
+-- break
+
 ----------------------------------------------------------------------
 -- 3. WATER
 --        subtype, class, names, is_salt, is_intermittent, etc.)
@@ -79,7 +81,6 @@ COPY (
         names,
         is_salt,
         is_intermittent,
-        level,
         geometry
     FROM read_parquet(
         's3://overturemaps-us-west-2/release/' ||
@@ -94,6 +95,8 @@ COPY (
         AND bbox.ymin < $extent_ymax AND bbox.ymax > $extent_ymin
 ) TO '{{overture_data_dir}}/water.parquet'
 WITH (FORMAT PARQUET, COMPRESSION 'ZSTD');
+
+-- break
 
 ----------------------------------------------------------------------
 -- 4. ROADS (TRANSPORTATION / SEGMENTS, subtype = 'road')
@@ -120,6 +123,8 @@ COPY (
         AND bbox.ymin < $extent_ymax AND bbox.ymax > $extent_ymin
 ) TO '{{overture_data_dir}}/roads.parquet'
 WITH (FORMAT PARQUET, COMPRESSION 'ZSTD');
+
+-- break
 
 ----------------------------------------------------------------------
 -- 5. BUILDINGS
@@ -149,6 +154,8 @@ WITH (FORMAT PARQUET, COMPRESSION 'ZSTD');
 -- ) TO '{{overture_data_dir}}/buildings.parquet'
 -- WITH (FORMAT PARQUET, COMPRESSION 'ZSTD');
 
+-- break
+
 ----------------------------------------------------------------------
 -- 6. LAND COVER
 --   cartography.min_zoom, cartography.max_zoom, cartography.sort_key
@@ -158,7 +165,6 @@ COPY (
     SELECT
         id,
         subtype,
-        level,
         cartography.min_zoom  AS min_zoom,
         cartography.max_zoom  AS max_zoom,
         cartography.sort_key  AS sort_key,
@@ -176,6 +182,8 @@ COPY (
 ) TO '{{overture_data_dir}}/land_cover.parquet'
 WITH (FORMAT PARQUET, COMPRESSION 'ZSTD');
 
+-- break
+
 ----------------------------------------------------------------------
 -- 7. INFRASTRUCTURE
 ----------------------------------------------------------------------
@@ -185,7 +193,6 @@ COPY (
         id,
         subtype,
         class,
-        level,
         height,
         surface,
         names,
@@ -202,3 +209,5 @@ COPY (
         AND bbox.ymin < $extent_ymax AND bbox.ymax > $extent_ymin
 ) TO '{{overture_data_dir}}/infrastructure.parquet'
 WITH (FORMAT PARQUET, COMPRESSION 'ZSTD');
+
+-- break

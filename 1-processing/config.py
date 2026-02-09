@@ -130,7 +130,7 @@ DEFAULT_CONFIG = {
         "overwrite": False,  # Don't re-convert existing FGB files
         "verbose": True,
         "output_suffix": ".fgb",
-        "cleanup_source": True  # Remove source .parquet files after successful conversion to save disk space
+        "cleanup_source": False  # Remove source .parquet files after successful conversion to save disk space
     },
     "conversion": {
         "input_patterns": ["*.parquet", "*.shp", "*.gpkg", "*.gdb", "*.sqlite", "*.db", "*.geojson", "*.json"],
