@@ -1,0 +1,19 @@
+{
+  "name": "pmtiles-cloudflare",
+  "version": "1.0.0",
+  "description": "Worker for serving PMTiles from cloudflare R2 (based on official Protomaps template)",
+  "private": true,
+  "scripts": {
+    "start": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "build": "wrangler deploy --outdir dist --dry-run"
+  },
+  "dependencies": {
+    "pmtiles": "^4.3.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20230518.0",
+    "typescript": "^4.8.4",
+    "wrangler": "^4.63.0"
+  }
+}

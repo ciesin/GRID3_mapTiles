@@ -37,10 +37,9 @@ import {
   VERSION_COMPATIBILITY,
   isValidPMTiles,
 } from "./utils";
+import { getTileSourceConfig, logConfig, TILE_CONFIG } from "./config";
 
 const STYLE_MAJOR_VERSION = 5;
-
-const DEFAULT_TILES = "https://pub-927f42809d2e4b89b96d1e7efb091d1f.r2.dev/global.pmtiles";
 
 const ATTRIBUTION =
   '<a href="https://github.com/protomaps/basemaps">Protomaps</a> © <a href="https://openstreetmap.org">OpenStreetMap</a>';
@@ -118,7 +117,6 @@ const FeaturesProperties = (props: { features: MapGeoJSONFeature[] }) => {
 };
 
 function getMaplibreStyle(
-  tiles: string,
   flavor: Flavor,
   flavorName: string,
 ): StyleSpecification {
@@ -128,19 +126,22 @@ function getMaplibreStyle(
     layers: [],
   } as StyleSpecification;
 
-  const tilesWithProtocol = isValidPMTiles(tiles)
-    ? `pmtiles://${tiles}`
-    : tiles;
+  // Get tile source configuration (either PMTiles URL or Cloudflare Worker tiles)
+  const tileSourceConfig = getTileSourceConfig();
 
   style.sprite = `https://protomaps.github.io/basemaps-assets/sprites/v4/${flavorName}`;
   style.glyphs =
     "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf";
 
+  // Configure tile source based on whether using Cloudflare Worker or direct PMTiles
   style.sources = {
     protomaps: {
       type: "vector",
-      attribution: ATTRIBUTION,
-      url: tilesWithProtocol,
+      attribution: tileSourceConfig.attribution,
+      // Use either 'url' (for pmtiles:// protocol) or 'tiles' (for Cloudflare Worker)
+      ...(tileSourceConfig.url ? { url: tileSourceConfig.url } : {}),
+      ...(tileSourceConfig.tiles ? { tiles: tileSourceConfig.tiles } : {}),
+      maxzoom: 22, // Allow overzooming
     },
   };
 
@@ -149,7 +150,6 @@ function getMaplibreStyle(
 }
 
 function MapLibreView(props: {
-  tiles: string;
   flavor: Flavor;
   flavorName: string;
 }) {
@@ -165,6 +165,9 @@ function MapLibreView(props: {
   const [mismatch, setMismatch] = createSignal<string>("");
 
   onMount(() => {
+    // Log tile configuration for debugging
+    logConfig();
+
     if (getRTLTextPluginStatus() === "unavailable") {
       setRTLTextPlugin(
         "https://unpkg.com/@mapbox/mapbox-gl-rtl-text@0.2.3/mapbox-gl-rtl-text.min.js",
@@ -177,14 +180,18 @@ function MapLibreView(props: {
       return;
     }
 
-    const protocol = new Protocol({ metadata: true });
-    setProtocolRef(protocol);
-    addProtocol("pmtiles", protocol.tile);
+    // Only register pmtiles protocol if not using Cloudflare Worker
+    // (Cloudflare Worker serves tiles directly, doesn't need the protocol)
+    if (!TILE_CONFIG.useCloudflare) {
+      const protocol = new Protocol({ metadata: true });
+      setProtocolRef(protocol);
+      addProtocol("pmtiles", protocol.tile);
+    }
 
     const map = new MaplibreMap({
       hash: "map",
       container: mapContainer,
-      style: getMaplibreStyle(props.tiles, props.flavor, props.flavorName),
+      style: getMaplibreStyle(props.flavor, props.flavorName),
       attributionControl: false,
     });
 
@@ -291,8 +298,11 @@ function MapLibreView(props: {
     mapRef = map;
 
     return () => {
-      setProtocolRef(undefined);
-      removeProtocol("pmtiles");
+      // Only remove protocol if it was registered (not using Cloudflare Worker)
+      if (!TILE_CONFIG.useCloudflare) {
+        setProtocolRef(undefined);
+        removeProtocol("pmtiles");
+      }
       map.remove();
     };
   });
@@ -300,11 +310,19 @@ function MapLibreView(props: {
   const archiveInfo = async (): Promise<
     { metadata: unknown; bounds: LngLatBoundsLike } | undefined
   > => {
+    // When using Cloudflare Worker, we can't easily get metadata
+    // In that case, return undefined (map will use default bounds/center)
+    if (TILE_CONFIG.useCloudflare) {
+      console.log("Using Cloudflare Worker - metadata not available");
+      return undefined;
+    }
+
+    // For direct PMTiles, fetch metadata via protocol
     const p = protocolRef();
-    if (p && props.tiles) {
-      let archive = p.tiles.get(props.tiles);
+    if (p && TILE_CONFIG.directPMTilesUrl) {
+      let archive = p.tiles.get(TILE_CONFIG.directPMTilesUrl);
       if (!archive) {
-        archive = new PMTiles(props.tiles);
+        archive = new PMTiles(TILE_CONFIG.directPMTilesUrl);
         p.add(archive);
       }
       const metadata = await archive.getMetadata();
@@ -320,7 +338,7 @@ function MapLibreView(props: {
   };
 
   const memoizedStyle = createMemo(() => {
-    return getMaplibreStyle(props.tiles, props.flavor, props.flavorName);
+    return getMaplibreStyle(props.flavor, props.flavorName);
   });
 
   createEffect(() => {
@@ -381,7 +399,6 @@ function MapView() {
     <div class="flex flex-col h-dvh w-full">
       <div class="h-full flex grow-1">
         <MapLibreView
-          tiles={DEFAULT_TILES}
           flavor={flavor}
           flavorName={FLAVOR}
         />
