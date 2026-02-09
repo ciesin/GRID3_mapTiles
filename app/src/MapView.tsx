@@ -35,7 +35,7 @@ import {
 } from "solid-js";
 import { type Flavor, layers, namedFlavor } from "../../styles/src/index.ts";
 import { language_script_pairs } from "../../styles/src/language.ts";
-import Nav from "./Nav";
+// import Nav from "./Nav";
 import {
   VERSION_COMPATIBILITY,
   createHash,
@@ -46,7 +46,7 @@ import {
 
 const STYLE_MAJOR_VERSION = 5;
 
-const DEFAULT_TILES = "https://demo-bucket.protomaps.com/v4.pmtiles";
+const DEFAULT_TILES = "https://pub-927f42809d2e4b89b96d1e7efb091d1f.r2.dev/global.pmtiles";
 
 const ATTRIBUTION =
   '<a href="https://github.com/protomaps/basemaps">Protomaps</a> © <a href="https://openstreetmap.org">OpenStreetMap</a>';
@@ -174,47 +174,6 @@ function getMaplibreStyle(
     );
   }
   return style;
-}
-
-function StyleJsonPane(props: {
-  flavorName: string;
-  flavor?: Flavor;
-  lang: string;
-  tiles: string;
-}) {
-  const stringified = createMemo(() => {
-    return JSON.stringify(
-      getMaplibreStyle(
-        props.lang,
-        false,
-        props.flavorName,
-        props.flavor,
-        props.tiles,
-      ),
-      null,
-      4,
-    );
-  });
-
-  return (
-    <div class="w-1/2 h-full w-full p-2 flex flex-col">
-      <button
-        type="button"
-        class="btn-primary"
-        onClick={() => {
-          navigator.clipboard.writeText(stringified());
-        }}
-      >
-        Copy to clipboard
-      </button>
-      <textarea
-        readonly
-        class="text-xs font-mono p-2 border mt-4 w-full overflow-x-scroll overflow-y-scroll flex-1"
-      >
-        {stringified()}
-      </textarea>
-    </div>
-  );
 }
 
 type MapLibreViewRef = { fit: () => void };
@@ -477,7 +436,6 @@ function MapLibreView(props: {
       <div ref={mapContainer} class="h-full w-full flex" />
       <div class="absolute bottom-0 p-1 text-xs bg-white bg-opacity-50">
         {timelinessInfo()} z@{zoom().toFixed(2)}
-        <div class="hidden lg:block font-bold">Drag .pmtiles here to view</div>
         <Show when={mismatch()}>
           <div class="font-bold text-red">
             {mismatch()}
@@ -566,33 +524,6 @@ function MapView() {
     }
   };
 
-  const loadTiles: JSX.EventHandler<HTMLFormElement, Event> = (event) => {
-    event.preventDefault();
-    const formData = new FormData(event.target as HTMLFormElement);
-    const tilesValue = formData.get("tiles");
-    if (typeof tilesValue === "string") {
-      setTiles(tilesValue);
-    }
-  };
-
-  const getVersions = async (pkg: string) => {
-    const resp = await fetch(`https://registry.npmjs.org/${pkg}`, {
-      headers: { Accept: "application/vnd.npm.install-v1+json" },
-    });
-    return Object.keys((await resp.json()).versions);
-  };
-
-  const loadVersionsFromNpm = async () => {
-    const oldVersions = await getVersions("protomaps-themes-base");
-    const versions = await getVersions("@protomaps/basemaps");
-    setKnownNpmVersions(
-      [...oldVersions, ...versions]
-        .sort()
-        .filter((v) => +v.split(".")[0] >= 2)
-        .reverse(),
-    );
-  };
-
   createEffect(() => {
     (async () => {
       const psv = publishedStyleVersion();
@@ -606,137 +537,8 @@ function MapView() {
 
   language_script_pairs.sort((a, b) => a.full_name.localeCompare(b.full_name));
 
-  const fit = () => {
-    maplibreView()?.fit();
-  };
-
-  const clearDroppedArchive = () => {
-    setDroppedArchive(undefined);
-  };
-
   return (
     <div class="flex flex-col h-dvh w-full">
-      <Nav page={0} />
-      <div class="max-w-[1500px] mx-auto">
-        <form onSubmit={loadTiles} class="flex space-x-2">
-          <Show when={droppedArchive()}>
-            <div class="flex-1 font-mono">
-              Dropped file {droppedArchive()?.source.getKey()}
-            </div>
-            <button
-              class="btn-primary bg-gray text-black"
-              onClick={clearDroppedArchive}
-              type="button"
-            >
-              close
-            </button>
-          </Show>
-          <Show when={!droppedArchive()}>
-            <input
-              class="border-2 border-gray p-1 flex-1 text-xs lg:text-base"
-              type="text"
-              name="tiles"
-              value={tiles()}
-              autocomplete="off"
-            />
-            <button class="btn-primary" type="submit">
-              load
-            </button>
-          </Show>
-          <button class="btn-primary" type="submit" onClick={fit}>
-            fit bounds
-          </button>
-        </form>
-        <div class="flex my-2 space-y-2 lg:space-y-0 space-x-2 flex-col lg:flex-row items-center">
-          <div class="flex items-center">
-            <label for="flavorName" class="text-xs mr-1">
-              flavor
-            </label>
-            <select
-              id="flavorName"
-              onChange={(e) => setFlavorName(e.target.value)}
-              value={flavorName()}
-              autocomplete="on"
-            >
-              <option value="light">light</option>
-              <option value="dark">dark</option>
-              <option value="white">data viz (white)</option>
-              <option value="grayscale">data viz (grayscale)</option>
-              <option value="black">data viz (black)</option>
-            </select>
-          </div>
-          <div class="flex items-center">
-            <label for="lang" class="text-xs mr-1">
-              language
-            </label>
-            <select
-              id="lang"
-              onChange={(e) => setLang(e.target.value)}
-              value={lang()}
-              autocomplete="on"
-            >
-              <For each={language_script_pairs}>
-                {(pair) => (
-                  <option value={pair.lang}>
-                    {pair.lang} ({pair.full_name})
-                  </option>
-                )}
-              </For>
-            </select>
-          </div>
-          <div class="hidden lg:inline">
-            <input
-              id="localSprites"
-              type="checkbox"
-              checked={localSprites()}
-              onChange={(e) => setLocalSprites(e.currentTarget.checked)}
-            />
-            <label for="localSprites" class="text-xs ml-1">
-              local sprites
-            </label>
-          </div>
-          <div class="hidden lg:inline">
-            <input
-              id="showBoxes"
-              type="checkbox"
-              checked={showBoxes()}
-              onChange={(e) => setShowBoxes(e.currentTarget.checked)}
-            />
-            <label for="showBoxes" class="text-xs ml-1">
-              bboxes
-            </label>
-          </div>
-          <Show
-            when={knownNpmVersions().length > 0}
-            fallback={
-              <button
-                class="btn-primary"
-                type="button"
-                onClick={loadVersionsFromNpm}
-              >
-                style version
-              </button>
-            }
-          >
-            <select
-              onChange={(e) => setPublishedStyleVersion(e.target.value)}
-              value={publishedStyleVersion()}
-            >
-              <option value="">main</option>
-              <For each={knownNpmVersions()}>
-                {(v: string) => <option value={v}>{v}</option>}
-              </For>
-            </select>
-          </Show>
-          <button
-            type="button"
-            class="btn-primary hidden lg:inline"
-            onClick={() => setShowStyleJson(!showStyleJson())}
-          >
-            {showStyleJson() ? "Close style JSON" : "Get style JSON"}
-          </button>
-        </div>
-      </div>
       <div
         class="h-full flex grow-1"
         onKeyPress={handleKeyPress}
@@ -755,14 +557,6 @@ function MapView() {
           npmVersion={publishedStyleVersion()}
           droppedArchive={droppedArchive()}
         />
-        <Show when={showStyleJson()}>
-          <StyleJsonPane
-            flavorName={flavorName()}
-            flavor={flavor()}
-            lang={lang()}
-            tiles={droppedArchive() ? "example.pmtiles" : tiles()}
-          />
-        </Show>
       </div>
     </div>
   );
