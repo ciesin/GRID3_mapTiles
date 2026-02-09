@@ -39,7 +39,6 @@ export default defineConfig({
 		rollupOptions: {
 			input: {
 				mapview: resolve(__dirname, "index.html"),
-				builds: resolve(__dirname, "builds/index.html"),
 			},
 		},
 	},
