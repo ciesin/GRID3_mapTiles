@@ -32,9 +32,9 @@ import {
   createSignal,
   onMount,
 } from "solid-js";
-import { type Flavor, layers, namedFlavor } from "../../styles/src/index.ts";
 import { VERSION_COMPATIBILITY } from "./utils";
 import { APP_CONFIG, getTileSourceConfig, logConfig } from "./config";
+import baseStyle from "./cartography.json";
 
 const STYLE_MAJOR_VERSION = 5;
 
@@ -110,25 +110,17 @@ const FeaturesProperties = (props: { features: MapGeoJSONFeature[] }) => {
   );
 };
 
-function getMaplibreStyle(
-  flavor: Flavor,
-  flavorName: string,
-): StyleSpecification {
-  const style = {
-    version: 8 as unknown,
-    sources: {},
-    layers: [],
-  } as StyleSpecification;
+function getMaplibreStyle(): StyleSpecification {
+  // Start with base style from cartography.json
+  const style = JSON.parse(JSON.stringify(baseStyle)) as StyleSpecification;
 
   // Get tile source configuration (either PMTiles URL or Cloudflare Worker tiles)
   const tileSourceConfig = getTileSourceConfig();
+  const buildingsSourceConfig = getTileSourceConfig("buildings");
 
-  style.sprite = `https://protomaps.github.io/basemaps-assets/sprites/v4/${flavorName}`;
-  style.glyphs =
-    "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf";
-
-  // Configure tile source based on whether using Cloudflare Worker or direct PMTiles
+  // Override/add tile sources with our configuration
   style.sources = {
+    ...style.sources,
     protomaps: {
       type: "vector",
       attribution: tileSourceConfig.attribution,
@@ -137,16 +129,44 @@ function getMaplibreStyle(
       ...(tileSourceConfig.tiles ? { tiles: tileSourceConfig.tiles } : {}),
       maxzoom: 22, // Allow overzooming
     },
+    buildings: {
+      type: "vector",
+      attribution: buildingsSourceConfig.attribution,
+      ...(buildingsSourceConfig.url ? { url: buildingsSourceConfig.url } : {}),
+      ...(buildingsSourceConfig.tiles ? { tiles: buildingsSourceConfig.tiles } : {}),
+      maxzoom: 22,
+    },
   };
 
-  style.layers = layers("protomaps", flavor, { lang: "en" });
+  // Add buildings layers
+  style.layers = [
+    ...style.layers,
+    {
+      id: "custom-buildings-fill",
+      type: "fill",
+      source: "buildings",
+      "source-layer": "buildings",
+      paint: {
+        "fill-color": "#2bff00",
+        "fill-opacity": 0.7,
+      },
+    },
+    {
+      id: "custom-buildings-outline",
+      type: "line",
+      source: "buildings",
+      "source-layer": "buildings",
+      paint: {
+        "line-color": "#5050ff",
+        "line-width": 0.5,
+      },
+    },
+  ];
+  
   return style;
 }
 
-function MapLibreView(props: {
-  flavor: Flavor;
-  flavorName: string;
-}) {
+function MapLibreView() {
   let mapContainer: HTMLDivElement | undefined;
   let mapRef: MaplibreMap | undefined;
   let hiddenRef: HTMLDivElement | undefined;
@@ -182,11 +202,25 @@ function MapLibreView(props: {
       addProtocol("pmtiles", protocol.tile);
     }
 
+    // clamp to minimize tile calls
+    const drcBounds: LngLatBoundsLike = [[8, -13], [35, 9]];
+
+
     const map = new MaplibreMap({
       hash: "map",
       container: mapContainer,
-      style: getMaplibreStyle(props.flavor, props.flavorName),
+      style: getMaplibreStyle(),
+      center: [21.5, -4], // Center of DRC 
+      zoom: 6, 
+      minZoom: 3,
+      maxZoom: 15.5,
+      maxBounds: drcBounds, // viewport restriction
       attributionControl: false,
+      refreshExpiredTiles: false,
+      maxTileCacheSize: 500,
+      cancelPendingTileRequestsWhileZooming: true,
+      renderWorldCopies: false,
+      fadeDuration: 200
     });
 
     map.addControl(new NavigationControl());
@@ -307,7 +341,7 @@ function MapLibreView(props: {
     // When using Cloudflare Worker, we can't easily get metadata
     // In that case, return undefined (map will use default bounds/center)
     if (APP_CONFIG.tiles.useCloudflare) {
-      console.log("Using Cloudflare Worker - metadata not available");
+      // console.log("Using Cloudflare Worker - metadata not available");
       return undefined;
     }
 
@@ -332,7 +366,7 @@ function MapLibreView(props: {
   };
 
   const memoizedStyle = createMemo(() => {
-    return getMaplibreStyle(props.flavor, props.flavorName);
+    return getMaplibreStyle();
   });
 
   createEffect(() => {
@@ -386,16 +420,10 @@ function MapLibreView(props: {
 }
 
 function MapView() {
-  const FLAVOR = "light";
-  const flavor = namedFlavor(FLAVOR);
-
   return (
     <div class="flex flex-col h-dvh w-full">
       <div class="h-full flex grow-1">
-        <MapLibreView
-          flavor={flavor}
-          flavorName={FLAVOR}
-        />
+        <MapLibreView />
       </div>
     </div>
   );

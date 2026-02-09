@@ -83,15 +83,17 @@ export const APP_CONFIG: AppConfig = {
  * Get the tile source configuration for MapLibre
  * Returns either a 'url' (for pmtiles protocol) or 'tiles' array (for Cloudflare Worker)
  */
-export function getTileSourceConfig(): { url?: string; tiles?: string[]; attribution: string } {
+export function getTileSourceConfig(archiveName?: string): { url?: string; tiles?: string[]; attribution: string } {
   const attribution = '<a href="https://github.com/protomaps/basemaps">Protomaps</a> © <a href="https://openstreetmap.org">OpenStreetMap</a>';
   const config = APP_CONFIG.tiles;
+  const archive = archiveName || config.archiveName;
   
   if (config.useCloudflare) {
     if (!config.cloudflareWorkerUrl) {
       console.error("Cloudflare Worker URL not configured! Falling back to direct PMTiles.");
+      const baseUrl = config.directPMTilesUrl.replace(/[^/]+\.pmtiles$/, '');
       return {
-        url: `pmtiles://${config.directPMTilesUrl}`,
+        url: `pmtiles://${baseUrl}${archive}.pmtiles`,
         attribution,
       };
     }
@@ -99,13 +101,14 @@ export function getTileSourceConfig(): { url?: string; tiles?: string[]; attribu
     // Cloudflare Worker pattern: {worker-url}/{archive-name}/{z}/{x}/{y}.mvt
     // The worker maps {name} to {name}.pmtiles in your R2 bucket
     return {
-      tiles: [`${config.cloudflareWorkerUrl}/${config.archiveName}/{z}/{x}/{y}.mvt`],
+      tiles: [`${config.cloudflareWorkerUrl}/${archive}/{z}/{x}/{y}.mvt`],
       attribution,
     };
   } else {
     // Direct PMTiles via protocol
+    const baseUrl = config.directPMTilesUrl.replace(/[^/]+\.pmtiles$/, '');
     return {
-      url: `pmtiles://${config.directPMTilesUrl}`,
+      url: `pmtiles://${baseUrl}${archive}.pmtiles`,
       attribution,
     };
   }
