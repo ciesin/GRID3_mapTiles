@@ -165,11 +165,12 @@ function getMaplibreStyle(demSource: any): StyleSpecification {
       demSource.contourProtocolUrl({
         multiplier: 1, // Keep meters
         thresholds: {
-          9: [100, 200],
-          10: [50, 100],
-          11: [25, 100],
-          12: [12.5, 50],
-          13: [5, 30],
+          8: [240, 480],
+          9: [120, 240],
+          10: [60, 120],
+          11: [30, 120],
+          12: [15, 60],
+          13: [5, 60],
         },
         elevationKey: "ele",
         levelKey: "level",
