@@ -199,7 +199,6 @@ function MapLibreView() {
   let hiddenRef: HTMLDivElement | undefined;
   let longPressTimeout: ReturnType<typeof setTimeout>;
 
-  const [error, setError] = createSignal<string | undefined>();
   const [timelinessInfo, setTimelinessInfo] = createSignal<string>();
   const [protocolRef, setProtocolRef] = createSignal<Protocol | undefined>();
   const [zoom, setZoom] = createSignal<number>(0);
@@ -309,15 +308,11 @@ function MapLibreView() {
     });
 
     map.on("error", (e) => {
-      const errorMsg = e.error?.message || "";
-      
       console.error("Map error:", e);
-      setError(errorMsg);
     });
 
     map.on("idle", () => {
       setZoom(map.getZoom());
-      setError(undefined);
       archiveInfo().then((i) => {
         if (i?.metadata) {
           const m = i.metadata as {
