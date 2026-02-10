@@ -152,9 +152,9 @@ function getMaplibreStyle(demSource: any): StyleSpecification {
           thresholds: {
             9: [100, 200],
             10: [50, 100],
-            11: [20, 100],
-            12: [10, 50],
-            13: [5, 25],
+            11: [25, 100],
+            12: [12.5, 50],
+            13: [5, 30],
           },
           elevationKey: "ele",
           levelKey: "level",
@@ -309,7 +309,10 @@ function MapLibreView() {
     });
 
     map.on("error", (e) => {
-      setError(e.error.message);
+      const errorMsg = e.error?.message || "";
+      
+      console.error("Map error:", e);
+      setError(errorMsg);
     });
 
     map.on("idle", () => {
@@ -475,11 +478,6 @@ function MapLibreView() {
           </div>
         </Show>
       </div>
-      <Show when={error()}>
-        <div class="absolute p-8 flex justify-center items-center bg-white bg-opacity-50 font-mono text-red">
-          {error()}
-        </div>
-      </Show>
     </>
   );
 }

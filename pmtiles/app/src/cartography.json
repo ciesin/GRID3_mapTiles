@@ -30,6 +30,38 @@
             }
         },
         {
+            "id": "hills",
+            "type": "hillshade",
+            "source": "dem",
+            "maxzoom": 14,
+            "paint": {
+                "hillshade-exaggeration": [
+                    "interpolate",
+                    ["exponential", 1.5],
+                    ["zoom"],
+                    6, 0.4,
+                    9, 0.2,
+                    15, 0.1
+                ],
+                "hillshade-shadow-color": [
+                    "interpolate",
+                    ["linear"],
+                    ["zoom"],
+                    6, "rgba(0,0,0,0.2)",
+                    11, "rgba(0,0,0,0.05)",
+                    15, "rgba(123, 123, 123, 0)"
+                ],
+                "hillshade-highlight-color": [
+                    "interpolate",
+                    ["linear"],
+                    ["zoom"],
+                    11, "rgba(255,255,255,0.15)",
+                    13, "rgba(255,255,255,0.1)",
+                    16, "rgba(239, 239, 239, 0.05)"
+                ]
+            }
+        },
+        {
             "id": "landcover",
             "type": "fill",
             "source": "protomaps",
@@ -393,6 +425,80 @@
                 "fill-color": "#e9e9ed"
             }
         },
+                {
+            "id": "contours",
+            "type": "line",
+            "source": "contours",
+            "source-layer": "contours",
+            "paint": {
+                "line-color": [
+                    "match",
+                    ["get", "level"],
+                    1,
+                    "#9d8b7a",
+                    0,
+                    "#b3a89d",
+                    "#9d8b7a"
+                ],
+                "line-opacity": [
+                    "interpolate",
+                    ["linear"],
+                    ["zoom"],
+                    10,
+                    0.25,
+                    12,
+                    0.4,
+                    14,
+                    0.7
+                ],
+                "line-width": [
+                    "interpolate",
+                    ["linear"],
+                    ["zoom"],
+                    10,
+                    ["match", ["get", "level"], 1, 0.3, 0.2],
+                    13,
+                    ["match", ["get", "level"], 1, 0.6, 0.4],
+                    16,
+                    ["match", ["get", "level"], 1, 0.5, 0.5]
+                ]
+            },
+            "layout": {
+                "visibility": "visible",
+                "line-join": "round",
+                "line-cap": "round"
+            }
+        },
+        {
+            "id": "contour-text",
+            "type": "symbol",
+            "source": "contours",
+            "source-layer": "contours",
+            "filter": [">", ["get", "level"], 0],
+            "paint": {
+                "text-color": "#8b7355",
+                "text-halo-color": "#ffffff",
+                "text-halo-width": 1.5,
+                "text-opacity": [
+                    "interpolate",
+                    ["linear"],
+                    ["zoom"],
+                    12,
+                    0,
+                    14,
+                    0.4,
+                    16,
+                    0.6
+                ]
+            },
+            "layout": {
+                "symbol-placement": "line",
+                "text-size": 10,
+                "text-field": ["concat", ["number-format", ["get", "ele"], {}], "m"],
+                "text-font": ["Noto Sans Regular"],
+                "visibility": "none"
+            }
+        },
         {
             "id": "water",
             "type": "fill",
@@ -452,80 +558,6 @@
                     18,
                     12
                 ]
-            }
-        },
-        {
-            "id": "contours",
-            "type": "line",
-            "source": "contours",
-            "source-layer": "contours",
-            "paint": {
-                "line-color": [
-                    "match",
-                    ["get", "level"],
-                    1,
-                    "#8b7355",
-                    0,
-                    "#b3a89d",
-                    "#9d8b7a"
-                ],
-                "line-opacity": [
-                    "interpolate",
-                    ["linear"],
-                    ["zoom"],
-                    10,
-                    0.15,
-                    12,
-                    0.3,
-                    14,
-                    0.5
-                ],
-                "line-width": [
-                    "interpolate",
-                    ["linear"],
-                    ["zoom"],
-                    10,
-                    ["match", ["get", "level"], 1, 0.3, 0.2],
-                    13,
-                    ["match", ["get", "level"], 1, 0.6, 0.4],
-                    16,
-                    ["match", ["get", "level"], 1, 1.0, 0.6]
-                ]
-            },
-            "layout": {
-                "visibility": "visible",
-                "line-join": "round",
-                "line-cap": "round"
-            }
-        },
-        {
-            "id": "contour-text",
-            "type": "symbol",
-            "source": "contours",
-            "source-layer": "contours",
-            "filter": [">", ["get", "level"], 0],
-            "paint": {
-                "text-color": "#8b7355",
-                "text-halo-color": "#ffffff",
-                "text-halo-width": 1.5,
-                "text-opacity": [
-                    "interpolate",
-                    ["linear"],
-                    ["zoom"],
-                    12,
-                    0,
-                    14,
-                    0.4,
-                    16,
-                    0.6
-                ]
-            },
-            "layout": {
-                "symbol-placement": "line",
-                "text-size": 10,
-                "text-field": ["concat", ["number-format", ["get", "ele"], {}], "m"],
-                "text-font": ["Noto Sans Regular"],
-                "visibility": "none"
             }
         },
         {
