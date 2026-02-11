@@ -14,7 +14,7 @@
         "grid3": {
             "type": "vector",
             "attribution": "<a href=\"https://grid3.org\">GRID3</a>",
-            "url": "pmtiles://https://pub-927f42809d2e4b89b96d1e7efb091d1f.r2.dev/buildings.pmtiles"
+            "url": "pmtiles://https://pub-927f42809d2e4b89b96d1e7efb091d1f.r2.dev/grid3.pmtiles"
         }
     },
     "layers": [
@@ -2240,6 +2240,93 @@
                     0.2,
                     14,
                     0.5
+                ]
+            }
+        },
+        {
+            "id": "settlement-extents",
+            "type": "fill",
+            "source": "grid3",
+            "source-layer": "settlement-extents",
+            "minzoom": 8,
+            "maxzoom": 15,
+            "layout": {
+                "visibility": "visible"
+            },
+            "paint": {
+                "fill-color": [
+                    "match",
+                    ["get", "type"],
+                    "Built-up Area", "#DFC8E7",
+                    "Hamlet", "#B580D1",
+                    "Small Settlement Area", "#CAA2DD",
+                    "#FFA50000"
+                ],
+                "fill-opacity": [
+                    "interpolate",
+                    [
+                        "linear"
+                    ],
+                    [
+                        "zoom"
+                    ],
+                    8,
+                    0.3,
+                    12,
+                    0.4,
+                    15,
+                    0.5
+                ]
+            }
+        },
+        {
+            "id": "settlement-extents-outline",
+            "type": "line",
+            "source": "grid3",
+            "source-layer": "settlement-extents",
+            "minzoom": 8,
+            "maxzoom": 15,
+            "layout": {
+                "visibility": "visible"
+            },
+            "paint": {
+                "line-color": [
+                    "match",
+                    ["get", "type"],
+                    "Built-up Area", "#DFC8E7",
+                    "Hamlet", "#B580D1",
+                    "Small Settlement Area", "#CAA2DD",
+                    "#FF8C0000"
+                ],
+                "line-width": [
+                    "interpolate",
+                    [
+                        "linear"
+                    ],
+                    [
+                        "zoom"
+                    ],
+                    8,
+                    0.5,
+                    12,
+                    1,
+                    15,
+                    1.5
+                ],
+                "line-opacity": [
+                    "interpolate",
+                    [
+                        "linear"
+                    ],
+                    [
+                        "zoom"
+                    ],
+                    8,
+                    0.5,
+                    12,
+                    0.6,
+                    15,
+                    0.7
                 ]
             }
         },

@@ -120,7 +120,8 @@ function getMaplibreStyle(demSource: any): StyleSpecification {
   // Get tile source configurations from Cloudflare Worker
   const protomapsConfig = getTileSourceConfig("protomaps");
   const overtureConfig = getTileSourceConfig("overture");
-  // const grid3Config = getTileSourceConfig("grid3"); // Uncomment when grid3 layers are ready
+  const grid3Config = getTileSourceConfig("grid3");
+  const settlementExtentsConfig = getTileSourceConfig("settlement_extents");
 
   // Update the existing sources with Cloudflare Worker tile endpoints
   if (style.sources.protomaps) {
@@ -142,14 +143,24 @@ function getMaplibreStyle(demSource: any): StyleSpecification {
   }
 
   // Add GRID3 source when ready
-  // if (style.sources.grid3) {
-  //   style.sources.grid3 = {
-  //     type: "vector",
-  //     attribution: grid3Config.attribution,
-  //     tiles: grid3Config.tiles,
-  //     maxzoom: grid3Config.maxzoom,
-  //   };
-  // }
+  if (style.sources.grid3) {
+    style.sources.grid3 = {
+      type: "vector",
+      attribution: grid3Config.attribution,
+      tiles: grid3Config.tiles,
+      maxzoom: grid3Config.maxzoom,
+    };
+  }
+
+  // Add settlement extents source (temporary)
+  if (style.sources.settlement_extents) {
+    style.sources.settlement_extents = {
+      type: "vector",
+      attribution: settlementExtentsConfig.attribution,
+      tiles: settlementExtentsConfig.tiles,
+      maxzoom: settlementExtentsConfig.maxzoom,
+    };
+  }
 
   // Add DEM and contours sources for terrain
   style.sources.dem = {
@@ -248,7 +259,7 @@ function MapLibreView() {
       center: [21.5, -4], // Center of DRC 
       zoom: 6, 
       minZoom: 3,
-      maxZoom: 15.75,
+      maxZoom: 15,
       maxBounds: drcBounds, // viewport restriction
       attributionControl: false,
       refreshExpiredTiles: false,

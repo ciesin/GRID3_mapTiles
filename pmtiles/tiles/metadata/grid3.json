@@ -1,9 +1,9 @@
 "tilestats": {
-    "layerCount": 6,
+    "layerCount": 7,
     "layers": [
         {
             "layer": "health-areas",
-            "count": 218704,
+            "count": 2856768,
             "geometry": "Polygon",
             "attributeCount": 3,
             "attributes": [
@@ -258,7 +258,7 @@
         },
         {
             "layer": "health-areas-centroids",
-            "count": 62641,
+            "count": 93160,
             "geometry": "Point",
             "attributeCount": 19,
             "attributes": [
@@ -1544,7 +1544,7 @@
         },
         {
             "layer": "health-facilities",
-            "count": 232097,
+            "count": 341114,
             "geometry": "Point",
             "attributeCount": 28,
             "attributes": [
@@ -3282,7 +3282,7 @@
         },
         {
             "layer": "health-zones",
-            "count": 59873,
+            "count": 2280420,
             "geometry": "Polygon",
             "attributeCount": 2,
             "attributes": [
@@ -3430,7 +3430,7 @@
         },
         {
             "layer": "health-zones-centroids",
-            "count": 4484,
+            "count": 6439,
             "geometry": "Point",
             "attributeCount": 16,
             "attributes": [
@@ -4392,8 +4392,26 @@
             ]
         },
         {
+            "layer": "settlement-extents",
+            "count": 5499158,
+            "geometry": "Polygon",
+            "attributeCount": 1,
+            "attributes": [
+                {
+                    "attribute": "type",
+                    "count": 3,
+                    "type": "string",
+                    "values": [
+                        "Built-up Area",
+                        "Hamlet",
+                        "Small Settlement Area"
+                    ]
+                }
+            ]
+        },
+        {
             "layer": "settlement-names",
-            "count": 782413,
+            "count": 1182743,
             "geometry": "Point",
             "attributeCount": 22,
             "attributes": [
