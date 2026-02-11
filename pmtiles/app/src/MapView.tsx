@@ -259,7 +259,7 @@ function MapLibreView() {
       center: [21.5, -4], // Center of DRC 
       zoom: 6, 
       minZoom: 3,
-      maxZoom: 15,
+      maxZoom: 15.75,
       maxBounds: drcBounds, // viewport restriction
       attributionControl: false,
       refreshExpiredTiles: false,
