@@ -11,6 +11,7 @@ import {
   Map as MaplibreMap,
   NavigationControl,
   Popup,
+  ScaleControl,
   getRTLTextPluginStatus,
   setRTLTextPlugin,
 } from "maplibre-gl";
@@ -252,7 +253,7 @@ function MapLibreView() {
       attributionControl: false,
       refreshExpiredTiles: false,
       maxTileCacheSize: 500,
-      cancelPendingTileRequestsWhileZooming: true,
+      // cancelPendingTileRequestsWhileZooming: true,
       renderWorldCopies: false,
       fadeDuration: 200
     });
@@ -271,6 +272,9 @@ function MapLibreView() {
       }),
     );
 
+    // Add scale control at bottom-left
+    map.addControl(new ScaleControl(), 'bottom-left');
+
     map.addControl(
       new AttributionControl({
         compact: false,
@@ -288,7 +292,7 @@ function MapLibreView() {
 
     const popup = new Popup({
       closeButton: true,
-      closeOnClick: false,
+      closeOnClick: true,
       maxWidth: "none",
     });
 
@@ -389,7 +393,7 @@ function MapLibreView() {
     <>
       <div class="hidden" ref={hiddenRef} />
       <div ref={mapContainer} class="h-full w-full flex" />
-      <div class="absolute bottom-0 p-1 text-xs bg-white bg-opacity-50">
+      <div class="absolute top-0 left-0 p-1 text-xs bg-white bg-opacity-50">
         z@{zoom().toFixed(2)}
       </div>
     </>
