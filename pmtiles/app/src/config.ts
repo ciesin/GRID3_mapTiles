@@ -64,7 +64,6 @@ export interface TileConfig {
     protomaps: ArchiveSource;
     overture: ArchiveSource;
     grid3: ArchiveSource;
-    settlement_extents: ArchiveSource;
   };
 }
 
@@ -88,11 +87,13 @@ export const APP_CONFIG: AppConfig = {
       "VITE_CLOUDFLARE_WORKER_URL",
       "https://pmtiles-cloudflare.mheaton-945.workers.dev"
     ),
+    // set these max zooms to available data, not preferred overzoom level
+    // overzoom will still happen above available tile levels
     sources: {
       protomaps: {
         archiveName: getEnvVar("VITE_PROTOMAPS_ARCHIVE", "global"),
         attribution: '<a href="https://github.com/protomaps/basemaps">Protomaps</a> © <a href="https://openstreetmap.org">OpenStreetMap</a>',
-        maxzoom: 22,
+        maxzoom: 15,
       },
       overture: {
         archiveName: getEnvVar("VITE_OVERTURE_ARCHIVE", "buildings"),
@@ -102,11 +103,6 @@ export const APP_CONFIG: AppConfig = {
       grid3: {
         archiveName: getEnvVar("VITE_GRID3_ARCHIVE", "grid3"),
         attribution: '<a href="https://grid3.org">GRID3</a>',
-        maxzoom: 15,
-      },
-      settlement_extents: {
-        archiveName: getEnvVar("VITE_SETTLEMENT_EXTENTS_ARCHIVE", "settlement_extents"),
-        attribution: '<a href="https://grid3.org">GRID3 Settlement Extents</a>',
         maxzoom: 15,
       },
     },
@@ -168,7 +164,6 @@ export function getTileSourceByArchive(archiveName: string): ReturnType<typeof g
     global: "protomaps",
     buildings: "overture",
     grid3: "grid3",
-    settlement_extents: "settlement_extents",
   };
   
   const sourceName = archiveMap[archiveName] || "protomaps";

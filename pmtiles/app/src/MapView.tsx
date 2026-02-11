@@ -121,7 +121,6 @@ function getMaplibreStyle(demSource: any): StyleSpecification {
   const protomapsConfig = getTileSourceConfig("protomaps");
   const overtureConfig = getTileSourceConfig("overture");
   const grid3Config = getTileSourceConfig("grid3");
-  const settlementExtentsConfig = getTileSourceConfig("settlement_extents");
 
   // Update the existing sources with Cloudflare Worker tile endpoints
   if (style.sources.protomaps) {
@@ -152,22 +151,13 @@ function getMaplibreStyle(demSource: any): StyleSpecification {
     };
   }
 
-  // Add settlement extents source (temporary)
-  if (style.sources.settlement_extents) {
-    style.sources.settlement_extents = {
-      type: "vector",
-      attribution: settlementExtentsConfig.attribution,
-      tiles: settlementExtentsConfig.tiles,
-      maxzoom: settlementExtentsConfig.maxzoom,
-    };
-  }
 
   // Add DEM and contours sources for terrain
   style.sources.dem = {
     type: "raster-dem",
     encoding: "terrarium",
     tiles: [demSource.sharedDemProtocolUrl],
-    maxzoom: 16,
+    maxzoom: 15,
     tileSize: 256,
   };
 
@@ -189,7 +179,7 @@ function getMaplibreStyle(demSource: any): StyleSpecification {
         contourLayer: "contours",
       }),
     ],
-    maxzoom: 16,
+    maxzoom: 15,
   };
 
   // Add global light source for 3D features
@@ -237,7 +227,7 @@ function MapLibreView() {
     const demSource = new mlcontour.DemSource({
       url: "https://elevation-tiles-prod.s3.amazonaws.com/terrarium/{z}/{x}/{y}.png",
       encoding: "terrarium",
-      maxzoom: 16,
+      maxzoom: 15,
       worker: true,
       cacheSize: 100,
       timeoutMs: 10_000,
@@ -259,7 +249,7 @@ function MapLibreView() {
       center: [21.5, -4], // Center of DRC 
       zoom: 6, 
       minZoom: 3,
-      maxZoom: 15.75,
+      maxZoom: 16.5,
       maxBounds: drcBounds, // viewport restriction
       attributionControl: false,
       refreshExpiredTiles: false,
@@ -365,39 +355,6 @@ function MapLibreView() {
     return () => {
       map.remove();
     };
-  });
-
-
-
-  const memoizedStyle = createMemo(async () => {
-    // Lazy load contour module
-    const mlcontourModule = await import("maplibre-contour");
-    const mlcontour = mlcontourModule.default;
-    
-    // Create DEM source
-    const demSource = new mlcontour.DemSource({
-      url: "https://elevation-tiles-prod.s3.amazonaws.com/terrarium/{z}/{x}/{y}.png",
-      encoding: "terrarium",
-      maxzoom: 16,
-      worker: true,
-      cacheSize: 100,
-      timeoutMs: 10_000,
-    });
-    
-    demSource.setupMaplibre(maplibregl);
-    
-    return getMaplibreStyle(demSource);
-  });
-
-
-
-  createEffect(() => {
-    if (mapRef) {
-      const map = mapRef;
-      memoizedStyle().then((style) => {
-        map.setStyle(style);
-      });
-    }
   });
 
   return (
