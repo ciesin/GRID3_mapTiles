@@ -25,8 +25,6 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import type { LayerSpecification } from "@maplibre/maplibre-gl-style-spec";
 import {
   For,
-  createEffect,
-  createMemo,
   createSignal,
   onMount,
 } from "solid-js";
@@ -195,7 +193,6 @@ function getMaplibreStyle(demSource: any): StyleSpecification {
 
 function MapLibreView() {
   let mapContainer: HTMLDivElement | undefined;
-  let mapRef: MaplibreMap | undefined;
   let hiddenRef: HTMLDivElement | undefined;
   let longPressTimeout: ReturnType<typeof setTimeout>;
 
@@ -349,8 +346,6 @@ function MapLibreView() {
     map.on("gesturestart", clearLongPress);
     map.on("gesturechange", clearLongPress);
     map.on("gestureend", clearLongPress);
-
-    mapRef = map;
 
     return () => {
       map.remove();
