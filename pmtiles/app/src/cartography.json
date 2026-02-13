@@ -13172,9 +13172,21 @@
             "source": "grid3",
             "source-layer": "health-areas",
             "minzoom": 8,
-            "maxzoom": 11,
+            "maxzoom": 13.5,
             "paint": {
-                "line-color": "#607D8B",
+                "line-color": [
+                    "interpolate",
+                    [
+                        "linear"
+                    ],
+                    [
+                        "zoom"
+                    ],
+                    8,
+                    "#607D8B",
+                    13,
+                    "#455A64"
+                ],
                 "line-width": [
                     "interpolate",
                     [
@@ -13185,9 +13197,11 @@
                     ],
                     8,
                     0.1,
-                    10.5,
-                    0.8
-                                ],
+                    12.5,
+                    1.2,
+                    13.5,
+                    1.5
+                ],
                 "line-opacity": [
                     "interpolate",
                     [
@@ -13201,8 +13215,10 @@
                     8.5,
                     0.3,
                     10,
+                    0.5,
+                    13,
                     0.3,
-                    10.5,
+                    13.5,
                     0
                 ]
             }
@@ -13212,7 +13228,7 @@
             "type": "line",
             "source": "grid3",
             "source-layer": "health-areas",
-            "minzoom": 10,
+            "minzoom": 12,
             "paint": {
                 "line-color": "#fff",
                 "line-width": [
@@ -13223,11 +13239,13 @@
                     [
                         "zoom"
                     ],
-                    10,
+                    13,
                     0,
-                    10.5,
+                    13.5,
                     1.2,
                     14,
+                    2.5,
+                    16,
                     3
                 ],
                 "line-opacity": [
@@ -13238,9 +13256,9 @@
                     [
                         "zoom"
                     ],
-                    10,
+                    12,
                     0,
-                    10.5,
+                    12.5,
                     1
                 ]
             }
@@ -13250,9 +13268,9 @@
             "type": "line",
             "source": "grid3",
             "source-layer": "health-areas",
-            "minzoom": 9,
+            "minzoom": 13,
             "paint": {
-                "line-color": "#F4511E",
+                "line-color": "#FF5722",
                 "line-width": [
                     "interpolate",
                     [
@@ -13261,30 +13279,16 @@
                     [
                         "zoom"
                     ],
-                    9.5,
-                    0,
-                    10,
-                    1,
+                    13,
+                    1.2,
                     14,
                     1.8
                 ],
                 "line-dasharray": [
-                    6,
-                    12
+                    4,
+                    8
                 ],
-                "line-opacity": [
-                    "interpolate",
-                    [
-                        "linear"
-                    ],
-                    [
-                        "zoom"
-                    ],
-                    9.5,
-                    0,
-                    10.5,
-                    1
-                ]
+                "line-opacity": 1
             }
         },
                 {
