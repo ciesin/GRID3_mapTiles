@@ -64,6 +64,7 @@ export interface TileConfig {
     protomaps: ArchiveSource;
     overture: ArchiveSource;
     grid3: ArchiveSource;
+    terrain: ArchiveSource;
   };
 }
 
@@ -105,6 +106,11 @@ export const APP_CONFIG: AppConfig = {
         attribution: '<a href="https://grid3.org">GRID3</a>',
         maxzoom: 15,
       },
+      terrain: {
+        archiveName: getEnvVar("VITE_TERRAIN_ARCHIVE", "terrain"),
+        attribution: '<a href="https://mapterhorn.com/attribution">© Mapterhorn</a>',
+        maxzoom: 12, 
+      },
     },
   },
   assets: {
@@ -127,7 +133,7 @@ export const APP_CONFIG: AppConfig = {
 /**
  * Get the tile source configuration for MapLibre using Cloudflare Worker
  * 
- * @param sourceName - The source name ('protomaps', 'overture', or 'grid3')
+ * @param sourceName - The source name ('protomaps', 'overture', 'grid3', or 'terrain')
  * @returns MapLibre source configuration with tiles array and attribution
  */
 export function getTileSourceConfig(
@@ -146,10 +152,19 @@ export function getTileSourceConfig(
     throw new Error(`Source '${sourceName}' not found in configuration`);
   }
   
-  // Cloudflare Worker pattern: {worker-url}/{archive-name}/{z}/{x}/{y}.mvt
+  // Determine tile extension based on source type
+  // The worker validates that the extension matches the PMTiles archive tile type
+  let extension: string;
+  if (sourceName === 'terrain') {
+    extension = '.webp'; // Mapterhorn terrain tiles are WebP raster
+  } else {
+    extension = '.mvt'; // Vector tiles
+  }
+  
+  // Cloudflare PMTiles Worker pattern: {worker-url}/{archive-name}/{z}/{x}/{y}.ext
   // The worker maps {archive-name} to {archive-name}.pmtiles in R2 bucket
   return {
-    tiles: [`${config.cloudflareWorkerUrl}/${source.archiveName}/{z}/{x}/{y}.mvt`],
+    tiles: [`${config.cloudflareWorkerUrl}/${source.archiveName}/{z}/{x}/{y}${extension}`],
     attribution: source.attribution,
     ...(source.maxzoom && { maxzoom: source.maxzoom }),
   };
@@ -164,6 +179,7 @@ export function getTileSourceByArchive(archiveName: string): ReturnType<typeof g
     global: "protomaps",
     buildings: "overture",
     grid3: "grid3",
+    terrain: "terrain",
   };
   
   const sourceName = archiveMap[archiveName] || "protomaps";

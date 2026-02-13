@@ -119,6 +119,7 @@ function getMaplibreStyle(demSource: any): StyleSpecification {
   const protomapsConfig = getTileSourceConfig("protomaps");
   const overtureConfig = getTileSourceConfig("overture");
   const grid3Config = getTileSourceConfig("grid3");
+  const terrainConfig = getTileSourceConfig("terrain");
 
   // Update the existing sources with Cloudflare Worker tile endpoints
   if (style.sources.protomaps) {
@@ -139,7 +140,7 @@ function getMaplibreStyle(demSource: any): StyleSpecification {
     };
   }
 
-  // Add GRID3 source when ready
+
   if (style.sources.grid3) {
     style.sources.grid3 = {
       type: "vector",
@@ -155,29 +156,32 @@ function getMaplibreStyle(demSource: any): StyleSpecification {
     type: "raster-dem",
     encoding: "terrarium",
     tiles: [demSource.sharedDemProtocolUrl],
-    maxzoom: 15,
+    maxzoom: terrainConfig.maxzoom || 12,
     tileSize: 256,
   };
 
+  // contour steps in meters (each pair is [minor, major] contour intervals for that zoom level)
+  // nb: mapterhorn dem source is high res, so very small contour invervals
+  // will run into maplibre-gl vertex limits
   style.sources.contours = {
     type: "vector",
     tiles: [
       demSource.contourProtocolUrl({
         multiplier: 1, // Keep meters
         thresholds: {
-          8: [240, 480],
-          9: [120, 240],
-          10: [60, 120],
-          11: [30, 120],
-          12: [15, 60],
-          13: [5, 60],
+          // 8.5: [500, 5000],
+          10.5: [50, 500],
+          // 11.5: [500, 5000],
+          // 12.5: [100, 1000],
+          13.5: [25, 250],
+          14.5: [10, 100],
         },
         elevationKey: "ele",
         levelKey: "level",
         contourLayer: "contours",
       }),
     ],
-    maxzoom: 15,
+    minzoom: 10,
   };
 
   // Add global light source for 3D features
@@ -220,11 +224,15 @@ function MapLibreView() {
     const mlcontourModule = await import("maplibre-contour");
     const mlcontour = mlcontourModule.default;
     
-    // Create DEM source
+    // Get terrain tile URL from Cloudflare Worker
+    const terrainConfig = getTileSourceConfig("terrain");
+    const terrainTileUrl = terrainConfig.tiles[0];
+    
+    // Create DEM source using Mapterhorn terrain tiles from R2
     const demSource = new mlcontour.DemSource({
-      url: "https://elevation-tiles-prod.s3.amazonaws.com/terrarium/{z}/{x}/{y}.png",
+      url: terrainTileUrl,
       encoding: "terrarium",
-      maxzoom: 15,
+      maxzoom: terrainConfig.maxzoom || 12,
       worker: true,
       cacheSize: 100,
       timeoutMs: 10_000,
