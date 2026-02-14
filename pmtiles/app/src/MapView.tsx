@@ -257,7 +257,7 @@ function MapLibreView() {
       container: mapContainer,
       style: style,
       center: [21.5, -4], // Center of DRC 
-      zoom: 6, 
+      zoom: 5.5, 
       minZoom: 3,
       maxZoom: 15.99,
       maxBounds: drcBounds, // viewport restriction

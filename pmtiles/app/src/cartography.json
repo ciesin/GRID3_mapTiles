@@ -58,7 +58,48 @@
             }
         },
         {
-            "id": "hills",
+            "id": "landcover",
+            "type": "fill",
+            "source": "protomaps",
+            "source-layer": "landcover",
+            "paint": {
+                "fill-color": [
+                    "match",
+                    [
+                        "get",
+                        "kind"
+                    ],
+                    "grassland",
+                    "rgba(210, 239, 207, 1)",
+                    "barren",
+                    "rgba(255, 243, 215, 1)",
+                    "urban_area",
+                    "rgba(230, 230, 230, 1)",
+                    "farmland",
+                    "rgba(216, 239, 210, 1)",
+                    "glacier",
+                    "rgba(255, 255, 255, 1)",
+                    "scrub",
+                    "rgba(234, 239, 210, 1)",
+                    "rgba(196, 231, 210, 1)"
+                ],
+                "fill-opacity": [
+                    "interpolate",
+                    [
+                        "linear"
+                    ],
+                    [
+                        "zoom"
+                    ],
+                    5,
+                    1,
+                    7,
+                    0
+                ]
+            }
+        },
+                {
+            "id": "hillshade",
             "type": "hillshade",
             "source": "dem",
             "maxzoom": 12,
@@ -111,184 +152,6 @@
                     "#F5E1A450",
                     12,
                     "#F5E1A410"
-                ]
-            }
-        },
-        {
-            "id": "landcover",
-            "type": "fill",
-            "source": "protomaps",
-            "source-layer": "landcover",
-            "paint": {
-                "fill-color": [
-                    "match",
-                    [
-                        "get",
-                        "kind"
-                    ],
-                    "grassland",
-                    "rgba(210, 239, 207, 1)",
-                    "barren",
-                    "rgba(255, 243, 215, 1)",
-                    "urban_area",
-                    "rgba(230, 230, 230, 1)",
-                    "farmland",
-                    "rgba(216, 239, 210, 1)",
-                    "glacier",
-                    "rgba(255, 255, 255, 1)",
-                    "scrub",
-                    "rgba(234, 239, 210, 1)",
-                    "rgba(196, 231, 210, 1)"
-                ],
-                "fill-opacity": [
-                    "interpolate",
-                    [
-                        "linear"
-                    ],
-                    [
-                        "zoom"
-                    ],
-                    5,
-                    1,
-                    7,
-                    0
-                ]
-            }
-        },
-        {
-            "id": "settlement-extents",
-            "type": "fill",
-            "source": "grid3",
-            "source-layer": "settlement-extents",
-            "minzoom": 7,
-            "maxzoom": 16,
-            "layout": {
-                "visibility": "visible"
-            },
-            "paint": {
-                "fill-color": [
-                    "interpolate",
-                    [
-                        "exponential",
-                        1.2
-                    ],
-                    [
-                        "zoom"
-                    ],
-                    7,
-                    [
-                        "match",
-                        [
-                            "get",
-                            "type"
-                        ],
-                        "Built-up Area",
-                        "#CAA2DD",
-                        "Small Settlement Area",
-                        "#D7B9E4",
-                        "Hamlet",
-                        "#DFC8E7",
-                        "#FF8C0000"
-                    ],
-                    14,
-                    [
-                        "match",
-                        [
-                            "get",
-                            "type"
-                        ],
-                        "Built-up Area",
-                        "#E0D1E8",
-                        "Small Settlement Area",
-                        "#E6D4ED",
-                        "Hamlet",
-                        "#EDD9F0",
-                        "#FF8C0000"
-                    ]
-                ],
-                "fill-opacity": [
-                    "interpolate",
-                    [
-                        "linear"
-                    ],
-                    [
-                        "zoom"
-                    ],
-                    7,
-                    [
-                        "match",
-                        [
-                            "get",
-                            "type"
-                        ],
-                        "Built-up Area",
-                        0,
-                        "Hamlet",
-                        0,
-                        "Small Settlement Area",
-                        0,
-                        0
-                    ],
-                    8,
-                    [
-                        "match",
-                        [
-                            "get",
-                            "type"
-                        ],
-                        "Built-up Area",
-                        1,
-                        "Hamlet",
-                        0,
-                        "Small Settlement Area",
-                        0,
-                        0
-                    ],
-                    11,
-                    [
-                        "match",
-                        [
-                            "get",
-                            "type"
-                        ],
-                        "Built-up Area",
-                        1,
-                        "Hamlet",
-                        0,
-                        "Small Settlement Area",
-                        1,
-                        0
-                    ],
-                    13,
-                    [
-                        "match",
-                        [
-                            "get",
-                            "type"
-                        ],
-                        "Built-up Area",
-                        1,
-                        "Hamlet",
-                        1,
-                        "Small Settlement Area",
-                        1,
-                        0
-                    ],
-                    16,
-                    [
-                        "match",
-                        [
-                            "get",
-                            "type"
-                        ],
-                        "Built-up Area",
-                        1,
-                        "Hamlet",
-                        1,
-                        "Small Settlement Area",
-                        1,
-                        0
-                    ]
                 ]
             }
         },
@@ -430,6 +293,143 @@
                     ],
                     "#c6dcdc",
                     "#e2dfda"
+                ]
+            }
+        },
+                {
+            "id": "settlement-extents",
+            "type": "fill",
+            "source": "grid3",
+            "source-layer": "settlement-extents",
+            "minzoom": 7,
+            "maxzoom": 16,
+            "layout": {
+                "visibility": "visible"
+            },
+            "paint": {
+                "fill-color": [
+                    "interpolate",
+                    [
+                        "exponential",
+                        1.2
+                    ],
+                    [
+                        "zoom"
+                    ],
+                    7,
+                    [
+                        "match",
+                        [
+                            "get",
+                            "type"
+                        ],
+                        "Built-up Area",
+                        "#CAA2DD",
+                        "Small Settlement Area",
+                        "#D7B9E4",
+                        "Hamlet",
+                        "#DFC8E7",
+                        "#FF8C0000"
+                    ],
+                    14,
+                    [
+                        "match",
+                        [
+                            "get",
+                            "type"
+                        ],
+                        "Built-up Area",
+                        "#E0D1E8",
+                        "Small Settlement Area",
+                        "#E6D4ED",
+                        "Hamlet",
+                        "#EDD9F0",
+                        "#FF8C0000"
+                    ]
+                ],
+                "fill-opacity": [
+                    "interpolate",
+                    [
+                        "linear"
+                    ],
+                    [
+                        "zoom"
+                    ],
+                    7,
+                    [
+                        "match",
+                        [
+                            "get",
+                            "type"
+                        ],
+                        "Built-up Area",
+                        0,
+                        "Hamlet",
+                        0,
+                        "Small Settlement Area",
+                        0,
+                        0
+                    ],
+                    8,
+                    [
+                        "match",
+                        [
+                            "get",
+                            "type"
+                        ],
+                        "Built-up Area",
+                        1,
+                        "Hamlet",
+                        0,
+                        "Small Settlement Area",
+                        0,
+                        0
+                    ],
+                    11,
+                    [
+                        "match",
+                        [
+                            "get",
+                            "type"
+                        ],
+                        "Built-up Area",
+                        1,
+                        "Hamlet",
+                        0,
+                        "Small Settlement Area",
+                        1,
+                        0
+                    ],
+                    13,
+                    [
+                        "match",
+                        [
+                            "get",
+                            "type"
+                        ],
+                        "Built-up Area",
+                        1,
+                        "Hamlet",
+                        1,
+                        "Small Settlement Area",
+                        1,
+                        0
+                    ],
+                    16,
+                    [
+                        "match",
+                        [
+                            "get",
+                            "type"
+                        ],
+                        "Built-up Area",
+                        1,
+                        "Hamlet",
+                        1,
+                        "Small Settlement Area",
+                        1,
+                        0
+                    ]
                 ]
             }
         },
@@ -711,10 +711,11 @@
             }
         },
         {
-            "id": "contour-text",
+            "id": "contours-label",
             "type": "symbol",
             "source": "contours",
             "source-layer": "contours",
+            "minzoom": 15,
             "filter": [
                 ">",
                 [
@@ -724,9 +725,10 @@
                 0
             ],
             "paint": {
-                "text-color": "#8b7355",
-                "text-halo-color": "#ffffff",
+                "text-color": "#9d8b7a",
+                "text-halo-color": "#ECEFF1",
                 "text-halo-width": 1.5,
+                "text-halo-blur": 2,
                 "text-opacity": [
                     "interpolate",
                     [
@@ -735,17 +737,16 @@
                     [
                         "zoom"
                     ],
-                    12,
+                    15,
                     0,
-                    14,
-                    0.4,
-                    16,
-                    0.6
+                    15.5,
+                    1
                 ]
             },
             "layout": {
                 "symbol-placement": "line",
                 "text-size": 10,
+                "symbol-spacing": 1000,
                 "text-field": [
                     "concat",
                     [
@@ -761,7 +762,7 @@
                 "text-font": [
                     "Noto Sans Regular"
                 ],
-                "visibility": "none"
+                "visibility": "visible"
             }
         },
         {
@@ -11705,7 +11706,7 @@
                     ],
                     [
                         "concat",
-                        "AS ",
+                        "",
                         [
                             "get",
                             "airesante"
@@ -11876,15 +11877,6 @@
                     [
                         "concat",
                         "",
-                        [
-                            "get",
-                            "zonesante"
-                        ]
-                    ],
-                    13,
-                    [
-                        "concat",
-                        "ZS ",
                         [
                             "get",
                             "zonesante"
