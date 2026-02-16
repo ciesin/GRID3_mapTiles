@@ -2754,7 +2754,7 @@
       "layout": {
         "symbol-placement": "point",
         "text-font": [
-          "DejaVu Sans"
+          "Arial"
         ],
         "text-field": "{addr_housenumber}",
         "text-size": 12
@@ -2780,7 +2780,7 @@
       "layout": {
         "symbol-placement": "line",
         "text-font": [
-          "DejaVu Sans"
+          "Arial"
         ],
         "text-field": "{name}",
         "text-size": 12,
@@ -2812,7 +2812,7 @@
         "icon-rotate": 90,
         "symbol-spacing": 100,
         "text-font": [
-          "DejaVu Sans"
+          "Arial"
         ],
         "text-size": 12
       },
@@ -2834,7 +2834,7 @@
       "layout": {
         "symbol-placement": "line",
         "text-font": [
-          "DejaVu Sans"
+          "Arial"
         ],
         "text-field": "{name}",
         "text-size": 12
@@ -2861,7 +2861,7 @@
       ],
       "layout": {
         "text-font": [
-          "DejaVu Sans"
+          "Arial"
         ],
         "text-field": "{name}",
         "text-letter-spacing": 0.1,
@@ -2887,7 +2887,7 @@
       ],
       "layout": {
         "text-font": [
-          "DejaVu Sans"
+          "Arial"
         ],
         "text-field": "{name}",
         "text-size": 10,
@@ -2913,7 +2913,7 @@
       ],
       "layout": {
         "text-font": [
-          "DejaVu Sans"
+          "Arial"
         ],
         "text-field": "{name}",
         "text-letter-spacing": 0.1,
@@ -2966,7 +2966,7 @@
       "layout": {
         "text-field": "{shield_text}",
         "text-font": [
-          "DejaVu Sans"
+          "Arial"
         ],
         "text-size": 8,
         "icon-size": 0.8,
@@ -2993,7 +2993,7 @@
       "layout": {
         "symbol-placement": "line",
         "text-font": [
-          "DejaVu Sans"
+          "Arial"
         ],
         "text-field": "{name}",
         "text-size": 12
@@ -3076,7 +3076,7 @@
       ],
       "layout": {
         "text-font": [
-          "DejaVu Sans"
+          "Arial"
         ],
         "text-justify": "auto",
         "text-field": "{name}",
@@ -3224,7 +3224,7 @@
       "layout": {
         "text-field": "{name}",
         "text-font": [
-          "DejaVu Sans"
+          "Arial"
         ],
         "text-max-width": 7,
         "text-letter-spacing": 0.1,
@@ -3250,7 +3250,7 @@
       "layout": {
         "text-field": "{name}",
         "text-font": [
-          "DejaVu Sans"
+          "Arial"
         ],
         "text-radial-offset": 0.2,
         "text-anchor": "center",
@@ -3277,7 +3277,7 @@
         "icon-size": 0.7,
         "text-field": "{name}",
         "text-font": [
-          "DejaVu Sans"
+          "Arial"
         ],
         "text-justify": "auto",
         "text-radial-offset": 0.3,
@@ -3302,7 +3302,7 @@
       "layout": {
         "text-field": "{name}",
         "text-font": [
-          "DejaVu Sans"
+          "Arial"
         ],
         "text-transform": "uppercase",
         "text-size": 12
