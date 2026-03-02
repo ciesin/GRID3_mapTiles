@@ -247,7 +247,7 @@ function MapLibreView() {
     demSource.setupMaplibre(maplibregl);
 
     // clamp to minimize tile calls
-    const drcBounds: LngLatBoundsLike = [[8, -13], [35, 9]];
+    // const drcBounds: LngLatBoundsLike = [[8, -13], [35, 9]];
 
     // Get style with contours
     const style = getMaplibreStyle(demSource);
@@ -260,7 +260,7 @@ function MapLibreView() {
       zoom: 5.5, 
       minZoom: 3,
       maxZoom: 15.99,
-      maxBounds: drcBounds, // viewport restriction
+      // maxBounds: drcBounds, // viewport restriction
       attributionControl: false,
       refreshExpiredTiles: false,
       maxTileCacheSize: 500,
