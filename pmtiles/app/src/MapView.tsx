@@ -248,6 +248,7 @@ function MapLibreView() {
 
     // clamp to minimize tile calls
     // const drcBounds: LngLatBoundsLike = [[8, -13], [35, 9]];
+    const africaBounds: LngLatBoundsLike = [[-19.5, -40.2], [51.8, 37.8]];
 
     // Get style with contours
     const style = getMaplibreStyle(demSource);
@@ -260,7 +261,7 @@ function MapLibreView() {
       zoom: 5.5, 
       minZoom: 3,
       maxZoom: 15.99,
-      // maxBounds: drcBounds, // viewport restriction
+      maxBounds: africaBounds, // viewport restriction
       attributionControl: false,
       refreshExpiredTiles: false,
       maxTileCacheSize: 500,
