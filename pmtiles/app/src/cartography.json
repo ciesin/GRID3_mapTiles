@@ -99,63 +99,6 @@
             }
         },
         {
-            "id": "hillshade",
-            "type": "hillshade",
-            "source": "dem",
-            "maxzoom": 12,
-            "layout": {
-                "visibility": "visible"
-            },
-            "paint": {
-                "hillshade-exaggeration": [
-                    "interpolate",
-                    [
-                        "exponential",
-                        1.5
-                    ],
-                    [
-                        "zoom"
-                    ],
-                    6,
-                    0.35,
-                    8,
-                    0.25,
-                    12,
-                    0.1
-                ],
-                "hillshade-shadow-color": [
-                    "interpolate",
-                    [
-                        "linear"
-                    ],
-                    [
-                        "zoom"
-                    ],
-                    6,
-                    "rgba(0,0,0,0.2)",
-                    8,
-                    "rgba(0,0,0,0.075)",
-                    12,
-                    "rgba(123, 123, 123, 0)"
-                ],
-                "hillshade-highlight-color": [
-                    "interpolate",
-                    [
-                        "linear"
-                    ],
-                    [
-                        "zoom"
-                    ],
-                    6,
-                    "#F5E1A490",
-                    8,
-                    "#F5E1A450",
-                    12,
-                    "#F5E1A410"
-                ]
-            }
-        },
-        {
             "id": "landuse_park",
             "type": "fill",
             "source": "protomaps",
@@ -579,52 +522,60 @@
             }
         },
         {
-            "id": "roads_taxiway",
-            "type": "line",
-            "source": "protomaps",
-            "source-layer": "roads",
-            "minzoom": 13,
-            "filter": [
-                "==",
-                "kind_detail",
-                "taxiway"
-            ],
+            "id": "hillshade",
+            "type": "hillshade",
+            "source": "dem",
+            "maxzoom": 12,
+            "layout": {
+                "visibility": "visible"
+            },
             "paint": {
-                "line-color": "#e9e9ed",
-                "line-width": [
+                "hillshade-exaggeration": [
                     "interpolate",
                     [
                         "exponential",
-                        1.6
+                        1.5
                     ],
                     [
                         "zoom"
                     ],
-                    13,
-                    0,
-                    13.5,
-                    1,
-                    15,
-                    6
+                    6,
+                    0.35,
+                    8,
+                    0.25,
+                    12,
+                    0.1
+                ],
+                "hillshade-shadow-color": [
+                    "interpolate",
+                    [
+                        "linear"
+                    ],
+                    [
+                        "zoom"
+                    ],
+                    6,
+                    "rgba(0,0,0,0.2)",
+                    8,
+                    "rgba(0,0,0,0.075)",
+                    12,
+                    "rgba(123, 123, 123, 0)"
+                ],
+                "hillshade-highlight-color": [
+                    "interpolate",
+                    [
+                        "linear"
+                    ],
+                    [
+                        "zoom"
+                    ],
+                    6,
+                    "#F5E1A490",
+                    8,
+                    "#F5E1A450",
+                    12,
+                    "#F5E1A410"
                 ]
-            }
-        },
-        {
-            "id": "landuse_runway",
-            "type": "fill",
-            "source": "protomaps",
-            "source-layer": "landuse",
-            "filter": [
-                "any",
-                [
-                    "in",
-                    "kind",
-                    "runway",
-                    "taxiway"
-                ]
-            ],
-            "paint": {
-                "fill-color": "#e9e9ed"
             }
         },
         {
@@ -763,6 +714,55 @@
                     "Noto Sans Regular"
                 ],
                 "visibility": "visible"
+            }
+        },
+        {
+            "id": "roads_taxiway",
+            "type": "line",
+            "source": "protomaps",
+            "source-layer": "roads",
+            "minzoom": 13,
+            "filter": [
+                "==",
+                "kind_detail",
+                "taxiway"
+            ],
+            "paint": {
+                "line-color": "#e9e9ed",
+                "line-width": [
+                    "interpolate",
+                    [
+                        "exponential",
+                        1.6
+                    ],
+                    [
+                        "zoom"
+                    ],
+                    13,
+                    0,
+                    13.5,
+                    1,
+                    15,
+                    6
+                ]
+            }
+        },
+        {
+            "id": "landuse_runway",
+            "type": "fill",
+            "source": "protomaps",
+            "source-layer": "landuse",
+            "filter": [
+                "any",
+                [
+                    "in",
+                    "kind",
+                    "runway",
+                    "taxiway"
+                ]
+            ],
+            "paint": {
+                "fill-color": "#e9e9ed"
             }
         },
         {
