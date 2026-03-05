@@ -283,19 +283,17 @@
         <a href="#" class="back-link" onclick="event.preventDefault(); window.history.length > 1 ? window.history.back() : window.location.href = '/';">← Back to Map</a>
 
         <h1>PMTiles Sources Attribution</h1>
-        <p class="metadata"><em>Generated: March 5, 2026</em></p>
-
-        <p>This document provides a comprehensive overview of all tile sources used in the GRID3 Map Tiles project, including data sources, versions, dates, and proper attribution requirements.</p>
+        <p class="metadata"><strong>Matthew Heaton:</strong> <a href="mailto:mheaton@ciesin.columbia.edu" target="_blank">mheaton@ciesin.columbia.edu</a></p>
+        <p class="metadata"><em>March 5, 2026</em></p>
 
         <div class="toc">
-            <strong>Quick Navigation:</strong>
             <ul>
                 <li><a href="#protomaps">1. Protomaps Global Basemap</a></li>
                 <li><a href="#overture">2. Overture Buildings</a></li>
                 <li><a href="#grid3">3. GRID3 DRC Data</a></li>
                 <li><a href="#terrain">4. Mapterhorn Terrain</a></li>
                 <li><a href="#combined">Combined Attribution Requirements</a></li>
-                <li><a href="#freshness">Data Freshness Summary</a></li>
+                <li><a href="#freshness">Summary</a></li>
                 <li><a href="#licenses">License Information</a></li>
             </ul>
         </div>
@@ -628,7 +626,7 @@
         <h3>Cloudflare Workers + R2 Storage</h3>
         <p>All PMTiles archives are served through a Cloudflare Worker for optimal performance:</p>
 
-        <p><strong>Worker URL:</strong> <code>https://pmtiles-cloudflare.mheaton-945.workers.dev</code></p>
+        <p><strong>Development worker URL:</strong> <code>https://pmtiles-cloudflare.mheaton-945.workers.dev</code></p>
 
         <h4>Tile URL Patterns:</h4>
         <ul>
@@ -648,19 +646,20 @@
             <h3>Full Attribution Text</h3>
             <pre><code>Map data © OpenStreetMap contributors
 Buildings © Overture Maps Foundation  
-Health & Settlement data ©2026 GRID3
-Terrain © Mapterhorn</code></pre>
+Health boundaries, Facility, & Settlement data ©2026 GRID3
+Terrain © Mapterhorn & COPERNICUS GLO-30 ©2025</code></pre>
 
             <h3>Recommended HTML Format</h3>
             <pre><code>&lt;a href="https://www.openstreetmap.org/copyright"&gt;© OpenStreetMap&lt;/a&gt; |
 &lt;a href="https://docs.overturemaps.org/attribution"&gt;© Overture Maps Foundation&lt;/a&gt; | 
 &lt;a href="https://grid3.org"&gt;©2026 GRID3&lt;/a&gt; |
-&lt;a href="https://mapterhorn.com/attribution"&gt;© Mapterhorn&lt;/a&gt;</code></pre>
+&lt;a href="https://mapterhorn.com/attribution"&gt;© Mapterhorn&lt;/a&gt; |
+&lt;a href="https://docs.sentinel-hub.com/api/latest/static/files/data/dem/resources/license/License-COPDEM-30.pdf"&gt;© COPERNICUS GLO-30 2025&lt;/a&gt;</code></pre>
         </div>
 
         <hr>
 
-        <h2 id="freshness">Data Freshness Summary</h2>
+        <h2 id="freshness">Summary</h2>
 
         <table>
             <thead>
@@ -719,7 +718,7 @@ Terrain © Mapterhorn</code></pre>
         <div class="license-box">
             <h3>GRID3</h3>
             <ul>
-                <li><strong>License:</strong> Custom (check <a href="https://grid3.org" target="_blank">grid3.org</a> for details)</li>
+                <li><strong>License:</strong> <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC BY 4.0 </a></li>
                 <li><strong>Attribution Required:</strong> Yes (©2026 GRID3)</li>
                 <li><strong>Usage:</strong> Development and humanitarian purposes</li>
             </ul>
@@ -728,14 +727,14 @@ Terrain © Mapterhorn</code></pre>
         <div class="license-box">
             <h3>Mapterhorn</h3>
             <ul>
-                <li><strong>License:</strong> Commercial/custom (check <a href="https://mapterhorn.com" target="_blank">mapterhorn.com</a>)</li>
+                <li><strong>License:</strong> <a href="https://docs.sentinel-hub.com/api/latest/static/files/data/dem/resources/license/License-COPDEM-30.pdf" target="_blank">COPERNICUS GLO-30 ©2025</a></li>
                 <li><strong>Attribution Required:</strong> Yes</li>
             </ul>
         </div>
 
         <hr>
 
-        <h2>Technical Specifications Summary</h2>
+        <h2>Technical Specifications</h2>
 
         <table>
             <thead>
@@ -805,7 +804,6 @@ Terrain © Mapterhorn</code></pre>
         <ul>
             <li><strong>GRID3 Project:</strong> <a href="https://grid3.org/about-us/contact" target="_blank">https://grid3.org</a></li>
             <li><strong>CIESIN:</strong> <a href="https://ciesin.columbia.edu" target="_blank">https://ciesin.columbia.edu</a></li>
-            <li><strong>Matthew Heaton (author):</strong> <a href="mailto:mheaton@ciesin.columbia.edu" target="_blank">mheaton@ciesin.columbia.edu</a></li>
         </ul>
 
         <p class="metadata"><em>Document generated using <code>pmtiles show</code> command-line tool</em></p>
