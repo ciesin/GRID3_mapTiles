@@ -14,6 +14,7 @@ import {
   ScaleControl,
   getRTLTextPluginStatus,
   setRTLTextPlugin,
+  type IControl,
 } from "maplibre-gl";
 import type {
   LngLatBoundsLike,
@@ -44,6 +45,39 @@ function getSourceLayer(l: LayerSpecification): string {
     return l["source-layer"];
   }
   return "";
+}
+
+// Custom control for attribution info button
+class AttributionInfoControl implements IControl {
+  private _container?: HTMLDivElement;
+  private _button?: HTMLButtonElement;
+
+  onAdd(_map: MaplibreMap): HTMLElement {
+    this._container = document.createElement('div');
+    this._container.className = 'maplibregl-ctrl maplibregl-ctrl-group';
+    
+    this._button = document.createElement('button');
+    this._button.className = 'maplibregl-ctrl-icon';
+    this._button.type = 'button';
+    this._button.title = 'View full attribution and data sources';
+    this._button.innerHTML = '?';
+    this._button.style.fontSize = '18px';
+    this._button.style.fontWeight = 'bold';
+    this._button.style.cursor = 'pointer';
+    
+    this._button.addEventListener('click', () => {
+      window.open('/attribution.html', '_blank');
+    });
+    
+    this._container.appendChild(this._button);
+    return this._container;
+  }
+
+  onRemove(): void {
+    if (this._container && this._container.parentNode) {
+      this._container.parentNode.removeChild(this._container);
+    }
+  }
 }
 
 const featureIdToOsmId = (raw: string | number) => {
@@ -246,7 +280,6 @@ function MapLibreView() {
     // Setup maplibre with the DemSource
     demSource.setupMaplibre(maplibregl);
 
-    // clamp to minimize tile calls
     // const drcBounds: LngLatBoundsLike = [[8, -13], [35, 9]];
     const africaBounds: LngLatBoundsLike = [[-19.5, -40.2], [51.8, 37.8]];
 
@@ -283,6 +316,7 @@ function MapLibreView() {
         },
       }),
     );
+    map.addControl(new AttributionInfoControl());
 
     // Add scale control at bottom-left
     map.addControl(new ScaleControl(), 'bottom-left');
@@ -292,6 +326,21 @@ function MapLibreView() {
         compact: false,
       }),
     );
+
+    // Make the entire attribution control clickable
+    setTimeout(() => {
+      const attrControl = document.querySelector('.maplibregl-ctrl-attrib');
+      if (attrControl) {
+        attrControl.setAttribute('title', 'Click for full attribution and data sources');
+        (attrControl as HTMLElement).style.cursor = 'pointer';
+        attrControl.addEventListener('click', (e) => {
+          // Only open if clicking the container, not existing links
+          if ((e.target as HTMLElement).tagName !== 'A') {
+            window.open('/attribution.html', '_blank');
+          }
+        });
+      }
+    }, 100);
 
     map.addControl(
       new MaplibreInspect({
