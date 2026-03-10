@@ -14,7 +14,6 @@ const mdContent = readFileSync(
 // Convert to HTML
 const htmlContent = marked.parse(mdContent);
 
-// Your existing CSS styles
 const styles = `
 * {
     margin: 0;
