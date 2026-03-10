@@ -1,6 +1,5 @@
 # Map Source Attribution
 
-**Matthew Heaton:** [mheaton@ciesin.columbia.edu](mailto:mheaton@ciesin.columbia.edu)  
 *Last updated: March 10, 2026*
 
 ## Table of Contents
@@ -496,4 +495,8 @@ All PMTiles archives are served through a Cloudflare Worker to [decode URLs into
 
 ## Contact
 
-For questions about this tile compilation or attribution requirements, please contact **CIESIN:** [info@ciesin.columbia.edu](mailto:info@ciesin.columbia.edu)
+For questions about this codebase, please contact: [mheaton@ciesin.columbia.edu](mailto:mheaton@ciesin.columbia.edu)
+<br>
+Attribution inquries: [mlukang@ciesin.columbia.edu](mailto:mlukang@ciesin.columbia.edu)
+<br>
+All other info: [info@ciesin.columbia.edu](mailto:info@ciesin.columbia.edu)
