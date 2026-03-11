@@ -831,6 +831,233 @@ def batch_convert_directory(
     return results
 
 
+def convert_geodata_to_fgb(
+    input_path: Union[str, Path],
+    output_path: Optional[Union[str, Path]] = None,
+    layer: Optional[str] = None,
+    clip_extent: Optional[Tuple[float, float, float, float]] = None,
+    where: Optional[str] = None,
+    overwrite: bool = False,
+    verbose: bool = True
+) -> Tuple[bool, str, Optional[Path]]:
+    """
+    Convert any geospatial format to FlatGeobuf using GeoPandas.
+    
+    Supports all formats that GeoPandas/Fiona can read:
+    - Shapefile (.shp)
+    - GeoJSON (.geojson, .json)
+    - GeoPackage (.gpkg)
+    - ArcGIS File Geodatabase (.gdb)
+    - ArcGIS Feature Class (via file path)
+    - KML/KMZ (.kml, .kmz)
+    - And many more...
+    
+    Args:
+        input_path: Path to input geospatial file or directory (e.g., .gdb, .shp)
+        output_path: Path to output .fgb file (auto-generated if None)
+        layer: Layer name (required for multi-layer formats like .gdb)
+        clip_extent: Clip to bounding box (lon_min, lat_min, lon_max, lat_max)
+        where: SQL WHERE clause for attribute filtering (e.g., "population > 1000")
+        overwrite: Whether to overwrite existing files
+        verbose: Print progress information
+        
+    Returns:
+        Tuple of (success, message, output_path)
+        
+    Examples:
+        # Shapefile
+        convert_geodata_to_fgb("data.shp", "output.fgb")
+        
+        # File Geodatabase with layer selection
+        convert_geodata_to_fgb("data.gdb", "output.fgb", layer="settlements")
+        
+        # GeoPackage with spatial filter
+        convert_geodata_to_fgb("data.gpkg", clip_extent=(15, -5, 30, 5))
+        
+        # With attribute filter
+        convert_geodata_to_fgb("cities.shp", where="population > 100000")
+    """
+    input_path = Path(input_path)
+    
+    if not input_path.exists():
+        return False, f"Input file not found: {input_path}", None
+    
+    # Auto-generate output path if not provided
+    if output_path is None:
+        if layer:
+            output_path = input_path.parent / f"{input_path.stem}_{layer}.fgb"
+        else:
+            output_path = input_path.with_suffix(".fgb")
+    else:
+        output_path = Path(output_path)
+    
+    # Check if output already exists
+    if output_path.exists() and not overwrite:
+        if verbose:
+            print(f"⏭️  Skipped {output_path.name} (already exists)")
+        return True, "Output already exists (use overwrite=True to replace)", output_path
+    
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    try:
+        start_time = time.time()
+        
+        if verbose:
+            layer_info = f" (layer: {layer})" if layer else ""
+            print(f"🔄 Converting {input_path.name}{layer_info} → {output_path.name}")
+        
+        # Read the geospatial file
+        read_kwargs = {}
+        if layer:
+            read_kwargs['layer'] = layer
+        
+        gdf = gpd.read_file(input_path, **read_kwargs)
+        original_count = len(gdf)
+        
+        if verbose:
+            print(f"   • Loaded {original_count:,} features")
+            print(f"   • Geometry type: {gdf.geom_type.iloc[0] if len(gdf) > 0 else 'Unknown'}")
+            print(f"   • CRS: {gdf.crs}")
+        
+        # Apply attribute filter if provided
+        if where:
+            gdf = gdf.query(where)
+            if verbose:
+                print(f"   • Filtered to {len(gdf):,} features (WHERE: {where})")
+        
+        # Apply spatial clipping if provided
+        if clip_extent:
+            lon_min, lat_min, lon_max, lat_max = clip_extent
+            
+            # Ensure CRS is WGS84 for clipping
+            if gdf.crs and not gdf.crs.equals(4326):
+                if verbose:
+                    print(f"   • Reprojecting to WGS84 for clipping...")
+                gdf = gdf.to_crs(4326)
+            
+            # Apply spatial filter
+            gdf = gdf.cx[lon_min:lon_max, lat_min:lat_max]
+            if verbose:
+                print(f"   • Clipped to extent: {len(gdf):,} features retained")
+        
+        # Check if we have any features left
+        if len(gdf) == 0:
+            return False, "No features remaining after filtering/clipping", None
+        
+        # Ensure valid geometries
+        if not gdf.geometry.is_valid.all():
+            if verbose:
+                print(f"   • Fixing invalid geometries...")
+            gdf.geometry = gdf.geometry.buffer(0)
+        
+        # Write to FlatGeobuf
+        gdf.to_file(output_path, driver="FlatGeobuf")
+        
+        elapsed = time.time() - start_time
+        file_size_mb = output_path.stat().st_size / 1024 / 1024
+        
+        if verbose:
+            print(f"   ✓ Wrote {len(gdf):,} features ({file_size_mb:.1f} MB) in {elapsed:.1f}s")
+        
+        return True, f"Successfully converted {len(gdf):,} features", output_path
+        
+    except Exception as e:
+        error_msg = f"Conversion failed: {str(e)}"
+        if verbose:
+            print(f"   ✗ {error_msg}")
+        return False, error_msg, None
+
+
+def batch_convert_geodata(
+    input_paths: List[Union[str, Path]],
+    output_dir: Union[str, Path],
+    clip_extent: Optional[Tuple[float, float, float, float]] = None,
+    overwrite: bool = False,
+    verbose: bool = True
+) -> dict:
+    """
+    Batch convert multiple geospatial files to FlatGeobuf format.
+    
+    Args:
+        input_paths: List of paths to geospatial files
+        output_dir: Directory for .fgb output files
+        clip_extent: Optional bounding box to clip all files
+        overwrite: Whether to overwrite existing files
+        verbose: Print progress information
+        
+    Returns:
+        Dictionary with conversion results
+    """
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    results = {
+        "success": True,
+        "total_files": len(input_paths),
+        "converted": 0,
+        "skipped": 0,
+        "errors": [],
+        "output_files": []
+    }
+    
+    if verbose:
+        print("="*70)
+        print("BATCH GEODATA CONVERSION TO FLATGEOBUF")
+        print("="*70)
+        print(f"Input files: {len(input_paths)}")
+        print(f"Output directory: {output_dir}")
+        if clip_extent:
+            print(f"Clip extent: {clip_extent}")
+        print()
+    
+    iterator = tqdm(input_paths, desc="Converting") if verbose else input_paths
+    
+    for input_path in iterator:
+        input_path = Path(input_path)
+        output_name = input_path.stem + ".fgb"
+        output_path = output_dir / output_name
+        
+        success, message, out_path = convert_geodata_to_fgb(
+            input_path=input_path,
+            output_path=output_path,
+            clip_extent=clip_extent,
+            overwrite=overwrite,
+            verbose=False  # Suppress per-file output during batch
+        )
+        
+        if success and out_path:
+            results["converted"] += 1
+            results["output_files"].append(str(out_path))
+        elif "already exists" in message:
+            results["skipped"] += 1
+        else:
+            results["success"] = False
+            results["errors"].append(f"{input_path.name}: {message}")
+    
+    if verbose:
+        print("\n" + "="*70)
+        print("CONVERSION SUMMARY")
+        print("="*70)
+        print(f"Total files: {results['total_files']}")
+        print(f"Converted: {results['converted']}")
+        print(f"Skipped: {results['skipped']}")
+        print(f"Errors: {len(results['errors'])}")
+        
+        if results['errors']:
+            print("\nErrors:")
+            for error in results['errors']:
+                print(f"  ✗ {error}")
+        
+        if results['converted'] > 0:
+            print(f"\n✓ {results['converted']} FlatGeobuf files ready")
+            print(f"  Location: {output_dir}")
+        
+        print("="*70 + "\n")
+    
+    return results
+
+
 def main():
     """Command-line interface for the converter."""
     import argparse

@@ -68,7 +68,7 @@ TILE_DIR = OUTPUT_DIR  # Alias for consistency with scripts
 
 # Template paths
 TILE_QUERIES_TEMPLATE = SCRIPTS_DIR / "tilequeries.sql"
-TIPPECANOE_TEMPLATE = SCRIPTS_DIR / "tippecanoe.template"
+TIPPECANOE_TEMPLATE = SCRIPTS_DIR / "tippecanoe.py"
 
 
 # Default processing configuration
@@ -130,7 +130,7 @@ DEFAULT_CONFIG = {
         "overwrite": False,  # Don't re-convert existing FGB files
         "verbose": True,
         "output_suffix": ".fgb",
-        "cleanup_source": False  # Remove source .parquet files after successful conversion to save disk space
+        "cleanup_source": False  # if true, rm source .parquet files after successful conversion to save disk space
     },
     "conversion": {
         "input_patterns": ["*.parquet", "*.shp", "*.gpkg", "*.gdb", "*.sqlite", "*.db", "*.geojson", "*.json"],
