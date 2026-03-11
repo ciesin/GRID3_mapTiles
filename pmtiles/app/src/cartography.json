@@ -2382,6 +2382,9 @@
             "type": "line",
             "source": "protomaps",
             "source-layer": "boundaries",
+            "layout": {
+                "visibility": "visible"
+            },
             "filter": [
                 "<=",
                 "kind_detail",
@@ -2389,7 +2392,20 @@
             ],
             "paint": {
                 "line-color": "#adadad",
-                "line-width": 0.7,
+                "line-width": [
+                    "interpolate",
+                    [
+                        "exponential",
+                        1.2
+                    ],
+                    [
+                        "zoom"
+                    ],
+                    0,
+                    1.2,
+                    5.5,
+                    0
+                ],
                 "line-dasharray": [
                     "step",
                     [
@@ -2418,6 +2434,9 @@
             "type": "line",
             "source": "protomaps",
             "source-layer": "boundaries",
+            "layout": {
+                "visibility": "none"
+            },
             "filter": [
                 ">",
                 "kind_detail",
