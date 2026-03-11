@@ -29,9 +29,13 @@ overture/data/
 overture/tiles/
 public/tiles_stl/
 *.geojson*
-# ignore markdown files except readme
+# ignore markdown files except readme + attribution
 *.md
 !README.md
+!**/attribution.md
+
+*.temp
+
 data/
 input/
 
@@ -137,9 +141,6 @@ dist/
 .dev.vars
 
 wrangler.toml
-
-*.md
-!README.md
 
 examples/
 render-tests/

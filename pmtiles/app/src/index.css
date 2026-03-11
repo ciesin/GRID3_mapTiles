@@ -9,3 +9,27 @@
 .btn-primary {
 	@apply rounded bg-purple px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple;
 }
+
+/* Attribution control styling */
+.maplibregl-ctrl-attrib {
+	background-color: rgba(255, 255, 255, 0.95) !important;
+	backdrop-filter: blur(8px);
+	transition: all 0.2s ease;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+}
+
+.maplibregl-ctrl-attrib:hover {
+	background-color: rgba(255, 255, 255, 1) !important;
+	box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+}
+
+.maplibregl-ctrl-attrib a {
+	color: #3498db;
+	text-decoration: none;
+	transition: all 0.2s ease;
+}
+
+.maplibregl-ctrl-attrib a:hover {
+	color: #2980b9;
+	text-decoration: underline;
+}
