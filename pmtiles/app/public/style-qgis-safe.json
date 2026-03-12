@@ -1,0 +1,419 @@
+{
+  "version": 8,
+  "sources": {
+    "protomaps": {
+      "type": "vector",
+      "attribution": "<a href=\"https://github.com/protomaps/basemaps\">Protomaps</a> © <a href=\"https://openstreetmap.org\">OpenStreetMap</a>",
+      "tiles": [
+        "https://pmtiles-cloudflare.mheaton-945.workers.dev/global/{z}/{x}/{y}.mvt"
+      ],
+      "maxzoom": 15
+    },
+    "overture": {
+      "type": "vector",
+      "attribution": "<a href=\"https://overturemaps.org\">Overture Maps</a>",
+      "tiles": [
+        "https://pmtiles-cloudflare.mheaton-945.workers.dev/buildings/{z}/{x}/{y}.mvt"
+      ],
+      "maxzoom": 13
+    },
+    "grid3": {
+      "type": "vector",
+      "attribution": "<a href=\"https://ciesin.columbia.edu/\">© CIESIN Columbia University</a>",
+      "tiles": [
+        "https://pmtiles-cloudflare.mheaton-945.workers.dev/grid3/{z}/{x}/{y}.mvt"
+      ],
+      "maxzoom": 15
+    },
+    "grid3_nga": {
+      "type": "vector",
+      "attribution": "<a href=\"https://grid3.org\">GRID3</a>",
+      "tiles": [
+        "https://pmtiles-cloudflare.mheaton-945.workers.dev/nga_settlement_extents/{z}/{x}/{y}.mvt"
+      ],
+      "maxzoom": 14
+    }
+  },
+  "layers": [
+    {
+      "id": "background",
+      "type": "background",
+      "paint": {
+        "background-color": "#cccccc"
+      }
+    },
+    {
+      "id": "earth",
+      "type": "fill",
+      "filter": ["==", "$type", "Polygon"],
+      "source": "protomaps",
+      "source-layer": "earth",
+      "paint": {
+        "fill-color": "#e2dfda"
+      }
+    },
+    {
+      "id": "landcover",
+      "type": "fill",
+      "source": "protomaps",
+      "source-layer": "landcover",
+      "paint": {
+        "fill-color": "#c4e7d2",
+        "fill-opacity": 0.5
+      }
+    },
+    {
+      "id": "landuse_park",
+      "type": "fill",
+      "source": "protomaps",
+      "source-layer": "landuse",
+      "filter": ["in", "kind", "national_park", "park", "cemetery", "protected_area", "nature_reserve", "forest", "golf_course"],
+      "paint": {
+        "fill-color": "#88D18A",
+        "fill-opacity": 0.6
+      }
+    },
+    {
+      "id": "settlement-extents",
+      "type": "fill",
+      "source": "grid3",
+      "source-layer": "settlement-extents",
+      "minzoom": 7,
+      "maxzoom": 16,
+      "paint": {
+        "fill-color": "#CAA2DD",
+        "fill-opacity": 0.5
+      }
+    },
+    {
+      "id": "nga-settlement-extents",
+      "type": "fill",
+      "source": "grid3_nga",
+      "source-layer": "nga-settlement-extents",
+      "minzoom": 7,
+      "maxzoom": 16,
+      "paint": {
+        "fill-color": "#CAA2DD",
+        "fill-opacity": 0.5
+      }
+    },
+    {
+      "id": "landuse_urban_green",
+      "type": "fill",
+      "source": "protomaps",
+      "source-layer": "landuse",
+      "filter": ["in", "kind", "allotments", "village_green", "playground"],
+      "paint": {
+        "fill-color": "#9cd3b4",
+        "fill-opacity": 0.7
+      }
+    },
+    {
+      "id": "landuse_hospital",
+      "type": "fill",
+      "source": "protomaps",
+      "source-layer": "landuse",
+      "filter": ["==", "kind", "hospital"],
+      "paint": {
+        "fill-color": "#fde1e4"
+      }
+    },
+    {
+      "id": "landuse_school",
+      "type": "fill",
+      "source": "protomaps",
+      "source-layer": "landuse",
+      "filter": ["in", "kind", "school", "university", "college"],
+      "paint": {
+        "fill-color": "#F8E08E"
+      }
+    },
+    {
+      "id": "water",
+      "type": "fill",
+      "filter": ["==", "$type", "Polygon"],
+      "source": "protomaps",
+      "source-layer": "water",
+      "paint": {
+        "fill-color": "#A4DBE8"
+      }
+    },
+    {
+      "id": "water_stream",
+      "type": "line",
+      "source": "protomaps",
+      "source-layer": "water",
+      "minzoom": 12,
+      "filter": ["in", "kind", "stream"],
+      "paint": {
+        "line-color": "#A4DBE8",
+        "line-width": 1
+      }
+    },
+    {
+      "id": "water_river",
+      "type": "line",
+      "source": "protomaps",
+      "source-layer": "water",
+      "minzoom": 9,
+      "filter": ["in", "kind", "river"],
+      "paint": {
+        "line-color": "#9ADBE8",
+        "line-width": 2
+      }
+    },
+    {
+      "id": "roads_other",
+      "type": "line",
+      "source": "protomaps",
+      "source-layer": "roads",
+      "filter": ["in", "kind", "other", "path"],
+      "paint": {
+        "line-color": "#d5d5d5",
+        "line-width": 1
+      }
+    },
+    {
+      "id": "roads_minor",
+      "type": "line",
+      "source": "protomaps",
+      "source-layer": "roads",
+      "filter": ["==", "kind", "minor_road"],
+      "paint": {
+        "line-color": "#ffffff",
+        "line-width": 2
+      }
+    },
+    {
+      "id": "roads_major",
+      "type": "line",
+      "source": "protomaps",
+      "source-layer": "roads",
+      "filter": ["==", "kind", "major_road"],
+      "paint": {
+        "line-color": "#fff",
+        "line-width": 3
+      }
+    },
+    {
+      "id": "roads_highway",
+      "type": "line",
+      "source": "protomaps",
+      "source-layer": "roads",
+      "filter": ["==", "kind", "highway"],
+      "paint": {
+        "line-color": "#ffffff",
+        "line-width": 4
+      }
+    },
+    {
+      "id": "boundaries_country",
+      "type": "line",
+      "source": "protomaps",
+      "source-layer": "boundaries",
+      "filter": ["<=", "kind_detail", 2],
+      "paint": {
+        "line-color": "#adadad",
+        "line-width": 1.2,
+        "line-dasharray": [3, 2]
+      }
+    },
+    {
+      "id": "buildings-flat",
+      "type": "fill",
+      "source": "overture",
+      "source-layer": "building",
+      "minzoom": 13,
+      "paint": {
+        "fill-color": "#A2ACAB",
+        "fill-opacity": 0.5
+      }
+    },
+    {
+      "id": "building-outlines",
+      "type": "line",
+      "source": "overture",
+      "source-layer": "building",
+      "minzoom": 13,
+      "paint": {
+        "line-color": "#8897A0",
+        "line-width": 0.5,
+        "line-opacity": 0.5
+      }
+    },
+    {
+      "id": "settlement-extents-outline",
+      "type": "line",
+      "source": "grid3",
+      "source-layer": "settlement-extents",
+      "minzoom": 7,
+      "maxzoom": 16,
+      "paint": {
+        "line-color": "#B580D1",
+        "line-width": 0.5,
+        "line-opacity": 0.6
+      }
+    },
+    {
+      "id": "nga-settlement-extents-outline",
+      "type": "line",
+      "source": "grid3_nga",
+      "source-layer": "nga-settlement-extents",
+      "minzoom": 7,
+      "maxzoom": 16,
+      "paint": {
+        "line-color": "#B580D1",
+        "line-width": 0.5,
+        "line-opacity": 0.6
+      }
+    },
+    {
+      "id": "health-zones-boundary",
+      "type": "line",
+      "source": "grid3",
+      "source-layer": "health-zones",
+      "minzoom": 7,
+      "paint": {
+        "line-color": "#FF6B6B",
+        "line-width": 1.5,
+        "line-opacity": 0.7
+      }
+    },
+    {
+      "id": "health-areas-boundary",
+      "type": "line",
+      "source": "grid3",
+      "source-layer": "health-areas",
+      "minzoom": 10,
+      "paint": {
+        "line-color": "#4ECDC4",
+        "line-width": 1,
+        "line-opacity": 0.6
+      }
+    },
+    {
+      "id": "places_locality",
+      "type": "symbol",
+      "source": "protomaps",
+      "source-layer": "places",
+      "filter": ["==", "kind", "locality"],
+      "layout": {
+        "text-font": ["Noto Sans Regular"],
+        "text-field": ["get", "name"],
+        "text-size": 12
+      },
+      "paint": {
+        "text-color": "#263238",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": 1
+      }
+    },
+    {
+      "id": "places_region",
+      "type": "symbol",
+      "source": "protomaps",
+      "source-layer": "places",
+      "filter": ["==", "kind", "region"],
+      "layout": {
+        "text-font": ["Noto Sans Bold"],
+        "text-field": ["get", "name"],
+        "text-size": 14,
+        "text-transform": "uppercase"
+      },
+      "paint": {
+        "text-color": "#263238",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": 1
+      }
+    },
+    {
+      "id": "places_country",
+      "type": "symbol",
+      "source": "protomaps",
+      "source-layer": "places",
+      "filter": ["==", "kind", "country"],
+      "layout": {
+        "text-font": ["Noto Sans Bold"],
+        "text-field": ["get", "name"],
+        "text-size": 16,
+        "text-transform": "uppercase"
+      },
+      "paint": {
+        "text-color": "#263238",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": 1.5
+      }
+    },
+    {
+      "id": "settlement-names-label",
+      "type": "symbol",
+      "source": "grid3",
+      "source-layer": "settlement-names",
+      "minzoom": 11,
+      "layout": {
+        "text-font": ["Noto Sans Regular"],
+        "text-field": ["get", "name"],
+        "text-size": 10
+      },
+      "paint": {
+        "text-color": "#4A148C",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": 1
+      }
+    },
+    {
+      "id": "health-facilities-label",
+      "type": "symbol",
+      "source": "grid3",
+      "source-layer": "health-facilities",
+      "minzoom": 12,
+      "layout": {
+        "text-font": ["Noto Sans Regular"],
+        "text-field": ["get", "name"],
+        "text-size": 9
+      },
+      "paint": {
+        "text-color": "#D32F2F",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": 1
+      }
+    },
+    {
+      "id": "health-areas-centroids-label",
+      "type": "symbol",
+      "source": "grid3",
+      "source-layer": "health-areas-centroids",
+      "minzoom": 10,
+      "layout": {
+        "text-font": ["Noto Sans Bold"],
+        "text-field": ["get", "nom"],
+        "text-size": 11,
+        "text-transform": "uppercase"
+      },
+      "paint": {
+        "text-color": "#00796B",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": 1
+      }
+    },
+    {
+      "id": "health-zones-centroids-label",
+      "type": "symbol",
+      "source": "grid3",
+      "source-layer": "health-zones-centroids",
+      "minzoom": 8,
+      "layout": {
+        "text-font": ["Noto Sans Bold"],
+        "text-field": ["get", "nom"],
+        "text-size": 12,
+        "text-transform": "uppercase"
+      },
+      "paint": {
+        "text-color": "#C62828",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": 1.5
+      }
+    }
+  ],
+  "glyphs": "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf"
+}
