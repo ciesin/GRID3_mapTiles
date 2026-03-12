@@ -109,7 +109,7 @@ export const APP_CONFIG: AppConfig = {
       },
       grid3_nga: {
         archiveName: getEnvVar("VITE_GRID3_NGA_ARCHIVE", "nga_settlement_extents"),
-        attribution: '<a href="https://grid3.org">GRID3</a>',
+        attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
         maxzoom: 14,
       },
       terrain: {
