@@ -4,7 +4,7 @@
 
 ## Table of Contents
 
-- [1. GRID3 COD Geospatial Base Layers](#grid3)
+- [1. GRID3 Geospatial Base Layers](#grid3)
 - [2. Protomaps Global Basemap](#protomaps)
 - [3. Overture Buildings](#overture)
 - [4. Mapterhorn Terrain](#terrain)
@@ -16,7 +16,7 @@
 
 <div class="source-card" id="grid3">
 
-## 1. GRID3 COD Geospatial Base Layers <span class="badge badge-primary">grid3.pmtiles</span>
+## 1. GRID3 Geospatial Base Layers <span class="badge badge-primary">grid3.pmtiles</span>
 
 ### Archive Details
 
@@ -37,7 +37,7 @@
 - **Author:** Center for Integrated Earth System Information (CIESIN), Columbia University
 - **Data Year:** 2026
 - **Tile generator:** Tippecanoe v2.80.0
-- **Type:** Overlay
+
 - **Country:** Democratic Republic of the Congo (COD/DRC)
 
 <div class="attribution-box">
@@ -93,8 +93,6 @@ Center for International Earth Science Information Network (CIESIN), Columbia Un
   - precision_ (GPS accuracy)
   - frigo, frigofct (refrigeration status)
   - vaccfixe (fixed vaccination site)
-- **Data Sources:** Multiple agencies
-  - Sources: BLSQ, CIESIN MSPHP, DSNIS, ECV, ESPK, GRID3 PEV, OMS, PATH GRID3, PEV, PNLP, PNLTHA, PROSANI USAID
 
 #### 2. settlement-names <span class="badge badge-success">Point, min z0, max z15</span>
 
@@ -111,8 +109,6 @@ Center for International Earth Science Information Network (CIESIN), Columbia Un
     - enclavdate (seasonal accessibility by quarter)
     - date (collection year: 1994-2025)
     - grid3id, OBJECTID
-- **Data Sources:**
-    - Sources: CIESIN MSPHP, DSNIS, ESPK, ESPK GRID3 CIESIN, ESPK UCLA, GRID3 PEV, IOM, MONUC GNS, OMS GPEI, OMS ISS, PEV, PNLP IMA, PNLP SANRU, RGC
 
 #### 3. settlement-extents <span class="badge badge-success">Polygon, min z0, max z15</span>
 
@@ -180,7 +176,7 @@ Bas-Uele, Equateur, Haut-Katanga, Haut-Lomami, Haut-Uele, Ituri, Kasaï, Kasaï-
 - **Build Date:** May 6, 2025 (2025-05-06T00:22:16.609Z)
 - **OSM Data Date:** February 2, 2026, 04:00:00 UTC
 - **OSM Replication Sequence:** 117381
-- **Version:** 4.13.6 (Protomaps basemap version)
+- **Version:** Protomaps basemap v4.13.6
 
 <div class="attribution-box">
 
@@ -243,7 +239,6 @@ Bas-Uele, Equateur, Haut-Katanga, Haut-Lomami, Haut-Uele, Ituri, Kasaï, Kasaï-
 - **Contributing Source:** [OpenStreetMap](https://www.openstreetmap.org) contributors
 - **Tile generator:** Planetiler v0.9.2
 - **Build Date:** September 20, 2025 (2025-09-20T10:08:13.852Z)
-- **Type:** Overlay
 
 <div class="attribution-box">
 

@@ -64,6 +64,7 @@ export interface TileConfig {
     protomaps: ArchiveSource;
     overture: ArchiveSource;
     grid3: ArchiveSource;
+    grid3_nga: ArchiveSource;
     terrain: ArchiveSource;
   };
 }
@@ -93,18 +94,23 @@ export const APP_CONFIG: AppConfig = {
     sources: {
       protomaps: {
         archiveName: getEnvVar("VITE_PROTOMAPS_ARCHIVE", "global"),
-        attribution: '<a href="https://github.com/protomaps/basemaps">Protomaps</a> © <a href="https://openstreetmap.org">OpenStreetMap</a>',
+        attribution: '<a href="https://github.com/protomaps/basemaps">Protomaps</a> © <a href="https://openstreetmap.org">OpenStreetMap Contributors</a>',
         maxzoom: 15,
       },
       overture: {
         archiveName: getEnvVar("VITE_OVERTURE_ARCHIVE", "buildings"),
         attribution: '<a href="https://overturemaps.org">Overture Maps Foundation</a>',
-        maxzoom: 14,
+        maxzoom: 13,
       },
       grid3: {
         archiveName: getEnvVar("VITE_GRID3_ARCHIVE", "grid3"),
-        attribution: '<a href="https://grid3.org">GRID3</a>',
+        attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
         maxzoom: 15,
+      },
+      grid3_nga: {
+        archiveName: getEnvVar("VITE_GRID3_NGA_ARCHIVE", "nga_settlement_extents"),
+        attribution: '<a href="https://grid3.org">GRID3</a>',
+        maxzoom: 14,
       },
       terrain: {
         archiveName: getEnvVar("VITE_TERRAIN_ARCHIVE", "terrain"),
@@ -179,6 +185,7 @@ export function getTileSourceByArchive(archiveName: string): ReturnType<typeof g
     global: "protomaps",
     buildings: "overture",
     grid3: "grid3",
+    nga_settlement_extents: "grid3_nga",
     terrain: "terrain",
   };
   
