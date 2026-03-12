@@ -104,12 +104,12 @@ export const APP_CONFIG: AppConfig = {
       },
       grid3: {
         archiveName: getEnvVar("VITE_GRID3_ARCHIVE", "grid3"),
-        attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
+        attribution: '<a href="https://ciesin.columbia.edu/">© Columbia University</a>',
         maxzoom: 15,
       },
       grid3_nga: {
         archiveName: getEnvVar("VITE_GRID3_NGA_ARCHIVE", "nga_settlement_extents"),
-        attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
+        attribution: '<a href="https://ciesin.columbia.edu/">© Columbia University</a>',
         maxzoom: 14,
       },
       terrain: {
