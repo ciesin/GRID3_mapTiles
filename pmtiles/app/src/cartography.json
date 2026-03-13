@@ -398,126 +398,40 @@
                 "fill-color": [
                     "interpolate",
                     [
-                        "exponential",
-                        1.2
+                        "linear"
                     ],
                     [
-                        "zoom"
+                        "get",
+                        "building_count_density_quantile_rank"
                     ],
-                    7,
-                    [
-                        "match",
-                        [
-                            "get",
-                            "extent_type"
-                        ],
-                        "Built-up Area",
-                        "#CAA2DD",
-                        "Small Settlement Area",
-                        "#D7B9E4",
-                        "Hamlet",
-                        "#DFC8E7",
-                        "#FF8C0000"
-                    ],
-                    14,
-                    [
-                        "match",
-                        [
-                            "get",
-                            "extent_type"
-                        ],
-                        "Built-up Area",
-                        "#E0D1E8",
-                        "Small Settlement Area",
-                        "#E6D4ED",
-                        "Hamlet",
-                        "#EDD9F0",
-                        "#FF8C0000"
-                    ]
+                    0,
+                    "#F3E5F5",
+                    0.167,
+                    "#E1BEE7",
+                    0.333,
+                    "#CE93D8",
+                    0.5,
+                    "#BA68C8",
+                    0.667,
+                    "#8E24AA",
+                    0.833,
+                    "#6A1B9A",
+                    1,
+                    "#4A148C"
                 ],
                 "fill-opacity": [
                     "interpolate",
                     [
-                        "linear"
+                        "exponential",
+                        2.0
                     ],
                     [
                         "zoom"
                     ],
-                    7,
-                    [
-                        "match",
-                        [
-                            "get",
-                            "extent_type"
-                        ],
-                        "Built-up Area",
-                        0,
-                        "Hamlet",
-                        0,
-                        "Small Settlement Area",
-                        0,
-                        0
-                    ],
-                    8,
-                    [
-                        "match",
-                        [
-                            "get",
-                            "extent_type"
-                        ],
-                        "Built-up Area",
-                        1,
-                        "Hamlet",
-                        0,
-                        "Small Settlement Area",
-                        0,
-                        0
-                    ],
-                    11,
-                    [
-                        "match",
-                        [
-                            "get",
-                            "extent_type"
-                        ],
-                        "Built-up Area",
-                        1,
-                        "Hamlet",
-                        0,
-                        "Small Settlement Area",
-                        1,
-                        0
-                    ],
-                    13,
-                    [
-                        "match",
-                        [
-                            "get",
-                            "extent_type"
-                        ],
-                        "Built-up Area",
-                        1,
-                        "Hamlet",
-                        1,
-                        "Small Settlement Area",
-                        1,
-                        0
-                    ],
-                    16,
-                    [
-                        "match",
-                        [
-                            "get",
-                            "extent_type"
-                        ],
-                        "Built-up Area",
-                        1,
-                        "Hamlet",
-                        1,
-                        "Small Settlement Area",
-                        1,
-                        0
-                    ]
+                    14,
+                    0,
+                    14.5,
+                    0.8
                 ]
             }
         },
@@ -663,6 +577,39 @@
                     4,
                     18,
                     30
+                ]
+            }
+        },
+                {
+            "id": "settlement-blocks-outline",
+            "type": "line",
+            "source": "grid3_nga",
+            "source-layer": "nga-settlement-extents",
+            "minzoom": 14,
+            "maxzoom": 16,
+            "layout": {
+                "visibility": "none"
+            },
+            "paint": {
+                "line-color": 
+                "#D5C2D8",
+                "line-width": [
+                    "interpolate",
+                    [
+                        "exponential",
+                        2
+                    ],
+                    [
+                        "zoom"
+                    ],
+                    14,
+                    0,
+                    16,
+                    1.5
+                ],
+            "line-dasharray": [
+                    1.5,
+                    4.5
                 ]
             }
         },
@@ -2623,7 +2570,20 @@
                 "visibility": "visible"
             },
             "paint": {
-                "fill-extrusion-color": "#A2ACAB",
+                "fill-extrusion-color": [
+                    "interpolate",
+                    [
+                        "exponential",
+                        2.0
+                    ],
+                    [
+                        "zoom"
+                    ],
+                    14,
+                    "#D0D3D4",
+                    14.5,
+                    "#8D6E97"
+                ],
                 "fill-extrusion-height": [
                     "coalesce",
                     [
@@ -2633,7 +2593,7 @@
                     5
                 ],
                 "fill-extrusion-base": 1,
-                "fill-extrusion-opacity": 0.5
+                "fill-extrusion-opacity": 1
             }
         },
         {
@@ -3446,49 +3406,6 @@
                         0.7,
                         0
                     ]
-                ]
-            }
-        },
-        {
-            "id": "settlement-blocks-outline",
-            "type": "line",
-            "source": "grid3_nga",
-            "source-layer": "nga-settlement-extents",
-            "minzoom": 14,
-            "maxzoom": 16,
-            "layout": {
-                "visibility": "visible"
-            },
-            "paint": {
-                "line-color": 
-                "#B580D1",
-                "line-width": [
-                    "interpolate",
-                    [
-                        "exponential",
-                        2
-                    ],
-                    [
-                        "zoom"
-                    ],
-                    14,
-                    0,
-                    16,
-                    1
-                ],
-            "line-gap-width": [
-                "interpolate",
-                    [
-                        "exponential",
-                        1.2
-                    ],
-                    [
-                        "zoom"
-                    ],
-                    14,
-                    2,
-                    16,
-                    0
                 ]
             }
         },
