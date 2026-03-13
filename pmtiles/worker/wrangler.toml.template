@@ -14,3 +14,7 @@ ALLOWED_ORIGINS = "*"  # Change to your domain in production (e.g., "https://you
 CACHE_CONTROL = "public, max-age=86400"  # 24 hours
 # PMTILES_PATH = "{name}.pmtiles"  # Optional: custom path pattern
 # PUBLIC_HOSTNAME = "tiles.yourdomain.com"  # Optional: override hostname in TileJSON
+
+[[routes]]
+pattern = "app.example.com"
+custom_domain = true

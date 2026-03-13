@@ -382,11 +382,11 @@
             }
         },
         {
-            "id": "nga-settlement-extents",
+            "id": "settlement-blocks",
             "type": "fill",
             "source": "grid3_nga",
             "source-layer": "nga-settlement-extents",
-            "minzoom": 7,
+            "minzoom": 14,
             "maxzoom": 16,
             "layout": {
                 "visibility": "visible"
@@ -3447,197 +3447,45 @@
             }
         },
         {
-            "id": "nga-settlement-extents-outline",
+            "id": "settlement-blocks-outline",
             "type": "line",
             "source": "grid3_nga",
             "source-layer": "nga-settlement-extents",
-            "minzoom": 7,
+            "minzoom": 14,
             "maxzoom": 16,
             "layout": {
                 "visibility": "visible"
             },
             "paint": {
-                "line-color": [
-                    "match",
-                    [
-                        "get",
-                        "extent_type"
-                    ],
-                    "Built-up Area",
-                    "#DFC8E7",
-                    "Small Settlement Area",
-                    "#CAA2DD",
-                    "Hamlet",
-                    "#B580D1",
-                    "#FF8C0000"
-                ],
+                "line-color": 
+                "#B580D1",
                 "line-width": [
                     "interpolate",
                     [
-                        "linear"
+                        "exponential",
+                        2
                     ],
                     [
                         "zoom"
                     ],
-                    7,
-                    [
-                        "match",
-                        [
-                            "get",
-                            "extent_type"
-                        ],
-                        "Built-up Area",
-                        0,
-                        "Hamlet",
-                        0,
-                        "Small Settlement Area",
-                        0,
-                        0
-                    ],
-                    8,
-                    [
-                        "match",
-                        [
-                            "get",
-                            "extent_type"
-                        ],
-                        "Built-up Area",
-                        0.5,
-                        "Hamlet",
-                        0,
-                        "Small Settlement Area",
-                        0,
-                        0
-                    ],
-                    9,
-                    [
-                        "match",
-                        [
-                            "get",
-                            "extent_type"
-                        ],
-                        "Built-up Area",
-                        0.5,
-                        "Hamlet",
-                        0,
-                        "Small Settlement Area",
-                        0.5,
-                        0
-                    ],
-                    12,
-                    [
-                        "match",
-                        [
-                            "get",
-                            "extent_type"
-                        ],
-                        "Built-up Area",
-                        0.5,
-                        "Hamlet",
-                        0.25,
-                        "Small Settlement Area",
-                        0.5,
-                        0
-                    ],
-                    15,
-                    [
-                        "match",
-                        [
-                            "get",
-                            "extent_type"
-                        ],
-                        "Built-up Area",
-                        0.5,
-                        "Hamlet",
-                        0.75,
-                        "Small Settlement Area",
-                        1,
-                        0
-                    ]
+                    14,
+                    0,
+                    16,
+                    1
                 ],
-                "line-opacity": [
-                    "interpolate",
+            "line-gap-width": [
+                "interpolate",
                     [
-                        "linear"
+                        "exponential",
+                        1.2
                     ],
                     [
                         "zoom"
                     ],
-                    7,
-                    [
-                        "match",
-                        [
-                            "get",
-                            "extent_type"
-                        ],
-                        "Built-up Area",
-                        0,
-                        "Hamlet",
-                        0,
-                        "Small Settlement Area",
-                        0,
-                        0
-                    ],
-                    8,
-                    [
-                        "match",
-                        [
-                            "get",
-                            "extent_type"
-                        ],
-                        "Built-up Area",
-                        0.5,
-                        "Hamlet",
-                        0,
-                        "Small Settlement Area",
-                        0,
-                        0
-                    ],
-                    9,
-                    [
-                        "match",
-                        [
-                            "get",
-                            "extent_type"
-                        ],
-                        "Built-up Area",
-                        0.5,
-                        "Hamlet",
-                        0,
-                        "Small Settlement Area",
-                        0.5,
-                        0
-                    ],
-                    12,
-                    [
-                        "match",
-                        [
-                            "get",
-                            "extent_type"
-                        ],
-                        "Built-up Area",
-                        0.6,
-                        "Hamlet",
-                        0.6,
-                        "Small Settlement Area",
-                        0.6,
-                        0
-                    ],
-                    15,
-                    [
-                        "match",
-                        [
-                            "get",
-                            "extent_type"
-                        ],
-                        "Built-up Area",
-                        0.7,
-                        "Hamlet",
-                        0.7,
-                        "Small Settlement Area",
-                        0.7,
-                        0
-                    ]
+                    14,
+                    2,
+                    16,
+                    0
                 ]
             }
         },

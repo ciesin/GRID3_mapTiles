@@ -100,7 +100,7 @@ export const APP_CONFIG: AppConfig = {
       overture: {
         archiveName: getEnvVar("VITE_OVERTURE_ARCHIVE", "buildings"),
         attribution: '<a href="https://overturemaps.org">Overture Maps Foundation</a>',
-        maxzoom: 13,
+        maxzoom: 14,
       },
       grid3: {
         archiveName: getEnvVar("VITE_GRID3_ARCHIVE", "grid3"),
