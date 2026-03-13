@@ -45,7 +45,7 @@
             "id": "background",
             "type": "background",
             "paint": {
-                "background-color": "#cccccc"
+                "background-color": "#e2dfda"
             }
         },
         {
@@ -58,6 +58,9 @@
             ],
             "source": "protomaps",
             "source-layer": "earth",
+            "layout": {
+                "visibility": "none"
+            },
             "paint": {
                 "fill-color": "#e2dfda"
             }
