@@ -299,8 +299,8 @@ function MapLibreView() {
       hash: "map",
       container: mapContainer,
       style: style,
-      center: [21.5, -4], // Center of DRC 
-      zoom: 5.5, 
+      center: [14.08, 0],
+      zoom: 3, 
       minZoom: 3,
       maxZoom: 15.99,
       maxBounds: africaBounds, // viewport restriction
