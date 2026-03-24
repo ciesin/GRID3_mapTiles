@@ -65,6 +65,7 @@ export interface TileConfig {
     overture: ArchiveSource;
     grid3: ArchiveSource;
     grid3_nga: ArchiveSource;
+    grid3_settlements: ArchiveSource;
     terrain: ArchiveSource;
   };
 }
@@ -111,6 +112,11 @@ export const APP_CONFIG: AppConfig = {
         archiveName: getEnvVar("VITE_GRID3_NGA_ARCHIVE", "nga_settlement_extents"),
         attribution: '<a href="https://ciesin.columbia.edu/">© Columbia University</a>',
         maxzoom: 14,
+      },
+      grid3_settlements: {
+        archiveName: getEnvVar("VITE_GRID3_SETTLEMENTS_ARCHIVE", "GRID3_NGA_settlement_extents_v3_1"),
+        attribution: '<a href="https://grid3.org">GRID3</a>',
+        maxzoom: 16,
       },
       terrain: {
         archiveName: getEnvVar("VITE_TERRAIN_ARCHIVE", "terrain"),
@@ -186,6 +192,7 @@ export function getTileSourceByArchive(archiveName: string): ReturnType<typeof g
     buildings: "overture",
     grid3: "grid3",
     nga_settlement_extents: "grid3_nga",
+    GRID3_NGA_settlement_extents_v3_1: "grid3_settlements",
     terrain: "terrain",
   };
   

@@ -154,6 +154,7 @@ function getMaplibreStyle(demSource: any): StyleSpecification {
   const overtureConfig = getTileSourceConfig("overture");
   const grid3Config = getTileSourceConfig("grid3");
   const grid3NgaConfig = getTileSourceConfig("grid3_nga");
+  const grid3SettlementsConfig = getTileSourceConfig("grid3_settlements");
   const terrainConfig = getTileSourceConfig("terrain");
 
   // Update the existing sources with Cloudflare Worker tile endpoints
@@ -191,6 +192,15 @@ function getMaplibreStyle(demSource: any): StyleSpecification {
       attribution: grid3NgaConfig.attribution,
       tiles: grid3NgaConfig.tiles,
       maxzoom: grid3NgaConfig.maxzoom,
+    };
+  }
+
+  if (style.sources.grid3_settlements) {
+    style.sources.grid3_settlements = {
+      type: "vector",
+      attribution: grid3SettlementsConfig.attribution,
+      tiles: grid3SettlementsConfig.tiles,
+      maxzoom: grid3SettlementsConfig.maxzoom,
     };
   }
 
