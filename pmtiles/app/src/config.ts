@@ -116,7 +116,7 @@ export const APP_CONFIG: AppConfig = {
       grid3_settlements: {
         archiveName: getEnvVar("VITE_GRID3_SETTLEMENTS_ARCHIVE", "GRID3_NGA_settlement_extents_v3_1"),
         attribution: '<a href="https://grid3.org">GRID3</a>',
-        maxzoom: 16,
+        maxzoom: 14,
       },
       terrain: {
         archiveName: getEnvVar("VITE_TERRAIN_ARCHIVE", "terrain"),

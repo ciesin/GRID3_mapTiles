@@ -393,7 +393,7 @@
             "id": "grid3-settlements-extents",
             "type": "fill",
             "source": "grid3_settlements",
-            "source-layer": "GRID3-NGA-settlement-extents-v3-1",
+            "source-layer": "settlement-extents",
             "minzoom": 7,
             "maxzoom": 16,
             "layout": {
@@ -448,7 +448,7 @@
                     [
                         "zoom"
                     ],
-                    7,
+                    8,
                     [
                         "match",
                         [
@@ -463,7 +463,7 @@
                         0,
                         0
                     ],
-                    8,
+                    8.5,
                     [
                         "match",
                         [
@@ -3554,7 +3554,7 @@
             "id": "grid3-settlements-extents-outline",
             "type": "line",
             "source": "grid3_settlements",
-            "source-layer": "GRID3-NGA-settlement-extents-v3-1",
+            "source-layer": "settlement-extents",
             "minzoom": 7,
             "maxzoom": 16,
             "layout": {

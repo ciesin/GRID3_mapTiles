@@ -219,18 +219,7 @@ def get_layer_tippecanoe_settings(layer_name, filename_or_path=None):
     
     First tries to load settings from tippecanoe.py template (LAYER_SETTINGS).
     Falls back to hardcoded detection logic if template not available or no match.
-    
-    Common options have been consolidated into the base tippecanoe command:
-    - --buffer=8 (most layers, higher quality)
-    - --no-polygon-splitting (polygon layers)
-    - --detect-shared-borders (polygon layers)
-    - --drop-smallest (quality optimization)
-    - --maximum-tile-bytes=1048576 (1MB standard)
-    - --preserve-input-order (consistency)
-    - --coalesce-densest-as-needed (most layers)
-    - --drop-fraction-as-needed (most layers)
-    
-    This function now returns only layer-specific options.
+        
     """
     start_time = time.time()
     
@@ -275,7 +264,7 @@ def get_layer_tippecanoe_settings(layer_name, filename_or_path=None):
         if layer_name_lower in ['water']:
             layer_type = 'water'
             detection_method = 'layer_name'
-        elif layer_name_lower in ['settlement-extents', 'settlementextents']:
+        elif layer_name_lower in ['settlement-extents', 'settlement_extents', 'settlementextents', 'extents']:
             layer_type = 'settlement-extents'
             detection_method = 'layer_name'
         elif layer_name_lower in ['roads']:
