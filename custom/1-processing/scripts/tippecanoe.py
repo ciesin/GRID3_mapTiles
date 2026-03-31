@@ -241,13 +241,13 @@ LAYER_SETTINGS = {
         '--simplification=5',  # Higher simplification for many small features
         '--drop-rate=0.3', 
         '--minimum-detail=8',
-        # '--coalesce-smallest-as-needed',  # Merge smallest settlements at low zooms
-        # '--drop-smallest-as-needed',  # Drop smallest when tiles too large
+        '--coalesce-smallest-as-needed',  # Merge smallest settlements at low zooms
+        '--drop-smallest-as-needed',  # Drop smallest when tiles too large
         '--gamma=1.4',  # Reduce density of clustered settlements
         '--extend-zooms-if-still-dropping-maximum=14',
-        # '--no-tile-size-limit',
-        '--maximum-tile-bytes=5000000',
-        '--maximum-zoom=14',
+        '--no-tile-size-limit',
+        # '--maximum-tile-bytes=5000000',
+        # '--maximum-zoom=14',
         '-y', 'type'
         ],
 
@@ -271,8 +271,9 @@ LAYER_SETTINGS = {
 # Base tippecanoe command flags that apply to all layers
 BASE_COMMAND = [
     # '--buffer=8',
-    # '-zg',
+    '-zg',
     '-Bg',
+    '--no-tile-size-limit', #temp
     # '--drop-smallest',
     # '--maximum-tile-bytes=2097152',  # default for all layers
     # '--preserve-input-order',
