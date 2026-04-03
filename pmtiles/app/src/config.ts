@@ -104,7 +104,7 @@ export const APP_CONFIG: AppConfig = {
         maxzoom: 14,
       },
       grid3: {
-        archiveName: getEnvVar("VITE_GRID3_ARCHIVE", "grid3"),
+        archiveName: getEnvVar("VITE_GRID3_ARCHIVE", "alpha/grid3"),
         attribution: '<a href="https://ciesin.columbia.edu/">© Columbia University</a>',
         maxzoom: 15,
       },
@@ -119,7 +119,7 @@ export const APP_CONFIG: AppConfig = {
         maxzoom: 14,
       },
       terrain: {
-        archiveName: getEnvVar("VITE_TERRAIN_ARCHIVE", "terrain"),
+        archiveName: getEnvVar("VITE_TERRAIN_ARCHIVE", "prod/terrain"),
         attribution: '<a href="https://mapterhorn.com/attribution">© Mapterhorn</a>',
         maxzoom: 12, 
       },
