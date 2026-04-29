@@ -4,33 +4,33 @@
         "protomaps": {
             "type": "vector",
             "attribution": "<a href=\"https://github.com/protomaps/basemaps\">Protomaps</a> © <a href=\"https://openstreetmap.org\">OpenStreetMap</a>",
-            "url": "pmtiles://https://data.ciesin.app/global.pmtiles"
+            "url": "pmtiles://https://dev.ciesin.app/tiles/base.pmtiles"
         },
         "overture": {
             "type": "vector",
             "attribution": "<a href=\"https://overturemaps.org\">Overture Maps</a>",
-            "url": "pmtiles://https://data.ciesin.app/buildings.pmtiles"
+            "url": "pmtiles://https://dev.ciesin.app/tiles/buildings.pmtiles"
         },
         "grid3": {
             "type": "vector",
             "attribution": "<a href=\"https://grid3.org\">GRID3</a>",
-            "url": "pmtiles://https://data.ciesin.app/alpha/grid3.pmtiles"
+            "url": "pmtiles://https://dev.ciesin.app/tiles/grid3.pmtiles"
         },
         "grid3_nga": {
             "type": "vector",
             "attribution": "<a href=\"https://grid3.org\">GRID3</a>",
-            "url": "pmtiles://https://data.ciesin.app/nga_settlement_extents.pmtiles"
+            "url": "pmtiles://https://dev.ciesin.app/tiles/nga_settlement_extents.pmtiles"
         },
         "grid3_settlements": {
             "type": "vector",
             "attribution": "<a href=\"https://grid3.org\">GRID3</a>",
-            "url": "pmtiles://https://data.ciesin.app/GRID3_NGA_settlement_extents_v3_1.pmtiles"
+            "url": "pmtiles://https://dev.ciesin.app/tiles/GRID3_NGA_settlement_blocks_v3_1.pmtiles"
         },
         "dem": {
             "type": "raster-dem",
             "attribution": "<a href=\"https://mapterhorn.com/attribution\">© Mapterhorn</a>",
             "tiles": [
-                "https://data.ciesin.app/prod/terrain.pmtiles/{z}/{x}/{y}.png"
+                "https://dev.ciesin.app/tiles/terrain.pmtiles/{z}/{x}/{y}.png"
             ],
             "encoding": "terrarium",
             "maxzoom": 12,
@@ -40,7 +40,7 @@
             "type": "vector",
             "attribution": "<a href=\"https://mapterhorn.com/attribution\">© Mapterhorn</a>",
             "tiles": [
-                "https://data.ciesin.app/prod/terrain.pmtiles/{z}/{x}/{y}.png"
+                "https://dev.ciesin.app/tiles/terrain.pmtiles/{z}/{x}/{y}.png"
             ],
             "maxzoom": 15
         }

@@ -8,3 +8,5 @@ rclone copyto GRID3_NGA_settlement_extents_v3_1.pmtiles grid3-tiles-rclone:grid3
 
 "Content-Type: application/vnd.pmtiles"
 Content-Type: application/json
+
+

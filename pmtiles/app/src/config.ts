@@ -88,13 +88,13 @@ export const APP_CONFIG: AppConfig = {
   tiles: {
     cloudflareWorkerUrl: getEnvVar(
       "VITE_CLOUDFLARE_WORKER_URL",
-      "https://pmtiles-cloudflare.mheaton-945.workers.dev"
+      "https://tileworker.ciesin.app"
     ),
     // set these max zooms to available data, not preferred overzoom level
     // overzoom will still happen above available tile levels
     sources: {
       protomaps: {
-        archiveName: getEnvVar("VITE_PROTOMAPS_ARCHIVE", "global"),
+        archiveName: getEnvVar("VITE_PROTOMAPS_ARCHIVE", "base"),
         attribution: '<a href="https://github.com/protomaps/basemaps">Protomaps</a> © <a href="https://openstreetmap.org">OpenStreetMap Contributors</a>',
         maxzoom: 15,
       },
@@ -104,7 +104,7 @@ export const APP_CONFIG: AppConfig = {
         maxzoom: 14,
       },
       grid3: {
-        archiveName: getEnvVar("VITE_GRID3_ARCHIVE", "alpha/grid3"),
+        archiveName: getEnvVar("VITE_GRID3_ARCHIVE", "grid3"),
         attribution: '<a href="https://ciesin.columbia.edu/">© Columbia University</a>',
         maxzoom: 15,
       },
@@ -114,12 +114,12 @@ export const APP_CONFIG: AppConfig = {
         maxzoom: 14,
       },
       grid3_settlements: {
-        archiveName: getEnvVar("VITE_GRID3_SETTLEMENTS_ARCHIVE", "GRID3_NGA_settlement_extents_v3_1"),
+        archiveName: getEnvVar("VITE_GRID3_SETTLEMENTS_ARCHIVE", "GRID3_NGA_settlement_blocks_v3_1"),
         attribution: '<a href="https://grid3.org">GRID3</a>',
         maxzoom: 14,
       },
       terrain: {
-        archiveName: getEnvVar("VITE_TERRAIN_ARCHIVE", "prod/terrain"),
+        archiveName: getEnvVar("VITE_TERRAIN_ARCHIVE", "terrain"),
         attribution: '<a href="https://mapterhorn.com/attribution">© Mapterhorn</a>',
         maxzoom: 12, 
       },
@@ -192,7 +192,7 @@ export function getTileSourceByArchive(archiveName: string): ReturnType<typeof g
     buildings: "overture",
     grid3: "grid3",
     nga_settlement_extents: "grid3_nga",
-    GRID3_NGA_settlement_extents_v3_1: "grid3_settlements",
+    GRID3_NGA_settlement_blocks_v3_1: "grid3_settlements",
     terrain: "terrain",
   };
   
