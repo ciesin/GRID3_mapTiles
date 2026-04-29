@@ -262,7 +262,7 @@ function MapLibreView() {
 
   onMount(async () => {
     // Log tile configuration for debugging
-    logConfig();
+    // logConfig();
 
     if (getRTLTextPluginStatus() === "unavailable") {
       setRTLTextPlugin(
