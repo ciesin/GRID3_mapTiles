@@ -18,18 +18,18 @@ import {
 } from "maplibre-gl";
 import type {
   LngLatBoundsLike,
-  MapGeoJSONFeature,
-  MapTouchEvent,
+  // MapGeoJSONFeature,
+  // MapTouchEvent,
   StyleSpecification,
 } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import type { LayerSpecification } from "@maplibre/maplibre-gl-style-spec";
+// import type { LayerSpecification } from "@maplibre/maplibre-gl-style-spec";
 import {
-  For,
+  // For,
   createSignal,
   onMount,
 } from "solid-js";
-import { getTileSourceConfig, logConfig } from "./config";
+import { getTileSourceConfig } from "./config";
 import baseStyle from "./cartography.json";
 
 // Light configuration for 3D features
@@ -40,12 +40,12 @@ const LIGHT_CONFIG = {
   intensity: 0.9, // 0 to 1
 };
 
-function getSourceLayer(l: LayerSpecification): string {
-  if ("source-layer" in l && l["source-layer"]) {
-    return l["source-layer"];
-  }
-  return "";
-}
+// function getSourceLayer(l: LayerSpecification): string {
+//   if ("source-layer" in l && l["source-layer"]) {
+//     return l["source-layer"];
+//   }
+//   return "";
+// }
 
 // Custom control for attribution info button
 class AttributionInfoControl implements IControl {
@@ -80,70 +80,70 @@ class AttributionInfoControl implements IControl {
   }
 }
 
-const featureIdToOsmId = (raw: string | number) => {
-  return Number(BigInt(raw) & ((BigInt(1) << BigInt(44)) - BigInt(1)));
-};
+// const featureIdToOsmId = (raw: string | number) => {
+//   return Number(BigInt(raw) & ((BigInt(1) << BigInt(44)) - BigInt(1)));
+// };
 
-const featureIdToOsmType = (i: string | number) => {
-  const t = (BigInt(i) >> BigInt(44)) & BigInt(3);
-  if (t === BigInt(1)) return "node";
-  if (t === BigInt(2)) return "way";
-  if (t === BigInt(3)) return "relation";
-  return "not_osm";
-};
+// const featureIdToOsmType = (i: string | number) => {
+//   const t = (BigInt(i) >> BigInt(44)) & BigInt(3);
+//   if (t === BigInt(1)) return "node";
+//   if (t === BigInt(2)) return "way";
+//   if (t === BigInt(3)) return "relation";
+//   return "not_osm";
+// };
 
-const displayId = (featureId?: string | number) => {
-  if (featureId) {
-    const osmType = featureIdToOsmType(featureId);
-    if (osmType !== "not_osm") {
-      const osmId = featureIdToOsmId(featureId);
-      return (
-        <a
-          class="underline text-purple"
-          target="_blank"
-          rel="noreferrer"
-          href={`https://openstreetmap.org/${osmType}/${osmId}`}
-        >
-          {osmType} {osmId}
-        </a>
-      );
-    }
-  }
-  return featureId;
-};
+// const displayId = (featureId?: string | number) => {
+//   if (featureId) {
+//     const osmType = featureIdToOsmType(featureId);
+//     if (osmType !== "not_osm") {
+//       const osmId = featureIdToOsmId(featureId);
+//       return (
+//         <a
+//           class="underline text-purple"
+//           target="_blank"
+//           rel="noreferrer"
+//           href={`https://openstreetmap.org/${osmType}/${osmId}`}
+//         >
+//           {osmType} {osmId}
+//         </a>
+//       );
+//     }
+//   }
+//   return featureId;
+// };
 
-const FeaturesProperties = (props: { features: MapGeoJSONFeature[] }) => {
-  return (
-    <div class="features-properties">
-      <For each={props.features}>
-        {(f) => (
-          <div>
-            <span>
-              <strong>{getSourceLayer(f.layer)}</strong>
-              <span> ({f.geometry.type})</span>
-            </span>
-            <table>
-              <tbody>
-                <tr>
-                  <td>id</td>
-                  <td>{displayId(f.id)}</td>
-                </tr>
-                <For each={Object.entries(f.properties)}>
-                  {([key, value]) => (
-                    <tr>
-                      <td>{key}</td>
-                      <td>{value}</td>
-                    </tr>
-                  )}
-                </For>
-              </tbody>
-            </table>
-          </div>
-        )}
-      </For>
-    </div>
-  );
-};
+// const FeaturesProperties = (props: { features: MapGeoJSONFeature[] }) => {
+//   return (
+//     <div class="features-properties">
+//       <For each={props.features}>
+//         {(f) => (
+//           <div>
+//             <span>
+//               <strong>{getSourceLayer(f.layer)}</strong>
+//               <span> ({f.geometry.type})</span>
+//             </span>
+//             <table>
+//               <tbody>
+//                 <tr>
+//                   <td>id</td>
+//                   <td>{displayId(f.id)}</td>
+//                 </tr>
+//                 <For each={Object.entries(f.properties)}>
+//                   {([key, value]) => (
+//                     <tr>
+//                       <td>{key}</td>
+//                       <td>{value}</td>
+//                     </tr>
+//                   )}
+//                 </For>
+//               </tbody>
+//             </table>
+//           </div>
+//         )}
+//       </For>
+//     </div>
+//   );
+// };
 
 function getMaplibreStyle(demSource: any): StyleSpecification {
   // Start with base style from cartography.json
@@ -256,7 +256,7 @@ style.sources.contours = {
 function MapLibreView() {
   let mapContainer: HTMLDivElement | undefined;
   let hiddenRef: HTMLDivElement | undefined;
-  let longPressTimeout: ReturnType<typeof setTimeout>;
+  // let longPressTimeout: ReturnType<typeof setTimeout>;
 
   const [zoom, setZoom] = createSignal<number>(0);
 
@@ -370,11 +370,11 @@ function MapLibreView() {
       }),
     );
 
-    const popup = new Popup({
-      closeButton: true,
-      closeOnClick: true,
-      maxWidth: "none",
-    });
+    // const popup = new Popup({
+    //   closeButton: true,
+    //   closeOnClick: true,
+    //   maxWidth: "none",
+    // });
 
     map.on("load", () => {
       map.resize();
@@ -388,46 +388,46 @@ function MapLibreView() {
       setZoom(map.getZoom());
     });
 
-    const showContextMenu = (e: MapTouchEvent) => {
-      const features = map.queryRenderedFeatures(e.point);
-      if (hiddenRef && features.length) {
-        hiddenRef.innerHTML = "";
-        render(() => <FeaturesProperties features={features} />, hiddenRef);
-        popup.setHTML(hiddenRef.innerHTML);
-        popup.setLngLat(e.lngLat);
-        popup.addTo(map);
-      } else {
-        popup.remove();
-      }
-    };
+    // const showContextMenu = (e: MapTouchEvent) => {
+    //   const features = map.queryRenderedFeatures(e.point);
+    //   if (hiddenRef && features.length) {
+    //     hiddenRef.innerHTML = "";
+    //     render(() => <FeaturesProperties features={features} />, hiddenRef);
+    //     popup.setHTML(hiddenRef.innerHTML);
+    //     popup.setLngLat(e.lngLat);
+    //     popup.addTo(map);
+    //   } else {
+    //     popup.remove();
+    //   }
+    // };
 
-    map.on("contextmenu", (e: MapTouchEvent) => {
-      showContextMenu(e);
-    });
+    // map.on("contextmenu", (e: MapTouchEvent) => {
+    //   showContextMenu(e);
+    // });
 
-    map.on("touchstart", (e: MapTouchEvent) => {
-      longPressTimeout = setTimeout(() => {
-        showContextMenu(e);
-      }, 500);
-    });
+    // map.on("touchstart", (e: MapTouchEvent) => {
+    //   longPressTimeout = setTimeout(() => {
+    //     showContextMenu(e);
+    //   }, 500);
+    // });
 
-    const clearLongPress = () => {
-      clearTimeout(longPressTimeout);
-    };
+    // const clearLongPress = () => {
+    //   clearTimeout(longPressTimeout);
+    // };
 
     map.on("zoom", (e) => {
       setZoom(e.target.getZoom());
     });
 
-    map.on("touchend", clearLongPress);
-    map.on("touchcancel", clearLongPress);
-    map.on("touchmove", clearLongPress);
-    map.on("pointerdrag", clearLongPress);
-    map.on("pointermove", clearLongPress);
-    map.on("moveend", clearLongPress);
-    map.on("gesturestart", clearLongPress);
-    map.on("gesturechange", clearLongPress);
-    map.on("gestureend", clearLongPress);
+    // map.on("touchend", clearLongPress);
+    // map.on("touchcancel", clearLongPress);
+    // map.on("touchmove", clearLongPress);
+    // map.on("pointerdrag", clearLongPress);
+    // map.on("pointermove", clearLongPress);
+    // map.on("moveend", clearLongPress);
+    // map.on("gesturestart", clearLongPress);
+    // map.on("gesturechange", clearLongPress);
+    // map.on("gestureend", clearLongPress);
 
     return () => {
       map.remove();
