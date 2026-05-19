@@ -30,7 +30,7 @@ import {
   onMount,
 } from "solid-js";
 import { getTileSourceConfig } from "./config";
-import baseStyle from "./cartography.json";
+import baseStyle from "./style.json";
 
 // Light configuration for 3D features
 const LIGHT_CONFIG = {
@@ -146,7 +146,7 @@ class AttributionInfoControl implements IControl {
 // };
 
 function getMaplibreStyle(demSource: any): StyleSpecification {
-  // Start with base style from cartography.json
+  // Start with base style from style.json
   const style = JSON.parse(JSON.stringify(baseStyle)) as StyleSpecification;
 
   // Get tile source configurations from Cloudflare Worker
