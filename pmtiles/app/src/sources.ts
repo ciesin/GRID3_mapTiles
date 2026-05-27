@@ -29,7 +29,7 @@ export const SOURCES = {
   // ---------------------------------------------------------------------------
 
   protomaps: {
-    archive: "tiles/protomaps/base",
+    archive: "tiles/base",
     attribution: '<a href="https://github.com/protomaps/basemaps">Protomaps</a> © <a href="https://openstreetmap.org">OpenStreetMap Contributors</a>',
     maxzoom: 15,
     ext: "mvt",
@@ -43,7 +43,7 @@ export const SOURCES = {
   },
 
   terrain: {
-    archive: "tiles/mapterhorn/terrain",
+    archive: "tiles/terrain",
     attribution: '<a href="https://mapterhorn.com/attribution">© Mapterhorn</a>',
     maxzoom: 12,
     ext: "webp",
@@ -54,7 +54,7 @@ export const SOURCES = {
   // ---------------------------------------------------------------------------
 
   grid3: {
-    archive: "tiles/grid3/cod/grid3_cod_v1",
+    archive: "tiles/grid3",
     attribution: '<a href="https://ciesin.columbia.edu/">© Columbia University CIESIN</a>',
     maxzoom: 15,
     ext: "mvt",
@@ -65,14 +65,14 @@ export const SOURCES = {
   // ---------------------------------------------------------------------------
 
   grid3_nga: {
-    archive: "tiles/grid3/nga/settlement_extents_v3_1",
+    archive: "tiles/nga_settlement_extents",
     attribution: '<a href="https://ciesin.columbia.edu/">© Columbia University CIESIN</a>',
     maxzoom: 14,
     ext: "mvt",
   },
 
   grid3_settlements: {
-    archive: "tiles/grid3/nga/settlement_blocks_v3_1",
+    archive: "tiles/GRID3_NGA_settlement_blocks_v3_1",
     attribution: '<a href="https://grid3.org">GRID3</a>',
     maxzoom: 14,
     ext: "mvt",
