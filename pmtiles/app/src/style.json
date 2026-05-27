@@ -3,45 +3,41 @@
 	"sources": {
 		"protomaps": {
 			"type": "vector",
-			"attribution": "<a href=\"https://github.com/protomaps/basemaps\">Protomaps</a> © <a href=\"https://openstreetmap.org\">OpenStreetMap</a>",
-			"url": "pmtiles://https://dev.ciesin.app/tiles/base.pmtiles"
+			"attribution": "",
+			"tiles": []
 		},
 		"overture": {
 			"type": "vector",
-			"attribution": "<a href=\"https://overturemaps.org\">Overture Maps</a>",
-			"url": "pmtiles://https://dev.ciesin.app/tiles/buildings.pmtiles"
+			"attribution": "",
+			"tiles": []
 		},
 		"grid3": {
 			"type": "vector",
-			"attribution": "<a href=\"https://grid3.org\">GRID3</a>",
-			"url": "pmtiles://https://dev.ciesin.app/tiles/grid3.pmtiles"
+			"attribution": "",
+			"tiles": []
 		},
 		"grid3_nga": {
 			"type": "vector",
-			"attribution": "<a href=\"https://grid3.org\">GRID3</a>",
-			"url": "pmtiles://https://dev.ciesin.app/tiles/nga_settlement_extents.pmtiles"
+			"attribution": "",
+			"tiles": []
 		},
 		"grid3_settlements": {
 			"type": "vector",
-			"attribution": "<a href=\"https://grid3.org\">GRID3</a>",
-			"url": "pmtiles://https://dev.ciesin.app/tiles/GRID3_NGA_settlement_blocks_v3_1.pmtiles"
+			"attribution": "",
+			"tiles": []
 		},
 		"dem": {
 			"type": "raster-dem",
-			"attribution": "<a href=\"https://mapterhorn.com/attribution\">© Mapterhorn</a>",
-			"tiles": [
-				"https://dev.ciesin.app/tiles/terrain.pmtiles/{z}/{x}/{y}.png"
-			],
+			"attribution": "",
+			"tiles": [],
 			"encoding": "terrarium",
 			"maxzoom": 12,
 			"tileSize": 256
 		},
 		"contours": {
 			"type": "vector",
-			"attribution": "<a href=\"https://mapterhorn.com/attribution\">© Mapterhorn</a>",
-			"tiles": [
-				"https://dev.ciesin.app/tiles/terrain.pmtiles/{z}/{x}/{y}.png"
-			],
+			"attribution": "",
+			"tiles": [],
 			"maxzoom": 15
 		}
 	},

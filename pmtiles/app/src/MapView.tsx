@@ -30,6 +30,7 @@ import {
   onMount,
 } from "solid-js";
 import { getTileSourceConfig } from "./config";
+import { SOURCES, type SourceKey } from "./sources";
 import baseStyle from "./style.json";
 
 // Light configuration for 3D features
@@ -146,70 +147,30 @@ class AttributionInfoControl implements IControl {
 // };
 
 function getMaplibreStyle(demSource: any): StyleSpecification {
-  // Start with base style from style.json
   const style = JSON.parse(JSON.stringify(baseStyle)) as StyleSpecification;
 
-  // Get tile source configurations from Cloudflare Worker
-  const protomapsConfig = getTileSourceConfig("protomaps");
-  const overtureConfig = getTileSourceConfig("overture");
-  const grid3Config = getTileSourceConfig("grid3");
-  const grid3NgaConfig = getTileSourceConfig("grid3_nga");
-  const grid3SettlementsConfig = getTileSourceConfig("grid3_settlements");
-  const terrainConfig = getTileSourceConfig("terrain");
-
-  // Update the existing sources with Cloudflare Worker tile endpoints
-  if (style.sources.protomaps) {
-    style.sources.protomaps = {
-      type: "vector",
-      attribution: protomapsConfig.attribution,
-      tiles: protomapsConfig.tiles,
-      maxzoom: protomapsConfig.maxzoom,
-    };
+  // Inject tile URLs for every source defined in sources.ts whose key appears
+  // in style.json. Adding a new country: add to sources.ts + style.json only.
+  for (const key of Object.keys(SOURCES) as SourceKey[]) {
+    if (key in style.sources) {
+      const cfg = getTileSourceConfig(key);
+      style.sources[key] = {
+        type: "vector",
+        attribution: cfg.attribution,
+        tiles: cfg.tiles,
+        maxzoom: cfg.maxzoom,
+      };
+    }
   }
 
-  if (style.sources.overture) {
-    style.sources.overture = {
-      type: "vector",
-      attribution: overtureConfig.attribution,
-      tiles: overtureConfig.tiles,
-      maxzoom: overtureConfig.maxzoom,
-    };
-  }
-
-
-  if (style.sources.grid3) {
-    style.sources.grid3 = {
-      type: "vector",
-      attribution: grid3Config.attribution,
-      tiles: grid3Config.tiles,
-      maxzoom: grid3Config.maxzoom,
-    };
-  }
-
-  if (style.sources.grid3_nga) {
-    style.sources.grid3_nga = {
-      type: "vector",
-      attribution: grid3NgaConfig.attribution,
-      tiles: grid3NgaConfig.tiles,
-      maxzoom: grid3NgaConfig.maxzoom,
-    };
-  }
-
-  if (style.sources.grid3_settlements) {
-    style.sources.grid3_settlements = {
-      type: "vector",
-      attribution: grid3SettlementsConfig.attribution,
-      tiles: grid3SettlementsConfig.tiles,
-      maxzoom: grid3SettlementsConfig.maxzoom,
-    };
-  }
-
-  // Add DEM and contours sources for terrain
+  // DEM and contours are generated at runtime by maplibre-contour, not served
+  // from R2 archives, so they are handled separately below.
+  const terrainMaxzoom = SOURCES.terrain.maxzoom;
   style.sources.dem = {
     type: "raster-dem",
     encoding: "terrarium",
     tiles: [demSource.sharedDemProtocolUrl],
-    maxzoom: terrainConfig.maxzoom || 12,
+    maxzoom: terrainMaxzoom,
     tileSize: 256,
   };
 

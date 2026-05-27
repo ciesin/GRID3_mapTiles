@@ -1,257 +1,51 @@
-/**
- * Tile Configuration for PMTiles Sources via Cloudflare Workers + R2
- * 
- * This configuration exclusively uses Cloudflare Workers for serving PMTiles archives.
- * All archives are stored in R2 and served through a Cloudflare Worker for optimal
- * performance and cost-efficiency.
- * 
- * CLOUDFLARE WORKER SETUP:
- * ========================
- * 
- * 1. Deploy the PMTiles Cloudflare Worker:
- *    - Use: https://github.com/protomaps/PMTiles/tree/main/serverless/cloudflare
- *    - The worker handles tile requests from multiple .pmtiles archives
- * 
- * 2. Bind your R2 bucket to the worker:
- *    - In Cloudflare Dashboard: Workers & Pages > Your Worker > Settings > Variables
- *    - Add R2 Bucket Binding: name = "BUCKET", bucket = "grid3-maptiles"
- * 
- * 3. Upload your PMTiles archives to R2:
- *    - global.pmtiles (Protomaps basemap)
- *    - buildings.pmtiles (Overture buildings)
- *    - grid3.pmtiles (GRID3 data layer)
- * 
- * 4. Set VITE_CLOUDFLARE_WORKER_URL environment variable to your worker URL
- * 
- * TILE SERVING PATTERN:
- * ====================
- * https://your-worker.workers.dev/{archive-name}/{z}/{x}/{y}.mvt
- * 
- * The worker automatically maps {archive-name} to {archive-name}.pmtiles in R2.
- * 
- * BENEFITS:
- * =========
- * - Edge caching (faster global delivery)
- * - Automatic HTTP/2 and HTTP/3
- * - DDoS protection
- * - No R2 egress fees (Class A reads only)
- * - Multiple archive support without protocol complexity
- */
+import { SOURCES, type SourceKey } from "./sources";
 
-/**
- * Archive source definition
- */
-export interface ArchiveSource {
-  archiveName: string;
-  attribution: string;
-  maxzoom?: number;
-}
+// VITE_CLOUDFLARE_WORKER_URL is the only environment variable needed.
+// It points to the Cloudflare Worker that serves tiles from R2:
+//   dev:  https://dev-tileworker.ciesin.app  → ciesin-dev bucket
+//   prod: https://prod-tileworker.ciesin.app → ciesin-prod bucket
+//
+// Set this in your .env.development / .env.production locally, or in the
+// Cloudflare Pages dashboard (Settings → Environment Variables) for CI builds.
+// All archive paths live in sources.ts — no other env vars are needed.
 
-/**
- * Asset configuration (sprites, fonts, etc.)
- */
-export interface AssetConfig {
-  spriteBaseUrl: string;
-  glyphsUrl: string;
-}
+const workerUrl: string =
+  import.meta.env["VITE_CLOUDFLARE_WORKER_URL"] || "https://dev-tileworker.ciesin.app";
 
-/**
- * Tile configuration
- */
-export interface TileConfig {
-  cloudflareWorkerUrl: string;
-  sources: {
-    protomaps: ArchiveSource;
-    overture: ArchiveSource;
-    grid3: ArchiveSource;
-    grid3_nga: ArchiveSource;
-    grid3_settlements: ArchiveSource;
-    terrain: ArchiveSource;
-  };
-}
-
-/**
- * Application configuration
- */
-export interface AppConfig {
-  tiles: TileConfig;
-  assets: AssetConfig;
-}
-
-// Environment variable support for Cloudflare Pages
-const getEnvVar = (key: string, defaultValue: string = ""): string => {
-  // Vite exposes env vars prefixed with VITE_ at build time
-  return import.meta.env[key] || defaultValue;
-};
-
-export const APP_CONFIG: AppConfig = {
-  tiles: {
-    cloudflareWorkerUrl: getEnvVar(
-      "VITE_CLOUDFLARE_WORKER_URL",
-      "https://tileworker.ciesin.app"
-    ),
-    // set these max zooms to available data, not preferred overzoom level
-    // overzoom will still happen above available tile levels
-    sources: {
-      protomaps: {
-        archiveName: getEnvVar("VITE_PROTOMAPS_ARCHIVE", "base"),
-        attribution: '<a href="https://github.com/protomaps/basemaps">Protomaps</a> © <a href="https://openstreetmap.org">OpenStreetMap Contributors</a>',
-        maxzoom: 15,
-      },
-      overture: {
-        archiveName: getEnvVar("VITE_OVERTURE_ARCHIVE", "buildings"),
-        attribution: '<a href="https://overturemaps.org">Overture Maps Foundation</a>',
-        maxzoom: 14,
-      },
-      grid3: {
-        archiveName: getEnvVar("VITE_GRID3_ARCHIVE", "grid3"),
-        attribution: '<a href="https://ciesin.columbia.edu/">© Columbia University</a>',
-        maxzoom: 15,
-      },
-      grid3_nga: {
-        archiveName: getEnvVar("VITE_GRID3_NGA_ARCHIVE", "nga_settlement_extents"),
-        attribution: '<a href="https://ciesin.columbia.edu/">© Columbia University</a>',
-        maxzoom: 14,
-      },
-      grid3_settlements: {
-        archiveName: getEnvVar("VITE_GRID3_SETTLEMENTS_ARCHIVE", "GRID3_NGA_settlement_blocks_v3_1"),
-        attribution: '<a href="https://grid3.org">GRID3</a>',
-        maxzoom: 14,
-      },
-      terrain: {
-        archiveName: getEnvVar("VITE_TERRAIN_ARCHIVE", "terrain"),
-        attribution: '<a href="https://mapterhorn.com/attribution">© Mapterhorn</a>',
-        maxzoom: 12, 
-      },
-    },
-  },
+export const APP_CONFIG = {
+  workerUrl,
   assets: {
-    // R2-hosted sprites (use Protomaps default if not set)
-    spriteBaseUrl: getEnvVar(
-      "VITE_SPRITE_BASE_URL",
-      "https://protomaps.github.io/basemaps-assets/sprites/v4"
-    ),
-    glyphsUrl: getEnvVar(
-      "VITE_GLYPHS_URL",
-      "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf"
-    ),
+    spriteBaseUrl:
+      import.meta.env["VITE_SPRITE_BASE_URL"] ||
+      "https://protomaps.github.io/basemaps-assets/sprites/v4",
+    glyphsUrl:
+      import.meta.env["VITE_GLYPHS_URL"] ||
+      "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",
   },
 };
 
-// ============================================================================
-// Helper Functions
-// ============================================================================
-
 /**
- * Get the tile source configuration for MapLibre using Cloudflare Worker
- * 
- * @param sourceName - The source name ('protomaps', 'overture', 'grid3', or 'terrain')
- * @returns MapLibre source configuration with tiles array and attribution
+ * Returns the MapLibre source config for a given source key.
+ * The tile URL is constructed as: {workerUrl}/{archive}/{z}/{x}/{y}.{ext}
+ * The worker resolves {archive}.pmtiles from R2.
  */
-export function getTileSourceConfig(
-  sourceName: keyof TileConfig["sources"]
-): { tiles: string[]; attribution: string; maxzoom?: number } {
-  const config = APP_CONFIG.tiles;
-  const source = config.sources[sourceName];
-  
-  if (!config.cloudflareWorkerUrl) {
-    console.error("Cloudflare Worker URL not configured!");
-    throw new Error("VITE_CLOUDFLARE_WORKER_URL must be set");
-  }
-  
-  if (!source) {
-    console.error(`Unknown source: ${sourceName}`);
-    throw new Error(`Source '${sourceName}' not found in configuration`);
-  }
-  
-  // Determine tile extension based on source type
-  // The worker validates that the extension matches the PMTiles archive tile type
-  let extension: string;
-  if (sourceName === 'terrain') {
-    extension = '.webp'; // Mapterhorn terrain tiles are WebP raster
-  } else {
-    extension = '.mvt'; // Vector tiles
-  }
-  
-  // Cloudflare PMTiles Worker pattern: {worker-url}/{archive-name}/{z}/{x}/{y}.ext
-  // The worker maps {archive-name} to {archive-name}.pmtiles in R2 bucket
+export function getTileSourceConfig(key: SourceKey): {
+  tiles: string[];
+  attribution: string;
+  maxzoom: number;
+} {
+  const source = SOURCES[key];
   return {
-    tiles: [`${config.cloudflareWorkerUrl}/${source.archiveName}/{z}/{x}/{y}${extension}`],
+    tiles: [`${workerUrl}/${source.archive}/{z}/{x}/{y}.${source.ext}`],
     attribution: source.attribution,
-    ...(source.maxzoom && { maxzoom: source.maxzoom }),
+    maxzoom: source.maxzoom,
   };
 }
 
-/**
- * Get tile source configuration by archive name (for backward compatibility)
- * Maps common archive names to source keys
- */
-export function getTileSourceByArchive(archiveName: string): ReturnType<typeof getTileSourceConfig> {
-  const archiveMap: Record<string, keyof TileConfig["sources"]> = {
-    global: "protomaps",
-    buildings: "overture",
-    grid3: "grid3",
-    nga_settlement_extents: "grid3_nga",
-    GRID3_NGA_settlement_blocks_v3_1: "grid3_settlements",
-    terrain: "terrain",
-  };
-  
-  const sourceName = archiveMap[archiveName] || "protomaps";
-  return getTileSourceConfig(sourceName);
-}
-
-/**
- * Check if the configuration is valid
- */
-export function validateConfig(): { valid: boolean; errors: string[] } {
-  const errors: string[] = [];
-  const config = APP_CONFIG.tiles;
-  
-  if (!config.cloudflareWorkerUrl) {
-    errors.push("Cloudflare Worker URL is required (VITE_CLOUDFLARE_WORKER_URL)");
-  }
-  
-  // Validate each source
-  (Object.entries(config.sources) as [keyof TileConfig["sources"], ArchiveSource][]).forEach(([name, source]) => {
-    if (!source.archiveName) {
-      errors.push(`Archive name is required for source '${name}'`);
-    }
-    if (!source.attribution) {
-      errors.push(`Attribution is required for source '${name}'`);
-    }
-  });
-  
-  return {
-    valid: errors.length === 0,
-    errors,
-  };
-}
-
-/**
- * Log the current configuration (for debugging)
- */
 export function logConfig(): void {
-  console.log("=== PMTiles Configuration (Cloudflare Workers + R2) ===");
-  console.log("Worker URL:", APP_CONFIG.tiles.cloudflareWorkerUrl);
-  console.log("\nSources:");
-  
-  (Object.keys(APP_CONFIG.tiles.sources) as (keyof TileConfig["sources"])[]).forEach((sourceName) => {
-    const source = getTileSourceConfig(sourceName);
-    console.log(`\n  ${sourceName}:`);
-    console.log(`    Pattern: ${source.tiles[0]}`);
-    if (source.maxzoom) {
-      console.log(`    Max Zoom: ${source.maxzoom}`);
-    }
-  });
-  
-  console.log("\nAssets:");
-  console.log("  Sprites:", APP_CONFIG.assets.spriteBaseUrl);
-  console.log("  Glyphs:", APP_CONFIG.assets.glyphsUrl);
-  
-  const validation = validateConfig();
-  if (!validation.valid) {
-    console.warn("\nConfiguration errors:");
-    validation.errors.forEach((error) => console.warn(`  - ${error}`));
+  console.log("Worker URL:", workerUrl);
+  for (const key of Object.keys(SOURCES) as SourceKey[]) {
+    const { tiles, maxzoom } = getTileSourceConfig(key);
+    console.log(`  ${key}: ${tiles[0]} (maxzoom ${maxzoom})`);
   }
-  console.log("===================================================");
 }
