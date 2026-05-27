@@ -15,6 +15,7 @@ pnpm-debug.log*
 
 # environment variables
 .env
+.env.development
 .env.production
 
 # macOS-specific files
@@ -48,8 +49,6 @@ input/
 
 # But keep template environment files
 !.env.example
-!.env.development
-!.env.production
 
 # Docker volumes
 /volumes/

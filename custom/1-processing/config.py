@@ -8,15 +8,12 @@ making it easy to import and use across notebooks and scripts.
 from pathlib import Path
 import os
 
-# Load .env from repository root
+# Load .env from this directory (1-processing)
 def load_environment():
-    """Load .env file from repository root (monorepo-wide configuration)."""
+    """Load .env file from the same directory as this config file."""
     try:
         from dotenv import load_dotenv
-        # This file is at: /basemap/1-processing/config.py
-        # Repository root is: /basemap/
-        repo_root = Path(__file__).resolve().parent.parent
-        env_file = repo_root / '.env'
+        env_file = Path(__file__).resolve().parent / '.env'
         if env_file.exists():
             load_dotenv(env_file)
             return True
