@@ -1,18 +1,48 @@
-name = "pmtiles-cloudflare"
+name = "pmtiles-cloudflare-template"
 main = "src/index.ts"
-compatibility_date = "2024-09-02"
-minify = false
+compatibility_date = "2024-01-01"
+workers_dev = true
+preview_urls = true
 
-# R2 bucket bindings; adjust names for dev vs prod buckets.
+# =============================================================================
+# Default environment — dev
+# R2 bucket: ciesin-dev
+# Worker URL: https://dev-tileworker.xyz.app
+# App config: pmtiles/app/.env.development
+# Deploy: npm run deploy  (wrangler deploy --env="")
+# =============================================================================
+
 [[r2_buckets]]
-# Alias used in the worker (env.BUCKET)
 binding = "BUCKET"
-# Bucket used when running `wrangler dev`
-preview_bucket_name = "my-bucket-development-name"
-# Bucket used on `wrangler deploy`
-bucket_name = "my-bucket-production-name"
+bucket_name = "bucket-dev"
+preview_bucket_name = "bucket-dev"
 
 [vars]
-# change to https://example.com, etc. to limit CORS origins
 ALLOWED_ORIGINS = "*"
-# CACHE_CONTROL = "public, max-age=86400"
+CACHE_CONTROL = "public, max-age=86400"
+
+[[routes]]
+pattern = "dev-tileworker.xyz.app"
+custom_domain = true
+
+# =============================================================================
+# Production environment
+# R2 bucket: xyz-prod
+# Worker URL: https://prod-tileworker.xyz.app
+# App config: pmtiles/app/.env.production
+# Deploy: npm run deploy:production  (wrangler deploy --env production)
+# =============================================================================
+
+[env.production]
+
+[[env.production.r2_buckets]]
+binding = "BUCKET"
+bucket_name = "bucket-prod"
+
+[env.production.vars]
+ALLOWED_ORIGINS = "https://tiles.xyz.app"
+CACHE_CONTROL = "public, max-age=86400"
+
+[[env.production.routes]]
+pattern = "prod-tileworker.xyz.app"
+custom_domain = true
