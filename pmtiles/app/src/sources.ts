@@ -55,8 +55,50 @@ export const SOURCES = {
 
   grid3: {
     archive: "tiles/grid3",
-    attribution: '<a href="https://ciesin.columbia.edu/">© Columbia University CIESIN</a>',
+    attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
     maxzoom: 15,
+    ext: "mvt",
+  },
+
+  grid3_cod_health_zones: {
+    archive: "tiles/grid3/cod/GRID3_COD_health_zones_v8_0",
+    attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
+    maxzoom: 8,
+    ext: "mvt",
+  },
+
+  grid3_cod_health_zones_centroids: {
+    archive: "tiles/grid3/cod/GRID3_COD_health_zones_v8_0_centroids",
+    attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
+    maxzoom: 2,
+    ext: "mvt",
+  },
+
+  grid3_cod_health_areas: {
+    archive: "tiles/grid3/cod/GRID3_COD_health_areas_v8_0",
+    attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
+    maxzoom: 8,
+    ext: "mvt",
+  },
+
+  grid3_cod_health_areas_centroids: {
+    archive: "tiles/grid3/cod/GRID3_COD_health_areas_v8_0_centroids",
+    attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
+    maxzoom: 4,
+    ext: "mvt",
+  },
+
+  grid3_cod_health_facilities: {
+    archive: "tiles/grid3/cod/GRID3_COD_health_facilities_v8_0",
+    attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
+    maxzoom: 8,
+    ext: "mvt",
+  },
+
+  grid3_cod_settlement_names: {
+    archive: "tiles/grid3/cod/GRID3_COD_settlement_names_v8_0",
+    attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
+    maxzoom: 8,
     ext: "mvt",
   },
 
@@ -66,14 +108,14 @@ export const SOURCES = {
 
   grid3_nga: {
     archive: "tiles/nga_settlement_extents",
-    attribution: '<a href="https://ciesin.columbia.edu/">© Columbia University CIESIN</a>',
+    attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
     maxzoom: 14,
     ext: "mvt",
   },
 
   grid3_settlements: {
     archive: "tiles/GRID3_NGA_settlement_blocks_v3_1",
-    attribution: '<a href="https://grid3.org">GRID3</a>',
+    attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
     maxzoom: 14,
     ext: "mvt",
   },
@@ -86,35 +128,35 @@ export const SOURCES = {
 
   // grid3_dji_settlements: {
   //   archive: "tiles/grid3/dji/settlement_extents_v3_0",
-  //   attribution: '<a href="https://grid3.org">GRID3</a>',
+  //   attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
   //   maxzoom: 14,
   //   ext: "mvt",
   // },
 
   // grid3_eri_settlements: {
   //   archive: "tiles/grid3/eri/settlement_extents_v3_0",
-  //   attribution: '<a href="https://grid3.org">GRID3</a>',
+  //   attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
   //   maxzoom: 14,
   //   ext: "mvt",
   // },
 
   // grid3_eth_settlements: {
   //   archive: "tiles/grid3/eth/settlement_extents_v3_0",
-  //   attribution: '<a href="https://grid3.org">GRID3</a>',
+  //   attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
   //   maxzoom: 14,
   //   ext: "mvt",
   // },
 
   // grid3_gab_settlements: {
   //   archive: "tiles/grid3/gab/settlement_extents_v3_0",
-  //   attribution: '<a href="https://grid3.org">GRID3</a>',
+  //   attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
   //   maxzoom: 14,
   //   ext: "mvt",
   // },
 
   // grid3_gha_settlements: {
   //   archive: "tiles/grid3/gha/settlement_extents_v3_0",
-  //   attribution: '<a href="https://grid3.org">GRID3</a>',
+  //   attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
   //   maxzoom: 14,
   //   ext: "mvt",
   // },

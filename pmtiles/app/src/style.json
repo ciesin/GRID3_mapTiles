@@ -26,6 +26,36 @@
 			"attribution": "",
 			"tiles": []
 		},
+		"grid3_cod_health_zones": {
+			"type": "vector",
+			"attribution": "",
+			"tiles": []
+		},
+		"grid3_cod_health_zones_centroids": {
+			"type": "vector",
+			"attribution": "",
+			"tiles": []
+		},
+		"grid3_cod_health_areas": {
+			"type": "vector",
+			"attribution": "",
+			"tiles": []
+		},
+		"grid3_cod_health_areas_centroids": {
+			"type": "vector",
+			"attribution": "",
+			"tiles": []
+		},
+		"grid3_cod_health_facilities": {
+			"type": "vector",
+			"attribution": "",
+			"tiles": []
+		},
+		"grid3_cod_settlement_names": {
+			"type": "vector",
+			"attribution": "",
+			"tiles": []
+		},
 		"dem": {
 			"type": "raster-dem",
 			"attribution": "",
@@ -11766,8 +11796,8 @@
 		{
 			"id": "health-zones-boundary",
 			"type": "line",
-			"source": "grid3",
-			"source-layer": "health-zones",
+			"source": "grid3_cod_health_zones",
+			"source-layer": "GRID3-COD-health-zones-v8-0",
 			"minzoom": 7,
 			"paint": {
 				"line-color": "#B388FF",
@@ -11821,8 +11851,8 @@
 		{
 			"id": "health-areas-boundary-early",
 			"type": "line",
-			"source": "grid3",
-			"source-layer": "health-areas",
+			"source": "grid3_cod_health_areas",
+			"source-layer": "GRID3-COD-health-areas-v8-0",
 			"minzoom": 8,
 			"maxzoom": 13.5,
 			"paint": {
@@ -11878,8 +11908,8 @@
 		{
 			"id": "health-areas-boundary-casing",
 			"type": "line",
-			"source": "grid3",
-			"source-layer": "health-areas",
+			"source": "grid3_cod_health_areas",
+			"source-layer": "GRID3-COD-health-areas-v8-0",
 			"minzoom": 12,
 			"paint": {
 				"line-color": "#fff",
@@ -11916,8 +11946,8 @@
 		{
 			"id": "health-areas-boundary",
 			"type": "line",
-			"source": "grid3",
-			"source-layer": "health-areas",
+			"source": "grid3_cod_health_areas",
+			"source-layer": "GRID3-COD-health-areas-v8-0",
 			"minzoom": 12.5,
 			"paint": {
 				"line-color": "#FF5722",
@@ -11946,8 +11976,8 @@
 		{
 			"id": "settlement-names-label",
 			"type": "symbol",
-			"source": "grid3",
-			"source-layer": "settlement-names",
+			"source": "grid3_cod_settlement_names",
+			"source-layer": "GRID3-COD-settlement-names-v8-0",
 			"minzoom": 11,
 			"layout": {
 				"text-field": [
@@ -12000,8 +12030,8 @@
 		{
 			"id": "health-areas-boundary-label",
 			"type": "symbol",
-			"source": "grid3",
-			"source-layer": "health-areas",
+			"source": "grid3_cod_health_areas",
+			"source-layer": "GRID3-COD-health-areas-v8-0",
 			"minzoom": 11,
 			"layout": {
 				"symbol-placement": "line",
@@ -12050,8 +12080,8 @@
 		{
 			"id": "health-zones-boundary-label",
 			"type": "symbol",
-			"source": "grid3",
-			"source-layer": "health-zones",
+			"source": "grid3_cod_health_zones",
+			"source-layer": "GRID3-COD-health-zones-v8-0",
 			"minzoom": 8,
 			"layout": {
 				"symbol-placement": "line",
@@ -12100,8 +12130,8 @@
 		{
 			"id": "health-facilities-label",
 			"type": "symbol",
-			"source": "grid3",
-			"source-layer": "health-facilities",
+			"source": "grid3_cod_health_facilities",
+			"source-layer": "GRID3-COD-health-facilities-v8-0",
 			"minzoom": 10,
 			"layout": {
 				"text-field": [
@@ -12170,8 +12200,8 @@
 		{
 			"id": "health-areas-centroids-label",
 			"type": "symbol",
-			"source": "grid3",
-			"source-layer": "health-areas-centroids",
+			"source": "grid3_cod_health_areas_centroids",
+			"source-layer": "GRID3-COD-health-areas-v8-0-centroids",
 			"minzoom": 9,
 			"layout": {
 				"text-field": [
@@ -12331,8 +12361,8 @@
 		{
 			"id": "health-zones-centroids-label",
 			"type": "symbol",
-			"source": "grid3",
-			"source-layer": "health-zones-centroids",
+			"source": "grid3_cod_health_zones_centroids",
+			"source-layer": "GRID3-COD-health-zones-v8-0-centroids",
 			"minzoom": 7,
 			"layout": {
 				"text-field": [
