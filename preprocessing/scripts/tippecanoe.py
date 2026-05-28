@@ -168,8 +168,8 @@ LAYER_SETTINGS = {
     'GRID3_COD_health_areas_v8_0.fgb': [
         '--no-polygon-splitting',  # Keep polygons intact across tile boundaries
         '--no-simplification-of-shared-nodes',  # Preserve shared boundaries identically
-        '--simplification=1',
-        '--low-detail=12',
+        '--simplification=2',
+        '--low-detail=10',
         '--full-detail=16',
         # '--coalesce-densest-as-needed',  # Merge features when needed, maintaining coverage
         '--extend-zooms-if-still-dropping-maximum=15',
@@ -187,8 +187,8 @@ LAYER_SETTINGS = {
         '--no-polygon-splitting',  # Keep polygons intact across tile boundaries
         '--no-simplification-of-shared-nodes',  # Preserve shared boundaries identically
         '--no-tile-size-limit',
-        '--simplification=1', 
-        '--low-detail=12',
+        '--simplification=2', 
+        '--low-detail=10',
         '--full-detail=16',
         # '--coalesce-densest-as-needed',  # Merge features when needed, maintaining coverage
         '--extend-zooms-if-still-dropping-maximum=15',

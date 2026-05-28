@@ -16,3 +16,7 @@ rclone copy ciesin-r2:ciesin-dev/tiles/ ciesin-r2:ciesin-prod/tiles --progress -
 
 "Content-Type: application/vnd.pmtiles"
 Content-Type: application/json
+
+
+
+rclone copy . ciesin-r2:ciesin-dev/tiles/grid3/cod --include "GRID3_COD_*.pmtiles" --progress --s3-no-check-bucket --s3-chunk-size=256M --header-upload "Content-Type: application/vnd.pmtiles"
