@@ -322,12 +322,20 @@ function MapLibreView() {
       }
     }, 100);
 
+    
+    // showInspectMapPopupOnHover: false — click/tap only, safe on mobile
+    // useInspectStyle: false — keep original style.json; hue-rotate signals inspect mode visually
     map.addControl(
       new MaplibreInspect({
         popup: new Popup({
           closeButton: false,
           closeOnClick: false,
         }),
+        showInspectMapPopupOnHover: false,
+        useInspectStyle: false,
+        toggleCallback: (active) => {
+          map.getCanvas().style.filter = active ? 'hue-rotate(180deg)' : '';
+        },
       }),
     );
 
