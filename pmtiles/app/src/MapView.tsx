@@ -334,7 +334,7 @@ function MapLibreView() {
         showInspectMapPopupOnHover: false,
         useInspectStyle: false,
         toggleCallback: (active) => {
-          map.getCanvas().style.filter = active ? 'hue-rotate(180deg) invert(1) brightness(1.25) contrast(1.2)' : '';
+          map.getCanvas().style.filter = active ? 'hue-rotate(180deg) invert(1) brightness(1.75) contrast(1.25)' : '';
         },
       }),
     );

@@ -2705,7 +2705,7 @@
 			"type": "fill-extrusion",
 			"source": "overture",
 			"source-layer": "building",
-			"minzoom": 13,
+			"minzoom": 11,
 			"layout": {
 				"visibility": "visible"
 			},
