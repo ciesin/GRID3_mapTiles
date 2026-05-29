@@ -67,7 +67,7 @@ class AttributionInfoControl implements IControl {
     this._button.style.cursor = 'pointer';
     
     this._button.addEventListener('click', () => {
-      window.open('https://ciesin.github.io/stac-browser/#/grid3-catalog/catalog.json', '_blank');
+      window.open('/attribution.html', '_blank');
     });
     
     this._container.appendChild(this._button);
