@@ -12069,7 +12069,7 @@
 					0,
 					1
 				],
-				"symbol-spacing": 50
+				"symbol-spacing": 500
 			},
 			"paint": {
 				"text-color": "#616161",
@@ -12119,7 +12119,7 @@
 					0,
 					1
 				],
-				"symbol-spacing": 200
+				"symbol-spacing": 500
 			},
 			"paint": {
 				"text-color": "#424242",
