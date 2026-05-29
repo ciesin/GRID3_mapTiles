@@ -16,12 +16,12 @@
 			"attribution": "",
 			"tiles": []
 		},
-		"grid3_nga": {
+		"grid3_nga_settlement_extents": {
 			"type": "vector",
 			"attribution": "",
 			"tiles": []
 		},
-		"grid3_settlements": {
+		"grid3_nga_settlement_blocks": {
 			"type": "vector",
 			"attribution": "",
 			"tiles": []
@@ -416,9 +416,9 @@
 			}
 		},
 		{
-			"id": "grid3-settlements-extents",
+			"id": "nga-settlement-extents",
 			"type": "fill",
-			"source": "grid3_settlements",
+			"source": "grid3_nga_settlement_extents",
 			"source-layer": "settlement-extents",
 			"minzoom": 7,
 			"maxzoom": 16,
@@ -553,11 +553,11 @@
 			}
 		},
 		{
-			"id": "settlement-blocks",
+			"id": "nga-settlement-blocks",
 			"type": "fill",
-			"source": "grid3_nga",
-			"source-layer": "nga-settlement-extents",
-			"minzoom": 14,
+			"source": "grid3_nga_settlement_blocks",
+			"source-layer": "GRID3-NGA-settlement-extents-v4-0",
+			"minzoom": 13,
 			"maxzoom": 16,
 			"layout": {
 				"visibility": "visible"
@@ -749,11 +749,11 @@
 			}
 		},
 		{
-			"id": "settlement-blocks-outline",
+			"id": "nga-settlement-blocks-outline",
 			"type": "line",
-			"source": "grid3_nga",
-			"source-layer": "nga-settlement-extents",
-			"minzoom": 14,
+			"source": "grid3_nga_settlement_blocks",
+			"source-layer": "GRID3-NGA-settlement-extents-v4-0",
+			"minzoom": 13,
 			"maxzoom": 16,
 			"layout": {
 				"visibility": "none"
@@ -3580,9 +3580,9 @@
 			}
 		},
 		{
-			"id": "grid3-settlements-extents-outline",
+			"id": "nga-settlement-extents-outline",
 			"type": "line",
-			"source": "grid3_settlements",
+			"source": "grid3_nga_settlement_extents",
 			"source-layer": "settlement-extents",
 			"minzoom": 7,
 			"maxzoom": 16,
