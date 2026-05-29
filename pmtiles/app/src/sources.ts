@@ -106,19 +106,20 @@ export const SOURCES = {
   // GRID3 — NGA (Nigeria)
   // ---------------------------------------------------------------------------
 
-  grid3_nga: {
-    archive: "tiles/nga_settlement_extents",
+  grid3_nga_settlement_extents: {
+    archive: "tiles/grid3/nga/GRID3_NGA_settlement_extents_v3_0",
     attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
     maxzoom: 14,
     ext: "mvt",
   },
 
-  grid3_settlements: {
-    archive: "tiles/GRID3_NGA_settlement_blocks_v3_1",
+    grid3_nga_settlement_blocks: {
+    archive: "tiles/grid3/nga/GRID3_NGA_settlement_extents_v4_0",
     attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
     maxzoom: 14,
     ext: "mvt",
   },
+
 
   // ---------------------------------------------------------------------------
   // GRID3 — Settlement extents by country (ISO 3166-1 alpha-3)

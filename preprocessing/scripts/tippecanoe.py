@@ -233,10 +233,12 @@ LAYER_SETTINGS = {
 
     # Settlement extents - very numerous small polygons
     # Heavily optimized for lower zoom levels due to high feature count
-    # Filtered by type: Built-up Area (z10+), Small Settlement Area (z11+), Hamlet (z12+)
-    'settlement_extents.fgb': [
+    'GRID3_AFRICA_settlement_extents_v3_0.fgb': [
         # '--no-polygon-splitting',
         '--hilbert',
+        '--low-detail=8',
+        '--full-detail=12',
+        '--minimum-zoom=7',
         # '--no-simplification-of-shared-nodes',
         '--simplification=5',  # Higher simplification for many small features
         '--drop-rate=0.3', 
@@ -245,9 +247,7 @@ LAYER_SETTINGS = {
         '--drop-smallest-as-needed',  # Drop smallest when tiles too large
         '--gamma=1.4',  # Reduce density of clustered settlements
         '--extend-zooms-if-still-dropping-maximum=14',
-        '--no-tile-size-limit',
-        # '--maximum-tile-bytes=5000000',
-        # '--maximum-zoom=14',
+        '--maximum-zoom=14',  # Explicit cap; overrides -zg to prevent z15-16 explosion at continental scale
         '-y', 'type'
         ],
 

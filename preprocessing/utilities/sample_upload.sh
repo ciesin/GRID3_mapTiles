@@ -17,6 +17,11 @@ rclone copy ciesin-r2:ciesin-dev/tiles/ ciesin-r2:ciesin-prod/tiles --progress -
 "Content-Type: application/vnd.pmtiles"
 Content-Type: application/json
 
+GRID3_AFRICA_settlement_extents_v3_0.pmtiles
+
+rclone copyto GRID3_AFRICA_settlement_extents_v3_0.pmtiles ciesin-r2:ciesin-dev/tiles/grid3/africa/GRID3_AFRICA_settlement_extents_v3_0.pmtiles --progress --s3-no-check-bucket --s3-chunk-size=256M --header-upload "Content-Type: application/vnd.pmtiles"
 
 
 rclone copy . ciesin-r2:ciesin-dev/tiles/grid3/cod --include "GRID3_COD_*.pmtiles" --progress --s3-no-check-bucket --s3-chunk-size=256M --header-upload "Content-Type: application/vnd.pmtiles"
+
+rclone copy . ciesin-r2:ciesin-dev/tiles/grid3/nga --include "GRID3_NGA_*.pmtiles" --progress --s3-no-check-bucket --s3-chunk-size=256M --header-upload "Content-Type: application/vnd.pmtiles" --dry-run
