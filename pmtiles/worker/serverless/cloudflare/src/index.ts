@@ -133,9 +133,10 @@ export default {
       cacheableHeaders: Headers,
       status: number
     ) => {
+      const isSuccess = status === 200 || status === 204;
       cacheableHeaders.set(
         "Cache-Control",
-        env.CACHE_CONTROL || "public, max-age=86400"
+        isSuccess ? (env.CACHE_CONTROL || "public, max-age=86400") : "public, max-age=60"
       );
 
       const cacheable = new Response(body, {

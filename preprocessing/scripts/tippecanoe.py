@@ -233,23 +233,46 @@ LAYER_SETTINGS = {
 
     # Settlement extents - very numerous small polygons
     # Heavily optimized for lower zoom levels due to high feature count
-    'GRID3_AFRICA_settlement_extents_v3_0.fgb': [
+    'GRID3_COD_settlement_extents_v3_1.pmtiles': [
         # '--no-polygon-splitting',
         '--hilbert',
-        '--low-detail=8',
-        '--full-detail=12',
+        # '--low-detail=10',
+        # '--full-detail=12',
         '--minimum-zoom=7',
-        # '--no-simplification-of-shared-nodes',
-        '--simplification=5',  # Higher simplification for many small features
+        '--no-feature-limit',
+        '--no-simplification-of-shared-nodes',
+        # '--simplification=3',  # Higher simplification for many small features
         '--drop-rate=0.3', 
-        '--minimum-detail=8',
+        # '--minimum-detail=8',
         '--coalesce-smallest-as-needed',  # Merge smallest settlements at low zooms
         '--drop-smallest-as-needed',  # Drop smallest when tiles too large
         '--gamma=1.4',  # Reduce density of clustered settlements
-        '--extend-zooms-if-still-dropping-maximum=14',
-        '--maximum-zoom=14',  # Explicit cap; overrides -zg to prevent z15-16 explosion at continental scale
-        '-y', 'type'
+        '--extend-zooms-if-still-dropping-maximum=15',
+        '--maximum-zoom=15',  # Explicit cap; overrides -zg to prevent z15-16 explosion at continental scale
+        # '-y', 'type'
         ],
+    
+        # Settlement extents - very numerous small polygons
+    # Heavily optimized for lower zoom levels due to high feature count
+    'GRID3_NGA_settlement_extents_v4_0.fgb': [
+        # '--no-polygon-splitting',
+        '--hilbert',
+        # '--low-detail=10',
+        # '--full-detail=12',
+        '--minimum-zoom=13',
+        '--no-feature-limit',
+        '--no-simplification-of-shared-nodes',
+        # '--simplification=3',  # Higher simplification for many small features
+        # '--drop-rate=0.3', 
+        # '--minimum-detail=8',
+        '--coalesce-smallest-as-needed',  # Merge smallest settlements at low zooms
+        # '--drop-smallest-as-needed',  # Drop smallest when tiles too large
+        # '--gamma=1.4',  # Reduce density of clustered settlements
+        # '--extend-zooms-if-still-dropping-maximum=15',
+        # '--maximum-zoom=15',  # Explicit cap; overrides -zg to prevent z15-16 explosion at continental scale
+        # '-y', 'type'
+        ],
+
 
     # Administrative boundaries - provinces (top-level admin units)
     # Large-scale administrative boundaries with strict topology preservation

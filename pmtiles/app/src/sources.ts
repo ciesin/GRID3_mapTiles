@@ -102,6 +102,13 @@ export const SOURCES = {
     ext: "mvt",
   },
 
+  grid3_cod_settlement_extents: {
+    archive: "tiles/grid3/cod/GRID3_COD_settlement_extents_v3_1.pmtiles",
+    attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
+    maxzoom: 15,
+    ext: "mvt",
+  },
+
   // ---------------------------------------------------------------------------
   // GRID3 — NGA (Nigeria)
   // ---------------------------------------------------------------------------
