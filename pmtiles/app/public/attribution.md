@@ -85,11 +85,6 @@ Province group 11: Bas-Uele, Haut-Uele, Kwango, and Nord-Kivu
 
 This operational dataset has not been fully validated by government officials or ministries.
 
-This current version supersedes the GRID3 COD - Health Facilities v7.0 (https://doi.org/10.7916/sh27-rp38). The following changes were made:
-
-Added data for the provinces of Bas-Uele, Haut-Uele, Kwango, and Nord-Kivu .
-The data for Tanganyika was updated.
-
 Derived from: "GRID3 COD - Health Facilities v8.0"
 https://doi.org/10.7916/f1ft-y872. Accessed 10 March 2026.
 Geographic extent: Democratic Republic of the Congo (12.29° to 31.27° E, -13.26° to 5.13° N)
@@ -137,11 +132,6 @@ Province group 10: Equateur, Nord-Ubangi, Sud-Kivu
 Province group 11: Bas-Uele, Haut-Uele, Kwango, and Nord-Kivu
 
 This operational dataset has not been fully validated by government officials or ministries.
-
-This current version supersedes the GRID3 COD - Settlement Names v7.0 (https://doi.org/10.7916/fyk2-sj30). The following changes were made:
-
-Added data for the provinces of Bas-Uele, Haut-Uele, Kwango, and Nord-Kivu.
-The data for Tanganyika was updated.
 
 Derived from: "GRID3 COD - Settlement Names v8.0"
 https://doi.org/10.7916/qpnw-1c89. Accessed 10 March 2026.
