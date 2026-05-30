@@ -1,4 +1,5 @@
-# CIESIN GRID3 COD Vector Tile Basemap Attribution
+# CIESIN Vector Basemap Attribution
+https://tiles.ciesin.app
 
 Last updated: May 29, 2026
 
