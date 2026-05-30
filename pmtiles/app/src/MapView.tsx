@@ -6,7 +6,6 @@ import "@maplibre/maplibre-gl-inspect/dist/maplibre-gl-inspect.css";
 import * as maplibregl from "maplibre-gl";
 import {
   AttributionControl,
-  GeolocateControl,
   GlobeControl,
   Map as MaplibreMap,
   NavigationControl,
@@ -285,17 +284,6 @@ function MapLibreView() {
 
     map.addControl(new NavigationControl());
     map.addControl(new GlobeControl());
-    map.addControl(
-      new GeolocateControl({
-        positionOptions: {
-          enableHighAccuracy: true,
-        },
-        trackUserLocation: true,
-        fitBoundsOptions: {
-          animate: false,
-        },
-      }),
-    );
     map.addControl(new AttributionInfoControl());
 
     // Add scale control at bottom-left
