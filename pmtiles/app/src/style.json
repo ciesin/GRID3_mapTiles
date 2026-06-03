@@ -3892,11 +3892,11 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
-										"name:fr"
+										"name"
 									]
 								],
 								{},
@@ -3910,12 +3910,12 @@
 											"!",
 											[
 												"has",
-												"name:fr"
+												"name"
 											]
 										],
 										[
 											"has",
-											"name:fr"
+											"name"
 										],
 										[
 											"!",
@@ -3966,7 +3966,7 @@
 							],
 							[
 								"get",
-								"name:fr"
+								"name"
 							]
 						],
 						[
@@ -3975,7 +3975,7 @@
 								"coalesce",
 								[
 									"get",
-									"name:fr"
+									"name"
 								],
 								[
 									"get",
@@ -4045,7 +4045,7 @@
 							"format",
 							[
 								"get",
-								"name:fr"
+								"name"
 							],
 							{},
 							"\n",
@@ -4137,7 +4137,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -4194,7 +4194,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -4268,7 +4268,7 @@
 							"format",
 							[
 								"get",
-								"name:fr"
+								"name"
 							],
 							{},
 							"\n",
@@ -4401,7 +4401,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -4503,7 +4503,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -4598,7 +4598,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -4799,11 +4799,11 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
-										"name:fr"
+										"name"
 									]
 								],
 								{},
@@ -4817,12 +4817,12 @@
 											"!",
 											[
 												"has",
-												"name:fr"
+												"name"
 											]
 										],
 										[
 											"has",
-											"name:fr"
+											"name"
 										],
 										[
 											"!",
@@ -4873,7 +4873,7 @@
 							],
 							[
 								"get",
-								"name:fr"
+								"name"
 							]
 						],
 						[
@@ -4882,7 +4882,7 @@
 								"coalesce",
 								[
 									"get",
-									"name:fr"
+									"name"
 								],
 								[
 									"get",
@@ -4952,7 +4952,7 @@
 							"format",
 							[
 								"get",
-								"name:fr"
+								"name"
 							],
 							{},
 							"\n",
@@ -5044,7 +5044,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -5101,7 +5101,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -5175,7 +5175,7 @@
 							"format",
 							[
 								"get",
-								"name:fr"
+								"name"
 							],
 							{},
 							"\n",
@@ -5308,7 +5308,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -5410,7 +5410,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -5505,7 +5505,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -5694,11 +5694,11 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
-										"name:fr"
+										"name"
 									]
 								],
 								{},
@@ -5712,12 +5712,12 @@
 											"!",
 											[
 												"has",
-												"name:fr"
+												"name"
 											]
 										],
 										[
 											"has",
-											"name:fr"
+											"name"
 										],
 										[
 											"!",
@@ -5768,7 +5768,7 @@
 							],
 							[
 								"get",
-								"name:fr"
+								"name"
 							]
 						],
 						[
@@ -5777,7 +5777,7 @@
 								"coalesce",
 								[
 									"get",
-									"name:fr"
+									"name"
 								],
 								[
 									"get",
@@ -5847,7 +5847,7 @@
 							"format",
 							[
 								"get",
-								"name:fr"
+								"name"
 							],
 							{},
 							"\n",
@@ -5939,7 +5939,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -5996,7 +5996,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -6070,7 +6070,7 @@
 							"format",
 							[
 								"get",
-								"name:fr"
+								"name"
 							],
 							{},
 							"\n",
@@ -6203,7 +6203,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -6305,7 +6305,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -6400,7 +6400,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -6709,11 +6709,11 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
-										"name:fr"
+										"name"
 									]
 								],
 								{},
@@ -6727,12 +6727,12 @@
 											"!",
 											[
 												"has",
-												"name:fr"
+												"name"
 											]
 										],
 										[
 											"has",
-											"name:fr"
+											"name"
 										],
 										[
 											"!",
@@ -6783,7 +6783,7 @@
 							],
 							[
 								"get",
-								"name:fr"
+								"name"
 							]
 						],
 						[
@@ -6792,7 +6792,7 @@
 								"coalesce",
 								[
 									"get",
-									"name:fr"
+									"name"
 								],
 								[
 									"get",
@@ -6862,7 +6862,7 @@
 							"format",
 							[
 								"get",
-								"name:fr"
+								"name"
 							],
 							{},
 							"\n",
@@ -6954,7 +6954,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -7011,7 +7011,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -7085,7 +7085,7 @@
 							"format",
 							[
 								"get",
-								"name:fr"
+								"name"
 							],
 							{},
 							"\n",
@@ -7218,7 +7218,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -7320,7 +7320,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -7415,7 +7415,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -7675,11 +7675,11 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
-										"name:fr"
+										"name"
 									]
 								],
 								{},
@@ -7693,12 +7693,12 @@
 											"!",
 											[
 												"has",
-												"name:fr"
+												"name"
 											]
 										],
 										[
 											"has",
-											"name:fr"
+											"name"
 										],
 										[
 											"!",
@@ -7749,7 +7749,7 @@
 							],
 							[
 								"get",
-								"name:fr"
+								"name"
 							]
 						],
 						[
@@ -7758,7 +7758,7 @@
 								"coalesce",
 								[
 									"get",
-									"name:fr"
+									"name"
 								],
 								[
 									"get",
@@ -7828,7 +7828,7 @@
 							"format",
 							[
 								"get",
-								"name:fr"
+								"name"
 							],
 							{},
 							"\n",
@@ -7920,7 +7920,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -7977,7 +7977,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -8051,7 +8051,7 @@
 							"format",
 							[
 								"get",
-								"name:fr"
+								"name"
 							],
 							{},
 							"\n",
@@ -8184,7 +8184,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -8286,7 +8286,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -8381,7 +8381,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -8718,11 +8718,11 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
-										"name:fr"
+										"name"
 									]
 								],
 								{},
@@ -8736,12 +8736,12 @@
 											"!",
 											[
 												"has",
-												"name:fr"
+												"name"
 											]
 										],
 										[
 											"has",
-											"name:fr"
+											"name"
 										],
 										[
 											"!",
@@ -8792,7 +8792,7 @@
 							],
 							[
 								"get",
-								"name:fr"
+								"name"
 							]
 						],
 						[
@@ -8801,7 +8801,7 @@
 								"coalesce",
 								[
 									"get",
-									"name:fr"
+									"name"
 								],
 								[
 									"get",
@@ -8871,7 +8871,7 @@
 							"format",
 							[
 								"get",
-								"name:fr"
+								"name"
 							],
 							{},
 							"\n",
@@ -8963,7 +8963,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -9020,7 +9020,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -9094,7 +9094,7 @@
 							"format",
 							[
 								"get",
-								"name:fr"
+								"name"
 							],
 							{},
 							"\n",
@@ -9227,7 +9227,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -9329,7 +9329,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -9424,7 +9424,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -9666,11 +9666,11 @@
 										"coalesce",
 										[
 											"get",
-											"name:fr"
+											"name"
 										],
 										[
 											"get",
-											"name:fr"
+											"name"
 										]
 									],
 									{},
@@ -9684,12 +9684,12 @@
 												"!",
 												[
 													"has",
-													"name:fr"
+													"name"
 												]
 											],
 											[
 												"has",
-												"name:fr"
+												"name"
 											],
 											[
 												"!",
@@ -9740,7 +9740,7 @@
 								],
 								[
 									"get",
-									"name:fr"
+									"name"
 								]
 							],
 							[
@@ -9749,7 +9749,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -9819,7 +9819,7 @@
 								"format",
 								[
 									"get",
-									"name:fr"
+									"name"
 								],
 								{},
 								"\n",
@@ -9911,7 +9911,7 @@
 										"coalesce",
 										[
 											"get",
-											"name:fr"
+											"name"
 										],
 										[
 											"get",
@@ -9968,7 +9968,7 @@
 										"coalesce",
 										[
 											"get",
-											"name:fr"
+											"name"
 										],
 										[
 											"get",
@@ -10042,7 +10042,7 @@
 								"format",
 								[
 									"get",
-									"name:fr"
+									"name"
 								],
 								{},
 								"\n",
@@ -10175,7 +10175,7 @@
 										"coalesce",
 										[
 											"get",
-											"name:fr"
+											"name"
 										],
 										[
 											"get",
@@ -10277,7 +10277,7 @@
 										"coalesce",
 										[
 											"get",
-											"name:fr"
+											"name"
 										],
 										[
 											"get",
@@ -10372,7 +10372,7 @@
 										"coalesce",
 										[
 											"get",
-											"name:fr"
+											"name"
 										],
 										[
 											"get",
@@ -10596,11 +10596,11 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
-										"name:fr"
+										"name"
 									]
 								],
 								{},
@@ -10614,12 +10614,12 @@
 											"!",
 											[
 												"has",
-												"name:fr"
+												"name"
 											]
 										],
 										[
 											"has",
-											"name:fr"
+											"name"
 										],
 										[
 											"!",
@@ -10670,7 +10670,7 @@
 							],
 							[
 								"get",
-								"name:fr"
+								"name"
 							]
 						],
 						[
@@ -10679,7 +10679,7 @@
 								"coalesce",
 								[
 									"get",
-									"name:fr"
+									"name"
 								],
 								[
 									"get",
@@ -10749,7 +10749,7 @@
 							"format",
 							[
 								"get",
-								"name:fr"
+								"name"
 							],
 							{},
 							"\n",
@@ -10841,7 +10841,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -10898,7 +10898,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -10972,7 +10972,7 @@
 							"format",
 							[
 								"get",
-								"name:fr"
+								"name"
 							],
 							{},
 							"\n",
@@ -11105,7 +11105,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -11207,7 +11207,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -11302,7 +11302,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -11676,11 +11676,11 @@
 						"coalesce",
 						[
 							"get",
-							"name:fr"
+							"name"
 						],
 						[
 							"get",
-							"name:fr"
+							"name"
 						]
 					],
 					{}
@@ -12599,11 +12599,11 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
-										"name:fr"
+										"name"
 									]
 								],
 								{},
@@ -12617,12 +12617,12 @@
 											"!",
 											[
 												"has",
-												"name:fr"
+												"name"
 											]
 										],
 										[
 											"has",
-											"name:fr"
+											"name"
 										],
 										[
 											"!",
@@ -12673,7 +12673,7 @@
 							],
 							[
 								"get",
-								"name:fr"
+								"name"
 							]
 						],
 						[
@@ -12682,7 +12682,7 @@
 								"coalesce",
 								[
 									"get",
-									"name:fr"
+									"name"
 								],
 								[
 									"get",
@@ -12752,7 +12752,7 @@
 							"format",
 							[
 								"get",
-								"name:fr"
+								"name"
 							],
 							{},
 							"\n",
@@ -12844,7 +12844,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -12901,7 +12901,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -12975,7 +12975,7 @@
 							"format",
 							[
 								"get",
-								"name:fr"
+								"name"
 							],
 							{},
 							"\n",
@@ -13108,7 +13108,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -13210,7 +13210,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -13305,7 +13305,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -13521,11 +13521,11 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
-										"name:fr"
+										"name"
 									]
 								],
 								{},
@@ -13539,12 +13539,12 @@
 											"!",
 											[
 												"has",
-												"name:fr"
+												"name"
 											]
 										],
 										[
 											"has",
-											"name:fr"
+											"name"
 										],
 										[
 											"!",
@@ -13595,7 +13595,7 @@
 							],
 							[
 								"get",
-								"name:fr"
+								"name"
 							]
 						],
 						[
@@ -13604,7 +13604,7 @@
 								"coalesce",
 								[
 									"get",
-									"name:fr"
+									"name"
 								],
 								[
 									"get",
@@ -13674,7 +13674,7 @@
 							"format",
 							[
 								"get",
-								"name:fr"
+								"name"
 							],
 							{},
 							"\n",
@@ -13766,7 +13766,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -13823,7 +13823,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -13897,7 +13897,7 @@
 							"format",
 							[
 								"get",
-								"name:fr"
+								"name"
 							],
 							{},
 							"\n",
@@ -14030,7 +14030,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -14132,7 +14132,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
@@ -14227,7 +14227,7 @@
 									"coalesce",
 									[
 										"get",
-										"name:fr"
+										"name"
 									],
 									[
 										"get",
