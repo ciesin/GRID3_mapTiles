@@ -168,15 +168,45 @@ LAYER_SETTINGS = {
     'GRID3_COD_health_areas_v8_0.fgb': [
         '--no-polygon-splitting',  # Keep polygons intact across tile boundaries
         '--no-simplification-of-shared-nodes',  # Preserve shared boundaries identically
-        '--simplification=2',
+        '--simplification=1',
         '--low-detail=10',
-        '--full-detail=16',
+        # '--full-detail=16',
         # '--coalesce-densest-as-needed',  # Merge features when needed, maintaining coverage
         '--extend-zooms-if-still-dropping-maximum=15',
         '--no-tiny-polygon-reduction',
-        '-y', 'airesante',
-        '-y', 'zonesante',
-        '-y', 'province'
+    ],
+
+
+    # Administrative boundaries - shared settings for other COD boundary layers
+    # Use the same topology-preserving configuration as health areas
+    'GRID3_COD_health_zones_v8_0.fgb': [
+        '--no-polygon-splitting',  # Keep polygons intact across tile boundaries
+        '--no-simplification-of-shared-nodes',  # Preserve shared boundaries identically
+        '--simplification=1',
+        '--low-detail=10',
+        # '--full-detail=16',
+        '--extend-zooms-if-still-dropping-maximum=15',
+        '--no-tiny-polygon-reduction',
+    ],
+
+    'GRID3_COD_antenne_v8_0.fgb': [
+        '--no-polygon-splitting',  # Keep polygons intact across tile boundaries
+        '--no-simplification-of-shared-nodes',  # Preserve shared boundaries identically
+        '--simplification=1',
+        '--low-detail=10',
+        # '--full-detail=16',
+        '--extend-zooms-if-still-dropping-maximum=15',
+        '--no-tiny-polygon-reduction',
+    ],
+
+    'GRID3_COD_provinces_v8_0.fgb': [
+        '--no-polygon-splitting',  # Keep polygons intact across tile boundaries
+        '--no-simplification-of-shared-nodes',  # Preserve shared boundaries identically
+        '--simplification=1',
+        '--low-detail=10',
+        # '--full-detail=16',
+        '--extend-zooms-if-still-dropping-maximum=15',
+        '--no-tiny-polygon-reduction',
     ],
 
 
@@ -193,9 +223,8 @@ LAYER_SETTINGS = {
         # '--coalesce-densest-as-needed',  # Merge features when needed, maintaining coverage
         '--extend-zooms-if-still-dropping-maximum=15',
         '--no-tiny-polygon-reduction',
-        '-y', 'zonesante',
-        '-y', 'province'
     ],
+    
 
     # Health zone centroids - point labels for interior placement
     # One point per health zone, guaranteed inside polygon
@@ -212,6 +241,22 @@ LAYER_SETTINGS = {
     'GRID3_COD_health_areas_centroids.fgb': [
         '--drop-rate=0.0',  # Never drop - one label per area
         '--minimum-zoom=7',  # Start at overview level (matches interior label config)
+        '--maximum-zoom=16',
+        '--no-feature-limit',  # Ensure all centroid points are included
+        '--no-tile-size-limit',  # Small point layer, allow all features
+    ],
+    
+    'GRID3_COD_antenne_v8_0_centroids.fgb': [
+        '--drop-rate=0.0',  # Never drop - one label per zone
+        '--minimum-zoom=5',  # Start 2 levels earlier than areas (matches interior label config)
+        '--maximum-zoom=16',
+        '--no-feature-limit',  # Ensure all centroid points are included
+        '--no-tile-size-limit',  # Small point layer, allow all features
+    ],
+
+    'GRID3_COD_provinces_v8_0_centroids.fgb': [
+        '--drop-rate=0.0',  # Never drop - one label per zone
+        '--minimum-zoom=5',  # Start 2 levels earlier than areas (matches interior label config)
         '--maximum-zoom=16',
         '--no-feature-limit',  # Ensure all centroid points are included
         '--no-tile-size-limit',  # Small point layer, allow all features
@@ -294,7 +339,7 @@ LAYER_SETTINGS = {
 # Base tippecanoe command flags that apply to all layers
 BASE_COMMAND = [
     # '--buffer=8',
-    '-zg',
+    '-z15',
     '-Bg',
     '--no-tile-size-limit', #temp
     # '--drop-smallest',

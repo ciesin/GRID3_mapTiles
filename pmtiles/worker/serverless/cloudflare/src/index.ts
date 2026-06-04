@@ -97,15 +97,6 @@ export default {
     if (request.method.toUpperCase() === "POST")
       return new Response(undefined, { status: 405 });
 
-    const url = new URL(request.url);
-    const { ok, name, tile, ext } = tile_path(url.pathname);
-
-    const cache = caches.default;
-
-    if (!ok) {
-      return new Response("Invalid URL", { status: 404 });
-    }
-
     let allowedOrigin = "";
     if (typeof env.ALLOWED_ORIGINS !== "undefined") {
       for (const o of env.ALLOWED_ORIGINS.split(",")) {
@@ -115,12 +106,34 @@ export default {
       }
     }
 
+    if (request.method.toUpperCase() === "OPTIONS") {
+      return new Response(null, {
+        status: 204,
+        headers: {
+          "Access-Control-Allow-Origin": allowedOrigin || "*",
+          "Access-Control-Allow-Methods": "GET, HEAD",
+          "Access-Control-Allow-Headers": "Range, If-None-Match",
+          "Access-Control-Max-Age": "86400",
+        },
+      });
+    }
+
+    const url = new URL(request.url);
+    const { ok, name, tile, ext } = tile_path(url.pathname);
+
+    const cache = caches.default;
+
+    if (!ok) {
+      return new Response("Invalid URL", { status: 404 });
+    }
+
     const cached = await cache.match(request.url);
     if (cached) {
       const respHeaders = new Headers(cached.headers);
       if (allowedOrigin)
         respHeaders.set("Access-Control-Allow-Origin", allowedOrigin);
       respHeaders.set("Vary", "Origin");
+      respHeaders.set("Access-Control-Expose-Headers", "ETag, Content-Encoding");
 
       return new Response(cached.body, {
         headers: respHeaders,
@@ -150,6 +163,7 @@ export default {
       if (allowedOrigin)
         respHeaders.set("Access-Control-Allow-Origin", allowedOrigin);
       respHeaders.set("Vary", "Origin");
+      respHeaders.set("Access-Control-Expose-Headers", "ETag, Content-Encoding");
       return new Response(body, { headers: respHeaders, status: status });
     };
 

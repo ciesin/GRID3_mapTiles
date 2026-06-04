@@ -65,3 +65,4 @@ rclone check ciesin-r2:ciesin-dev/tiles ciesin-r2:ciesin-prod/tiles \
   --match match_$(date +%Y%m%d%H%M%S).txt
 
 
+rclone copy GRID3_COD_provinces_v8_0_centroids.pmtiles ciesin-r2:ciesin-prod/tiles/grid3/cod --progress --s3-no-check-bucket --s3-chunk-size=256M --header-upload "Content-Type: application/vnd.pmtiles"

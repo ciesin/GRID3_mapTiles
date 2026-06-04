@@ -60,6 +60,34 @@ export const SOURCES = {
     ext: "mvt",
   },
 
+    grid3_cod_antenne: {
+    archive: "tiles/grid3/cod/GRID3_COD_antenne_v8_0",
+    attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
+    maxzoom: 8,
+    ext: "mvt",
+  },
+
+  grid3_cod_antenne_centroids: {
+    archive: "tiles/grid3/cod/GRID3_COD_antenne_v8_0_centroids",
+    attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
+    maxzoom: 16,
+    ext: "mvt",
+  },
+
+    grid3_cod_provinces: {
+    archive: "tiles/grid3/cod/GRID3_COD_provinces_v8_0",
+    attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
+    maxzoom: 7,
+    ext: "mvt",
+  },
+
+  grid3_cod_provinces_centroids: {
+    archive: "tiles/grid3/cod/GRID3_COD_provinces_v8_0_centroids",
+    attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
+    maxzoom: 16,
+    ext: "mvt",
+  },
+
   grid3_cod_health_zones: {
     archive: "tiles/grid3/cod/GRID3_COD_health_zones_v8_0",
     attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',

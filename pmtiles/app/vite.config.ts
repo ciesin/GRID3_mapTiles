@@ -46,5 +46,9 @@ export default defineConfig({
 		fs: {
 			allow: [searchForWorkspaceRoot(process.cwd()), "../styles/src"],
 		},
+		// hmr: {
+		// 	clientPort: 443, // Routes HMR traffic through the tunnel's secure port
+		// 	protocol: 'wss',
+		// },
 	},
 });
