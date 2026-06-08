@@ -45,21 +45,20 @@ def _import_tippecanoe_template():
         scripts_dir = Path(__file__).resolve().parent
         if str(scripts_dir) not in sys.path:
             sys.path.insert(0, str(scripts_dir))
-        
+
         tippecanoe_mod = importlib.import_module('tippecanoe')
         return (
             getattr(tippecanoe_mod, 'get_layer_settings', None),
             getattr(tippecanoe_mod, 'build_tippecanoe_command', None),
-            getattr(tippecanoe_mod, 'BASE_COMMAND', None)
+            getattr(tippecanoe_mod, 'BASE_COMMAND', None),
+            getattr(tippecanoe_mod, 'LAYER_GROUPS', {}),
+            getattr(tippecanoe_mod, 'build_tippecanoe_group_command', None),
         )
-    except Exception as e:
-        # Only print warning once in main process, not in workers
-        if __name__ == '__main__' or not hasattr(sys, '_called_from_test'):
-            pass  # Suppress warning in worker processes
-        return None, None, None
+    except Exception:
+        return None, None, None, {}, None
 
 # Try to import template at module load
-get_layer_settings, build_tippecanoe_command, BASE_COMMAND = _import_tippecanoe_template()
+get_layer_settings, build_tippecanoe_command, BASE_COMMAND, LAYER_GROUPS, build_tippecanoe_group_command = _import_tippecanoe_template()
 
 # Set up project paths - aligned with config.py
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -245,7 +244,7 @@ def get_layer_tippecanoe_settings(layer_name, filename_or_path=None):
     # Re-import in worker processes if needed
     global get_layer_settings
     if get_layer_settings is None:
-        get_layer_settings, _, _ = _import_tippecanoe_template()
+        get_layer_settings, _, _, _, _ = _import_tippecanoe_template()
     
     if get_layer_settings is not None and filename:
         template_settings = get_layer_settings(filename)
@@ -585,7 +584,107 @@ def process_single_file(file_path, extent=None, output_dir=None):
     except Exception as e:
         return {"success": False, "message": f"Error: {str(e)}"}
 
-def process_to_tiles(extent=None, input_dirs=None, filter_pattern=None, 
+def process_file_group(group_name, file_path_map, extent=None, output_dir=None):
+    """Process a named group of FGB files into a single multi-layer PMTiles.
+
+    All polygon layers are processed in one tippecanoe invocation so that
+    --no-simplification-of-shared-nodes identifies shared boundary nodes
+    across admin levels.  Centroid layers are processed in a separate
+    invocation (different tile-size strategy) and merged with tile-join.
+
+    Args:
+        group_name (str):      Key in LAYER_GROUPS.
+        file_path_map (dict):  {filename: Path} for every file in scratch dir.
+        extent (tuple|None):   Optional (xmin, ymin, xmax, ymax).
+        output_dir (str|None): Destination directory for the output PMTiles.
+
+    Returns:
+        dict: {"success": bool, "message": str, "output_file": Path, ...}
+    """
+    global LAYER_GROUPS, build_tippecanoe_group_command
+    if not LAYER_GROUPS or build_tippecanoe_group_command is None:
+        _, _, _, LAYER_GROUPS, build_tippecanoe_group_command = _import_tippecanoe_template()
+
+    if group_name not in LAYER_GROUPS:
+        return {"success": False, "message": f"Unknown group: {group_name}"}
+
+    group = LAYER_GROUPS[group_name]
+    output_stem = group["output_stem"]
+
+    tile_dir = Path(output_dir) if output_dir else TILE_DIR
+    tile_dir.mkdir(parents=True, exist_ok=True)
+
+    def _resolve_layers(layer_key):
+        """Return [(filename, layer_name, minzoom, maxzoom, abs_path), ...] or None on missing."""
+        resolved = []
+        for filename, layer_name, minzoom, maxzoom in group.get(layer_key, []):
+            abs_path = file_path_map.get(filename)
+            if abs_path is None or not abs_path.exists():
+                return None, filename
+            resolved.append((filename, layer_name, minzoom, maxzoom, abs_path))
+        return resolved, None
+
+    polygon_tuples, missing = _resolve_layers("polygon_layers")
+    if missing:
+        return {"success": False, "message": f"Missing polygon layer for group '{group_name}': {missing}"}
+
+    centroid_tuples, missing = _resolve_layers("centroid_layers")
+    if missing:
+        return {"success": False, "message": f"Missing centroid layer for group '{group_name}': {missing}"}
+
+    final_path = tile_dir / f"{output_stem}.pmtiles"
+    tmp_polygon  = tile_dir / f"_tmp_{output_stem}_polygons.pmtiles"
+    tmp_centroid = tile_dir / f"_tmp_{output_stem}_centroids.pmtiles"
+
+    try:
+        # ── Step 1: polygon layers ──────────────────────────────────────────
+        cmd = build_tippecanoe_group_command(
+            group_name, polygon_tuples, str(tmp_polygon),
+            layer_kind="polygon", extent=extent,
+        )
+        subprocess.run(cmd, check=True, capture_output=False, text=True)
+
+        # ── Step 2: centroid layers (if any) ───────────────────────────────
+        if centroid_tuples:
+            cmd = build_tippecanoe_group_command(
+                group_name, centroid_tuples, str(tmp_centroid),
+                layer_kind="centroid", extent=extent,
+            )
+            subprocess.run(cmd, check=True, capture_output=False, text=True)
+
+        # ── Step 3: merge with tile-join ────────────────────────────────────
+        merge_inputs = [str(tmp_polygon)]
+        if centroid_tuples:
+            merge_inputs.append(str(tmp_centroid))
+
+        join_cmd = [
+            "tile-join", "-fo", str(final_path),
+            "--no-tile-size-limit",
+        ] + merge_inputs
+        subprocess.run(join_cmd, check=True, capture_output=False, text=True)
+
+        return {
+            "success": True,
+            "message": f"Group tiles generated: {final_path.name}",
+            "output_file": final_path,
+            "group_name": group_name,
+            "layer_count": len(polygon_tuples) + len(centroid_tuples or []),
+        }
+
+    except subprocess.CalledProcessError as e:
+        return {
+            "success": False,
+            "message": f"Tippecanoe/tile-join error: {e.stderr if e.stderr else str(e)}",
+        }
+    except Exception as e:
+        return {"success": False, "message": f"Error: {str(e)}"}
+    finally:
+        for tmp in (tmp_polygon, tmp_centroid):
+            if tmp.exists():
+                tmp.unlink()
+
+
+def process_to_tiles(extent=None, input_dirs=None, filter_pattern=None,
                     output_dir=None, parallel=True, verbose=True):
     """Process FlatGeobuf/GeoJSONSeq/GeoJSON files into PMTiles
     
@@ -645,7 +744,34 @@ def process_to_tiles(extent=None, input_dirs=None, filter_pattern=None,
             message += f" matching pattern '{filter_pattern}'"
         print(message)
         return {"success": False, "message": message, "processed_files": [], "errors": []}
-    
+
+    # ── Group detection ───────────────────────────────────────────────────────
+    # Files that are members of a complete LAYER_GROUP are processed together
+    # in one tippecanoe call; remaining files are processed individually.
+    global LAYER_GROUPS
+    if not LAYER_GROUPS:
+        _, _, _, LAYER_GROUPS, _ = _import_tippecanoe_template()
+
+    file_path_map = {f.name: f for f in geospatial_files}
+
+    groups_to_process = {}
+    for gname, gconfig in LAYER_GROUPS.items():
+        all_members = (
+            [fn for fn, *_ in gconfig.get("polygon_layers", [])]
+            + [fn for fn, *_ in gconfig.get("centroid_layers", [])]
+        )
+        if all(fn in file_path_map for fn in all_members):
+            groups_to_process[gname] = gconfig
+
+    group_member_names = {
+        fn
+        for gname in groups_to_process
+        for key in ("polygon_layers", "centroid_layers")
+        for fn, *_ in LAYER_GROUPS[gname].get(key, [])
+    }
+    individual_files = [f for f in geospatial_files if f.name not in group_member_names]
+    # ── End group detection ───────────────────────────────────────────────────
+
     if verbose:
         print(f"Found {len(geospatial_files)} files to process:")
         for f in geospatial_files:
@@ -654,8 +780,11 @@ def process_to_tiles(extent=None, input_dirs=None, filter_pattern=None,
                 '.geojsonseq': 'GeoJSONSeq',
                 '.geojson': 'GeoJSON'
             }.get(f.suffix, 'Unknown')
-            print(f"  {f.name} ({file_type})")
-    
+            marker = " [group]" if f.name in group_member_names else ""
+            print(f"  {f.name} ({file_type}){marker}")
+        for gname in groups_to_process:
+            print(f"  → group '{gname}': {LAYER_GROUPS[gname]['output_stem']}.pmtiles")
+
     results = {
         "success": True,
         "processed_files": [],
@@ -663,19 +792,37 @@ def process_to_tiles(extent=None, input_dirs=None, filter_pattern=None,
         "total_files": len(geospatial_files)
     }
     
-    # Process files
-    if parallel and len(geospatial_files) > 1:
+    # ── Process groups (sequential; each is already a single subprocess) ─────
+    for gname in groups_to_process:
+        if verbose:
+            print(f"\nProcessing group '{gname}'...")
+        result = process_file_group(gname, file_path_map, extent, output_dir)
+        if result["success"]:
+            results["processed_files"].append({
+                "input_file": f"[group:{gname}]",
+                "output_file": result.get("output_file"),
+                "group_name": gname,
+            })
+            if verbose:
+                tqdm.write(f"✓ {gname} → {result.get('output_file', 'unknown')}")
+        else:
+            results["errors"].append({"file": f"[group:{gname}]", "error": result["message"]})
+            if verbose:
+                tqdm.write(f"✗ {gname}: {result['message']}")
+
+    # ── Process individual files ──────────────────────────────────────────────
+    if parallel and len(individual_files) > 1:
         # Parallel processing
-        with ProcessPoolExecutor(max_workers=min(4, len(geospatial_files))) as executor:
+        with ProcessPoolExecutor(max_workers=min(4, len(individual_files))) as executor:
             # Submit all jobs
             future_to_file = {
                 executor.submit(process_single_file, geospatial_file, extent, output_dir): geospatial_file
-                for geospatial_file in geospatial_files
+                for geospatial_file in individual_files
             }
             
             # Process results with progress bar
             if verbose:
-                progress_bar = tqdm(total=len(geospatial_files), desc="Processing files", unit="file")
+                progress_bar = tqdm(total=len(individual_files), desc="Processing files", unit="file")
             
             for future in as_completed(future_to_file):
                 geospatial_file = future_to_file[future]
@@ -711,13 +858,13 @@ def process_to_tiles(extent=None, input_dirs=None, filter_pattern=None,
             if verbose:
                 progress_bar.close()
     
-    else:
+    elif individual_files:
         # Sequential processing
         if verbose:
-            progress_bar = tqdm(geospatial_files, desc="Processing files", unit="file")
+            progress_bar = tqdm(individual_files, desc="Processing files", unit="file")
         else:
-            progress_bar = geospatial_files
-        
+            progress_bar = individual_files
+
         for geospatial_file in progress_bar:
             result = process_single_file(geospatial_file, extent, output_dir)
             

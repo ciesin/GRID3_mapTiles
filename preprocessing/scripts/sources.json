@@ -1,0 +1,111 @@
+{
+  "_comment": "Pure-JSON mirror of pmtiles/app/src/sources.ts. Keep in sync when sources.ts changes.",
+  "workerUrls": {
+    "dev":  "https://dev-tileworker.ciesin.app",
+    "prod": "https://prod-tileworker.ciesin.app"
+  },
+  "sources": {
+    "protomaps": {
+      "archive": "tiles/base",
+      "attribution": "<a href=\"https://github.com/protomaps/basemaps\">Protomaps</a> © <a href=\"https://openstreetmap.org\">OpenStreetMap Contributors</a>",
+      "maxzoom": 15,
+      "ext": "mvt"
+    },
+    "overture": {
+      "archive": "tiles/overture/buildings",
+      "attribution": "<a href=\"https://overturemaps.org\">Overture Maps Foundation</a>",
+      "maxzoom": 14,
+      "ext": "mvt"
+    },
+    "terrain": {
+      "archive": "tiles/terrain",
+      "attribution": "<a href=\"https://mapterhorn.com/attribution\">© Mapterhorn</a>",
+      "maxzoom": 12,
+      "ext": "webp"
+    },
+    "grid3": {
+      "archive": "tiles/grid3",
+      "attribution": "<a href=\"https://ciesin.columbia.edu/\">© CIESIN Columbia University</a>",
+      "maxzoom": 15,
+      "ext": "mvt"
+    },
+    "grid3_cod_antenne": {
+      "archive": "tiles/grid3/cod/GRID3_COD_antenne_v8_0",
+      "attribution": "<a href=\"https://ciesin.columbia.edu/\">© CIESIN Columbia University</a>",
+      "maxzoom": 8,
+      "ext": "mvt"
+    },
+    "grid3_cod_antenne_centroids": {
+      "archive": "tiles/grid3/cod/GRID3_COD_antenne_v8_0_centroids",
+      "attribution": "<a href=\"https://ciesin.columbia.edu/\">© CIESIN Columbia University</a>",
+      "maxzoom": 16,
+      "ext": "mvt"
+    },
+    "grid3_cod_provinces": {
+      "archive": "tiles/grid3/cod/GRID3_COD_provinces_v8_0",
+      "attribution": "<a href=\"https://ciesin.columbia.edu/\">© CIESIN Columbia University</a>",
+      "maxzoom": 7,
+      "ext": "mvt"
+    },
+    "grid3_cod_provinces_centroids": {
+      "archive": "tiles/grid3/cod/GRID3_COD_provinces_v8_0_centroids",
+      "attribution": "<a href=\"https://ciesin.columbia.edu/\">© CIESIN Columbia University</a>",
+      "maxzoom": 16,
+      "ext": "mvt"
+    },
+    "grid3_cod_health_zones": {
+      "archive": "tiles/grid3/cod/GRID3_COD_health_zones_v8_0",
+      "attribution": "<a href=\"https://ciesin.columbia.edu/\">© CIESIN Columbia University</a>",
+      "maxzoom": 8,
+      "ext": "mvt"
+    },
+    "grid3_cod_health_zones_centroids": {
+      "archive": "tiles/grid3/cod/GRID3_COD_health_zones_v8_0_centroids",
+      "attribution": "<a href=\"https://ciesin.columbia.edu/\">© CIESIN Columbia University</a>",
+      "maxzoom": 2,
+      "ext": "mvt"
+    },
+    "grid3_cod_health_areas": {
+      "archive": "tiles/grid3/cod/GRID3_COD_health_areas_v8_0",
+      "attribution": "<a href=\"https://ciesin.columbia.edu/\">© CIESIN Columbia University</a>",
+      "maxzoom": 8,
+      "ext": "mvt"
+    },
+    "grid3_cod_health_areas_centroids": {
+      "archive": "tiles/grid3/cod/GRID3_COD_health_areas_v8_0_centroids",
+      "attribution": "<a href=\"https://ciesin.columbia.edu/\">© CIESIN Columbia University</a>",
+      "maxzoom": 4,
+      "ext": "mvt"
+    },
+    "grid3_cod_health_facilities": {
+      "archive": "tiles/grid3/cod/GRID3_COD_health_facilities_v8_0",
+      "attribution": "<a href=\"https://ciesin.columbia.edu/\">© CIESIN Columbia University</a>",
+      "maxzoom": 8,
+      "ext": "mvt"
+    },
+    "grid3_cod_settlement_names": {
+      "archive": "tiles/grid3/cod/GRID3_COD_settlement_names_v8_0",
+      "attribution": "<a href=\"https://ciesin.columbia.edu/\">© CIESIN Columbia University</a>",
+      "maxzoom": 8,
+      "ext": "mvt"
+    },
+    "grid3_cod_settlement_extents": {
+      "archive": "tiles/grid3/cod/GRID3_COD_settlement_extents_v3_1",
+      "attribution": "<a href=\"https://ciesin.columbia.edu/\">© CIESIN Columbia University</a>",
+      "maxzoom": 15,
+      "ext": "mvt"
+    },
+    "grid3_nga_settlement_extents": {
+      "archive": "tiles/grid3/nga/GRID3_NGA_settlement_extents_v3_0",
+      "attribution": "<a href=\"https://ciesin.columbia.edu/\">© CIESIN Columbia University</a>",
+      "maxzoom": 14,
+      "ext": "mvt"
+    },
+    "grid3_nga_settlement_blocks": {
+      "archive": "tiles/grid3/nga/GRID3_NGA_settlement_extents_v4_0",
+      "attribution": "<a href=\"https://ciesin.columbia.edu/\">© CIESIN Columbia University</a>",
+      "maxzoom": 14,
+      "ext": "mvt"
+    }
+  }
+}

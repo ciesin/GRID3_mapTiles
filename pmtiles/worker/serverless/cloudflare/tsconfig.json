@@ -6,7 +6,7 @@
 		],
 		"jsx": "react",
 		"module": "es2022",
-		"moduleResolution": "node",
+		"moduleResolution": "bundler",
 		"types": [
 			"@cloudflare/workers-types"
 		],

@@ -177,18 +177,6 @@ LAYER_SETTINGS = {
     ],
 
 
-    # Administrative boundaries - shared settings for other COD boundary layers
-    # Use the same topology-preserving configuration as health areas
-    'GRID3_COD_health_zones_v8_0.fgb': [
-        '--no-polygon-splitting',  # Keep polygons intact across tile boundaries
-        '--no-simplification-of-shared-nodes',  # Preserve shared boundaries identically
-        '--simplification=1',
-        '--low-detail=10',
-        # '--full-detail=16',
-        '--extend-zooms-if-still-dropping-maximum=15',
-        '--no-tiny-polygon-reduction',
-    ],
-
     'GRID3_COD_antenne_v8_0.fgb': [
         '--no-polygon-splitting',  # Keep polygons intact across tile boundaries
         '--no-simplification-of-shared-nodes',  # Preserve shared boundaries identically
@@ -335,6 +323,107 @@ LAYER_SETTINGS = {
     ],
     
 }
+
+# ---------------------------------------------------------------------------
+# Layer groups: files processed together in one tippecanoe call so that
+# --no-simplification-of-shared-nodes can detect shared boundary nodes
+# across layers (e.g. provinces and health_zones sharing border coordinates).
+#
+# polygon_layers / centroid_layers are processed in separate tippecanoe
+# invocations (different tile-size strategies) then merged with tile-join.
+# ---------------------------------------------------------------------------
+LAYER_GROUPS = {
+    "GRID3_COD_admin_boundaries": {
+        "output_stem": "GRID3_COD_admin_boundaries",
+
+        # (filename, layer-name-in-tile, minzoom, maxzoom)
+        "polygon_layers": [
+            ("GRID3_COD_provinces_v8_0.fgb",    "GRID3-COD-provinces-v8-0",    0, 15),
+            ("GRID3_COD_antenne_v8_0.fgb",       "GRID3-COD-antenne-v8-0",      0, 15),
+            ("GRID3_COD_health_zones_v8_0.fgb",  "GRID3-COD-health-zones-v8-0", 0, 15),
+            ("GRID3_COD_health_areas_v8_0.fgb",  "GRID3-COD-health-areas-v8-0", 0, 15),
+        ],
+        # Shared topology-preserving flags for all polygon layers.
+        # --no-simplification-of-shared-nodes only identifies shared nodes when
+        # all features are present in the same process — single invocation is
+        # the entire reason these layers are grouped.
+        "polygon_settings": [
+            "--no-polygon-splitting",
+            "--no-simplification-of-shared-nodes",
+            "--simplification=1",
+            "--full-detail=12",
+            "--low-detail=10",
+            "--no-tiny-polygon-reduction",
+            "--extend-zooms-if-still-dropping-maximum=15",
+            "--no-tile-size-limit",
+            "--coalesce-densest-as-needed",
+        ],
+
+        "centroid_layers": [
+            ("GRID3_COD_provinces_v8_0_centroids.fgb",    "GRID3-COD-provinces-v8-0-centroids",    5, 16),
+            ("GRID3_COD_antenne_v8_0_centroids.fgb",       "GRID3-COD-antenne-v8-0-centroids",      5, 16),
+            ("GRID3_COD_health_zones_v8_0_centroids.fgb",  "GRID3-COD-health-zones-v8-0-centroids", 5, 16),
+            ("GRID3_COD_health_areas_v8_0_centroids.fgb",  "GRID3-COD-health-areas-v8-0-centroids", 7, 16),
+        ],
+        # drop-rate=0 / no-feature-limit for points — kept separate from
+        # polygons to avoid conflicting with tile-size management on heavy layers.
+        "centroid_settings": [
+            "--drop-rate=0",
+            "--no-feature-limit",
+            "--no-tile-size-limit",
+        ],
+    },
+}
+
+
+def build_tippecanoe_group_command(group_name, layer_tuples, output_file,
+                                   layer_kind="polygon", extent=None):
+    """
+    Build a tippecanoe command for a group of named layers using the -L JSON syntax.
+
+    Unlike --named-layer, the -L JSON format supports per-layer minzoom/maxzoom
+    control so each admin level only appears in the tiles where it is needed.
+
+    Args:
+        group_name (str):       Key in LAYER_GROUPS (used to fetch settings).
+        layer_tuples (list):    [(filename, layer_name, minzoom, maxzoom, abs_path), ...]
+                                abs_path is the resolved on-disk path to pass to tippecanoe.
+        output_file (str):      Path to output PMTiles.
+        layer_kind (str):       "polygon" or "centroid" — selects settings from LAYER_GROUPS.
+        extent (tuple|None):    Optional (xmin, ymin, xmax, ymax) clipping box.
+
+    Returns:
+        list: Complete argv list for subprocess.
+    """
+    import json as _json
+
+    group = LAYER_GROUPS[group_name]
+    settings_key = f"{layer_kind}_settings"
+
+    if layer_kind == "polygon":
+        zoom_flags = ["-Z0", "-z15"]
+    else:
+        zoom_flags = ["-Z5", "-z16"]
+
+    cmd = ["tippecanoe", "-fo", output_file] + zoom_flags
+    cmd.extend(group.get(settings_key, []))
+    cmd.append("-P")
+
+    for _, layer_name, minzoom, maxzoom, abs_path in layer_tuples:
+        layer_spec = _json.dumps({
+            "file":    str(abs_path),
+            "layer":   layer_name,
+            "minzoom": minzoom,
+            "maxzoom": maxzoom,
+        })
+        cmd.extend(["-L", layer_spec])
+
+    if extent:
+        xmin, ymin, xmax, ymax = extent
+        cmd.extend(["--clip-bounding-box", f"{xmin},{ymin},{xmax},{ymax}"])
+
+    return cmd
+
 
 # Base tippecanoe command flags that apply to all layers
 BASE_COMMAND = [

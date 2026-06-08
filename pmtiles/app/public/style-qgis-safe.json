@@ -3,34 +3,99 @@
   "sources": {
     "protomaps": {
       "type": "vector",
-      "attribution": "<a href=\"https://github.com/protomaps/basemaps\">Protomaps</a> © <a href=\"https://openstreetmap.org\">OpenStreetMap</a>",
-      "tiles": [
-        "https://pmtiles-cloudflare.mheaton-945.workers.dev/global/{z}/{x}/{y}.mvt"
-      ],
+      "attribution": "<a href=\"https://github.com/protomaps/basemaps\">Protomaps</a> © <a href=\"https://openstreetmap.org\">OpenStreetMap Contributors</a>",
+      "tiles": ["https://dev-tileworker.ciesin.app/tiles/base/{z}/{x}/{y}.mvt"],
       "maxzoom": 15
     },
     "overture": {
       "type": "vector",
-      "attribution": "<a href=\"https://overturemaps.org\">Overture Maps</a>",
-      "tiles": [
-        "https://pmtiles-cloudflare.mheaton-945.workers.dev/buildings/{z}/{x}/{y}.mvt"
-      ],
-      "maxzoom": 13
+      "attribution": "<a href=\"https://overturemaps.org\">Overture Maps Foundation</a>",
+      "tiles": ["https://dev-tileworker.ciesin.app/tiles/overture/buildings/{z}/{x}/{y}.mvt"],
+      "maxzoom": 14
+    },
+    "terrain": {
+      "type": "raster",
+      "attribution": "<a href=\"https://mapterhorn.com/attribution\">© Mapterhorn</a>",
+      "tiles": ["https://dev-tileworker.ciesin.app/tiles/terrain/{z}/{x}/{y}.webp"],
+      "maxzoom": 12,
+      "tileSize": 256
     },
     "grid3": {
       "type": "vector",
       "attribution": "<a href=\"https://ciesin.columbia.edu/\">© CIESIN Columbia University</a>",
-      "tiles": [
-        "https://pmtiles-cloudflare.mheaton-945.workers.dev/grid3/{z}/{x}/{y}.mvt"
-      ],
+      "tiles": ["https://dev-tileworker.ciesin.app/tiles/grid3/{z}/{x}/{y}.mvt"],
       "maxzoom": 15
     },
-    "grid3_nga": {
+    "grid3_cod_provinces": {
       "type": "vector",
-      "attribution": "<a href=\"https://grid3.org\">GRID3</a>",
-      "tiles": [
-        "https://pmtiles-cloudflare.mheaton-945.workers.dev/nga_settlement_extents/{z}/{x}/{y}.mvt"
-      ],
+      "attribution": "<a href=\"https://ciesin.columbia.edu/\">© CIESIN Columbia University</a>",
+      "tiles": ["https://dev-tileworker.ciesin.app/tiles/grid3/cod/GRID3_COD_provinces_v8_0/{z}/{x}/{y}.mvt"],
+      "maxzoom": 7
+    },
+    "grid3_cod_provinces_centroids": {
+      "type": "vector",
+      "attribution": "<a href=\"https://ciesin.columbia.edu/\">© CIESIN Columbia University</a>",
+      "tiles": ["https://dev-tileworker.ciesin.app/tiles/grid3/cod/GRID3_COD_provinces_v8_0_centroids/{z}/{x}/{y}.mvt"],
+      "maxzoom": 16
+    },
+    "grid3_cod_antenne": {
+      "type": "vector",
+      "attribution": "<a href=\"https://ciesin.columbia.edu/\">© CIESIN Columbia University</a>",
+      "tiles": ["https://dev-tileworker.ciesin.app/tiles/grid3/cod/GRID3_COD_antenne_v8_0/{z}/{x}/{y}.mvt"],
+      "maxzoom": 8
+    },
+    "grid3_cod_antenne_centroids": {
+      "type": "vector",
+      "attribution": "<a href=\"https://ciesin.columbia.edu/\">© CIESIN Columbia University</a>",
+      "tiles": ["https://dev-tileworker.ciesin.app/tiles/grid3/cod/GRID3_COD_antenne_v8_0_centroids/{z}/{x}/{y}.mvt"],
+      "maxzoom": 16
+    },
+    "grid3_cod_health_zones": {
+      "type": "vector",
+      "attribution": "<a href=\"https://ciesin.columbia.edu/\">© CIESIN Columbia University</a>",
+      "tiles": ["https://dev-tileworker.ciesin.app/tiles/grid3/cod/GRID3_COD_health_zones_v8_0/{z}/{x}/{y}.mvt"],
+      "maxzoom": 8
+    },
+    "grid3_cod_health_zones_centroids": {
+      "type": "vector",
+      "attribution": "<a href=\"https://ciesin.columbia.edu/\">© CIESIN Columbia University</a>",
+      "tiles": ["https://dev-tileworker.ciesin.app/tiles/grid3/cod/GRID3_COD_health_zones_v8_0_centroids/{z}/{x}/{y}.mvt"],
+      "maxzoom": 2
+    },
+    "grid3_cod_health_areas": {
+      "type": "vector",
+      "attribution": "<a href=\"https://ciesin.columbia.edu/\">© CIESIN Columbia University</a>",
+      "tiles": ["https://dev-tileworker.ciesin.app/tiles/grid3/cod/GRID3_COD_health_areas_v8_0/{z}/{x}/{y}.mvt"],
+      "maxzoom": 8
+    },
+    "grid3_cod_health_areas_centroids": {
+      "type": "vector",
+      "attribution": "<a href=\"https://ciesin.columbia.edu/\">© CIESIN Columbia University</a>",
+      "tiles": ["https://dev-tileworker.ciesin.app/tiles/grid3/cod/GRID3_COD_health_areas_v8_0_centroids/{z}/{x}/{y}.mvt"],
+      "maxzoom": 4
+    },
+    "grid3_cod_health_facilities": {
+      "type": "vector",
+      "attribution": "<a href=\"https://ciesin.columbia.edu/\">© CIESIN Columbia University</a>",
+      "tiles": ["https://dev-tileworker.ciesin.app/tiles/grid3/cod/GRID3_COD_health_facilities_v8_0/{z}/{x}/{y}.mvt"],
+      "maxzoom": 8
+    },
+    "grid3_cod_settlement_names": {
+      "type": "vector",
+      "attribution": "<a href=\"https://ciesin.columbia.edu/\">© CIESIN Columbia University</a>",
+      "tiles": ["https://dev-tileworker.ciesin.app/tiles/grid3/cod/GRID3_COD_settlement_names_v8_0/{z}/{x}/{y}.mvt"],
+      "maxzoom": 8
+    },
+    "grid3_nga_settlement_extents": {
+      "type": "vector",
+      "attribution": "<a href=\"https://ciesin.columbia.edu/\">© CIESIN Columbia University</a>",
+      "tiles": ["https://dev-tileworker.ciesin.app/tiles/grid3/nga/GRID3_NGA_settlement_extents_v3_0/{z}/{x}/{y}.mvt"],
+      "maxzoom": 14
+    },
+    "grid3_nga_settlement_blocks": {
+      "type": "vector",
+      "attribution": "<a href=\"https://ciesin.columbia.edu/\">© CIESIN Columbia University</a>",
+      "tiles": ["https://dev-tileworker.ciesin.app/tiles/grid3/nga/GRID3_NGA_settlement_extents_v4_0/{z}/{x}/{y}.mvt"],
       "maxzoom": 14
     }
   },
@@ -38,29 +103,22 @@
     {
       "id": "background",
       "type": "background",
-      "paint": {
-        "background-color": "#cccccc"
-      }
+      "paint": { "background-color": "#e2dfda" }
     },
     {
       "id": "earth",
       "type": "fill",
-      "filter": ["==", "$type", "Polygon"],
       "source": "protomaps",
       "source-layer": "earth",
-      "paint": {
-        "fill-color": "#e2dfda"
-      }
+      "filter": ["==", "$type", "Polygon"],
+      "paint": { "fill-color": "#e2dfda" }
     },
     {
       "id": "landcover",
       "type": "fill",
       "source": "protomaps",
       "source-layer": "landcover",
-      "paint": {
-        "fill-color": "#c4e7d2",
-        "fill-opacity": 0.5
-      }
+      "paint": { "fill-color": "#c4e7d2", "fill-opacity": 0.5 }
     },
     {
       "id": "landuse_park",
@@ -68,45 +126,7 @@
       "source": "protomaps",
       "source-layer": "landuse",
       "filter": ["in", "kind", "national_park", "park", "cemetery", "protected_area", "nature_reserve", "forest", "golf_course"],
-      "paint": {
-        "fill-color": "#88D18A",
-        "fill-opacity": 0.6
-      }
-    },
-    {
-      "id": "settlement-extents",
-      "type": "fill",
-      "source": "grid3",
-      "source-layer": "settlement-extents",
-      "minzoom": 7,
-      "maxzoom": 16,
-      "paint": {
-        "fill-color": "#CAA2DD",
-        "fill-opacity": 0.5
-      }
-    },
-    {
-      "id": "nga-settlement-extents",
-      "type": "fill",
-      "source": "grid3_nga",
-      "source-layer": "nga-settlement-extents",
-      "minzoom": 7,
-      "maxzoom": 16,
-      "paint": {
-        "fill-color": "#CAA2DD",
-        "fill-opacity": 0.5
-      }
-    },
-    {
-      "id": "landuse_urban_green",
-      "type": "fill",
-      "source": "protomaps",
-      "source-layer": "landuse",
-      "filter": ["in", "kind", "allotments", "village_green", "playground"],
-      "paint": {
-        "fill-color": "#9cd3b4",
-        "fill-opacity": 0.7
-      }
+      "paint": { "fill-color": "#88D18A", "fill-opacity": 0.6 }
     },
     {
       "id": "landuse_hospital",
@@ -114,9 +134,7 @@
       "source": "protomaps",
       "source-layer": "landuse",
       "filter": ["==", "kind", "hospital"],
-      "paint": {
-        "fill-color": "#fde1e4"
-      }
+      "paint": { "fill-color": "#fde1e4" }
     },
     {
       "id": "landuse_school",
@@ -124,31 +142,15 @@
       "source": "protomaps",
       "source-layer": "landuse",
       "filter": ["in", "kind", "school", "university", "college"],
-      "paint": {
-        "fill-color": "#F8E08E"
-      }
+      "paint": { "fill-color": "#F8E08E" }
     },
     {
       "id": "water",
       "type": "fill",
+      "source": "protomaps",
+      "source-layer": "water",
       "filter": ["==", "$type", "Polygon"],
-      "source": "protomaps",
-      "source-layer": "water",
-      "paint": {
-        "fill-color": "#A4DBE8"
-      }
-    },
-    {
-      "id": "water_stream",
-      "type": "line",
-      "source": "protomaps",
-      "source-layer": "water",
-      "minzoom": 12,
-      "filter": ["in", "kind", "stream"],
-      "paint": {
-        "line-color": "#A4DBE8",
-        "line-width": 1
-      }
+      "paint": { "fill-color": "#A4DBE8" }
     },
     {
       "id": "water_river",
@@ -157,89 +159,24 @@
       "source-layer": "water",
       "minzoom": 9,
       "filter": ["in", "kind", "river"],
-      "paint": {
-        "line-color": "#9ADBE8",
-        "line-width": 2
-      }
+      "paint": { "line-color": "#9ADBE8", "line-width": 2 }
     },
     {
-      "id": "roads_other",
+      "id": "water_stream",
       "type": "line",
       "source": "protomaps",
-      "source-layer": "roads",
-      "filter": ["in", "kind", "other", "path"],
-      "paint": {
-        "line-color": "#d5d5d5",
-        "line-width": 1
-      }
+      "source-layer": "water",
+      "minzoom": 12,
+      "filter": ["in", "kind", "stream"],
+      "paint": { "line-color": "#A4DBE8", "line-width": 1 }
     },
     {
-      "id": "roads_minor",
-      "type": "line",
-      "source": "protomaps",
-      "source-layer": "roads",
-      "filter": ["==", "kind", "minor_road"],
-      "paint": {
-        "line-color": "#ffffff",
-        "line-width": 2
-      }
-    },
-    {
-      "id": "roads_major",
-      "type": "line",
-      "source": "protomaps",
-      "source-layer": "roads",
-      "filter": ["==", "kind", "major_road"],
-      "paint": {
-        "line-color": "#fff",
-        "line-width": 3
-      }
-    },
-    {
-      "id": "roads_highway",
-      "type": "line",
-      "source": "protomaps",
-      "source-layer": "roads",
-      "filter": ["==", "kind", "highway"],
-      "paint": {
-        "line-color": "#ffffff",
-        "line-width": 4
-      }
-    },
-    {
-      "id": "boundaries_country",
-      "type": "line",
-      "source": "protomaps",
-      "source-layer": "boundaries",
-      "filter": ["<=", "kind_detail", 2],
-      "paint": {
-        "line-color": "#adadad",
-        "line-width": 1.2,
-        "line-dasharray": [3, 2]
-      }
-    },
-    {
-      "id": "buildings-flat",
+      "id": "settlement-extents",
       "type": "fill",
-      "source": "overture",
-      "source-layer": "building",
-      "minzoom": 13,
-      "paint": {
-        "fill-color": "#A2ACAB",
-        "fill-opacity": 0.5
-      }
-    },
-    {
-      "id": "building-outlines",
-      "type": "line",
-      "source": "overture",
-      "source-layer": "building",
-      "minzoom": 13,
-      "paint": {
-        "line-color": "#8897A0",
-        "line-width": 0.5,
-        "line-opacity": 0.5
-      }
+      "source": "grid3",
+      "source-layer": "settlement-extents",
+      "minzoom": 7,
+      "paint": { "fill-color": "#CAA2DD", "fill-opacity": 0.5 }
     },
     {
       "id": "settlement-extents-outline",
@@ -247,48 +184,176 @@
       "source": "grid3",
       "source-layer": "settlement-extents",
       "minzoom": 7,
-      "maxzoom": 16,
-      "paint": {
-        "line-color": "#B580D1",
-        "line-width": 0.5,
-        "line-opacity": 0.6
-      }
+      "paint": { "line-color": "#B580D1", "line-width": 0.5, "line-opacity": 0.6 }
+    },
+    {
+      "id": "nga-settlement-extents",
+      "type": "fill",
+      "source": "grid3_nga_settlement_extents",
+      "source-layer": "settlement-extents",
+      "minzoom": 7,
+      "paint": { "fill-color": "#CAA2DD", "fill-opacity": 0.5 }
     },
     {
       "id": "nga-settlement-extents-outline",
       "type": "line",
-      "source": "grid3_nga",
-      "source-layer": "nga-settlement-extents",
+      "source": "grid3_nga_settlement_extents",
+      "source-layer": "settlement-extents",
       "minzoom": 7,
-      "maxzoom": 16,
-      "paint": {
-        "line-color": "#B580D1",
-        "line-width": 0.5,
-        "line-opacity": 0.6
-      }
+      "paint": { "line-color": "#B580D1", "line-width": 0.5, "line-opacity": 0.6 }
     },
     {
-      "id": "health-zones-boundary",
-      "type": "line",
-      "source": "grid3",
-      "source-layer": "health-zones",
-      "minzoom": 7,
-      "paint": {
-        "line-color": "#FF6B6B",
-        "line-width": 1.5,
-        "line-opacity": 0.7
-      }
-    },
-    {
-      "id": "health-areas-boundary",
-      "type": "line",
-      "source": "grid3",
-      "source-layer": "health-areas",
+      "id": "nga-settlement-blocks",
+      "type": "fill",
+      "source": "grid3_nga_settlement_blocks",
+      "source-layer": "settlement-extents",
       "minzoom": 10,
+      "paint": { "fill-color": "#9B59B6", "fill-opacity": 0.35 }
+    },
+    {
+      "id": "cod-health-zones",
+      "type": "fill",
+      "source": "grid3_cod_health_zones",
+      "source-layer": "health-zones",
+      "minzoom": 6,
+      "paint": { "fill-color": "#FF6B6B", "fill-opacity": 0.08 }
+    },
+    {
+      "id": "cod-health-zones-boundary",
+      "type": "line",
+      "source": "grid3_cod_health_zones",
+      "source-layer": "health-zones",
+      "minzoom": 6,
+      "paint": { "line-color": "#FF6B6B", "line-width": 1.5, "line-opacity": 0.7 }
+    },
+    {
+      "id": "cod-health-areas",
+      "type": "fill",
+      "source": "grid3_cod_health_areas",
+      "source-layer": "health-areas",
+      "minzoom": 9,
+      "paint": { "fill-color": "#4ECDC4", "fill-opacity": 0.08 }
+    },
+    {
+      "id": "cod-health-areas-boundary",
+      "type": "line",
+      "source": "grid3_cod_health_areas",
+      "source-layer": "health-areas",
+      "minzoom": 9,
+      "paint": { "line-color": "#4ECDC4", "line-width": 1, "line-opacity": 0.6 }
+    },
+    {
+      "id": "cod-antenne",
+      "type": "fill",
+      "source": "grid3_cod_antenne",
+      "source-layer": "antenne",
+      "minzoom": 8,
+      "paint": { "fill-color": "#F39C12", "fill-opacity": 0.12 }
+    },
+    {
+      "id": "cod-antenne-boundary",
+      "type": "line",
+      "source": "grid3_cod_antenne",
+      "source-layer": "antenne",
+      "minzoom": 8,
+      "paint": { "line-color": "#F39C12", "line-width": 1, "line-opacity": 0.6 }
+    },
+    {
+      "id": "cod-provinces",
+      "type": "fill",
+      "source": "grid3_cod_provinces",
+      "source-layer": "provinces",
+      "minzoom": 3,
+      "paint": { "fill-color": "#2980B9", "fill-opacity": 0.06 }
+    },
+    {
+      "id": "cod-provinces-boundary",
+      "type": "line",
+      "source": "grid3_cod_provinces",
+      "source-layer": "provinces",
+      "minzoom": 3,
+      "paint": { "line-color": "#2980B9", "line-width": 1.5, "line-opacity": 0.7 }
+    },
+    {
+      "id": "roads_other",
+      "type": "line",
+      "source": "protomaps",
+      "source-layer": "roads",
+      "filter": ["in", "kind", "other", "path"],
+      "paint": { "line-color": "#d5d5d5", "line-width": 1 }
+    },
+    {
+      "id": "roads_minor",
+      "type": "line",
+      "source": "protomaps",
+      "source-layer": "roads",
+      "filter": ["==", "kind", "minor_road"],
+      "paint": { "line-color": "#ffffff", "line-width": 2 }
+    },
+    {
+      "id": "roads_major",
+      "type": "line",
+      "source": "protomaps",
+      "source-layer": "roads",
+      "filter": ["==", "kind", "major_road"],
+      "paint": { "line-color": "#ffffff", "line-width": 3 }
+    },
+    {
+      "id": "roads_highway",
+      "type": "line",
+      "source": "protomaps",
+      "source-layer": "roads",
+      "filter": ["==", "kind", "highway"],
+      "paint": { "line-color": "#ffffff", "line-width": 4 }
+    },
+    {
+      "id": "boundaries_country",
+      "type": "line",
+      "source": "protomaps",
+      "source-layer": "boundaries",
+      "filter": ["<=", "kind_detail", 2],
+      "paint": { "line-color": "#adadad", "line-width": 1.2, "line-dasharray": [3, 2] }
+    },
+    {
+      "id": "buildings-flat",
+      "type": "fill",
+      "source": "overture",
+      "source-layer": "building",
+      "minzoom": 13,
+      "paint": { "fill-color": "#A2ACAB", "fill-opacity": 0.5 }
+    },
+    {
+      "id": "building-outlines",
+      "type": "line",
+      "source": "overture",
+      "source-layer": "building",
+      "minzoom": 13,
+      "paint": { "line-color": "#8897A0", "line-width": 0.5, "line-opacity": 0.5 }
+    },
+    {
+      "id": "cod-health-facilities",
+      "type": "circle",
+      "source": "grid3_cod_health_facilities",
+      "source-layer": "health-facilities",
+      "minzoom": 9,
       "paint": {
-        "line-color": "#4ECDC4",
-        "line-width": 1,
-        "line-opacity": 0.6
+        "circle-color": "#D32F2F",
+        "circle-radius": 4,
+        "circle-stroke-color": "#ffffff",
+        "circle-stroke-width": 1
+      }
+    },
+    {
+      "id": "cod-antenne-centroids",
+      "type": "circle",
+      "source": "grid3_cod_antenne_centroids",
+      "source-layer": "antenne-centroids",
+      "minzoom": 9,
+      "paint": {
+        "circle-color": "#F39C12",
+        "circle-radius": 4,
+        "circle-stroke-color": "#ffffff",
+        "circle-stroke-width": 1
       }
     },
     {
@@ -345,9 +410,9 @@
       }
     },
     {
-      "id": "settlement-names-label",
+      "id": "cod-settlement-names",
       "type": "symbol",
-      "source": "grid3",
+      "source": "grid3_cod_settlement_names",
       "source-layer": "settlement-names",
       "minzoom": 11,
       "layout": {
@@ -362,15 +427,16 @@
       }
     },
     {
-      "id": "health-facilities-label",
+      "id": "cod-health-facilities-label",
       "type": "symbol",
-      "source": "grid3",
+      "source": "grid3_cod_health_facilities",
       "source-layer": "health-facilities",
       "minzoom": 12,
       "layout": {
         "text-font": ["Noto Sans Regular"],
         "text-field": ["get", "name"],
-        "text-size": 9
+        "text-size": 9,
+        "text-offset": [0, 1.2]
       },
       "paint": {
         "text-color": "#D32F2F",
@@ -379,9 +445,9 @@
       }
     },
     {
-      "id": "health-areas-centroids-label",
+      "id": "cod-health-areas-label",
       "type": "symbol",
-      "source": "grid3",
+      "source": "grid3_cod_health_areas_centroids",
       "source-layer": "health-areas-centroids",
       "minzoom": 10,
       "layout": {
@@ -397,9 +463,9 @@
       }
     },
     {
-      "id": "health-zones-centroids-label",
+      "id": "cod-health-zones-label",
       "type": "symbol",
-      "source": "grid3",
+      "source": "grid3_cod_health_zones_centroids",
       "source-layer": "health-zones-centroids",
       "minzoom": 8,
       "layout": {
@@ -410,6 +476,24 @@
       },
       "paint": {
         "text-color": "#C62828",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": 1.5
+      }
+    },
+    {
+      "id": "cod-provinces-label",
+      "type": "symbol",
+      "source": "grid3_cod_provinces_centroids",
+      "source-layer": "provinces-centroids",
+      "minzoom": 4,
+      "layout": {
+        "text-font": ["Noto Sans Bold"],
+        "text-field": ["get", "name"],
+        "text-size": 14,
+        "text-transform": "uppercase"
+      },
+      "paint": {
+        "text-color": "#1565C0",
         "text-halo-color": "#ffffff",
         "text-halo-width": 1.5
       }
