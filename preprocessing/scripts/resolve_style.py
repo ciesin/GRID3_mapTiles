@@ -73,7 +73,7 @@ def resolve(env: str, out_path: Path) -> None:
         resolved_src = dict(style_src)
         resolved_src["tiles"] = [tile_url]
         resolved_src["attribution"] = src["attribution"]
-        resolved_src["maxzoom"] = src["maxzoom"]
+        # resolved_src["maxzoom"] = src["maxzoom"]
 
         resolved_sources[style_key] = resolved_src
         print(f"  ok    {style_key!r} -> {tile_url}")
