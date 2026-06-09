@@ -13,7 +13,7 @@ Public URL: https://dev.ciesin.app/tiles/grid3/nga/GRID3_NGA_settlement_extents_
 
 *The GRID3 NGA - Settlement Blocks v4.0 dataset consists of settlement block polygons with building count, block area, building density, settlement classification, and related attributes for Nigeria (NGA).*
 
-Derived from "GRID3 NGA - Settlement Extents v4.0" https://doi.org/10.7916/d6gy-yh28. Accessed 29 May 2026.
+Derived from "GRID3 NGA - Settlement Extents v4.0" https://doi.org/10.7916/fr96-f546. Accessed 29 May 2026.
 
 Geographic extent: Nigeria (2.68° to 14.68° E, 4.27° to 13.89° N)
 
@@ -60,6 +60,28 @@ Users are free to download, store, access, use, copy, adapt, transform, alter, a
 License: CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)
 
 © 2024. The Trustees of Columbia University in the City of New York.
+
+---
+
+### GRID3 NGA - Operational Wards v2.0
+
+Public URL: 
+
+*The GRID3 NGA - Settlement Extents v4.0 dataset consists of a geographic representation of settlements in Nigeria. Settlement extents are further delineated into settlement blocks nested within urban and small settlement areas, generated from integrated road, railway, river, settlement extent, building footprint, and remote-sensing inputs. Each block is enriched with morphological, environmental and building metrics.*
+
+Derived from "GRID3 NGA - Operational Wards v2.0" https://doi.org/10.7916/fr96-f546. Accessed 8 June 2026.
+
+Geographic extent: Nigeria (2.68° to 14.68° E, 4.27° to 13.89° N)
+
+Feature count: 745,191
+
+Technical specifications:
+- Tile Format: .mvt (Mapbox Vector Tiles)
+- Geometry type: polygon
+- Compression: gzip (internal & tile)
+- Zoom Levels: 0-16
+- Map layer(s): GRID3-NGA-operational-wards-v2-0
+
 
 ---
 

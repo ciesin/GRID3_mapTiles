@@ -22,358 +22,189 @@ Shared Boundary Handling:
     units share exact boundary coordinates, similar to TopoJSON topology.
 """
 
-# Direct mapping of layer files to their tippecanoe settings
-# Extension-agnostic: 'buildings.geojsonseq' will match 'buildings.fgb', 'buildings.geojson', etc.
-LAYER_SETTINGS = {
-    # Building footprints - high detail at close zooms
-    'buildings.fgb': [
-        '--no-polygon-splitting',
-        '--detect-shared-borders',
-        '--simplification=5',  # Increased from 4 for better tile sizes
-        '--drop-rate=0.2',  # Increased from 0.05 to reduce features
-        '--coalesce-smallest-as-needed',
-        '--drop-densest-as-needed',
-        '--extend-zooms-if-still-dropping-maximum=15',
-        '--minimum-zoom=11',
-        '--hilbert',
-        '-y', 'height'
-    ],
-
-    # Infrastructure polygons
-    'infrastructure.fgb': [
-        '--no-polygon-splitting',
-        '--detect-shared-borders',
-        '--simplification=8',  # Added for geometry simplification
-        '--drop-rate=0.2',  # Increased from 0.1
-        '--coalesce-densest-as-needed',
-        '--drop-densest-as-needed',
-        # '--minimum-zoom=9',  # Increased from 8 to reduce lower zoom tiles
-        # '--maximum-zoom=13',  # Reduced from 15, supersample beyond
-        # '--maximum-tile-bytes=2097152' 
-    ],
-
-    # Land use polygons 
-    'land_use.fgb': [
-        '--no-polygon-splitting',
-        '--detect-shared-borders',
-        '--simplification=4',  # Reduced from 10 for better detail preservation
-        '--drop-rate=0.15',  # Reduced from 0.40 to keep more features
-        '--low-detail=10',  # Increased from 8 to preserve detail at lower zooms
-        '--full-detail=13',  # Increased from 12 for better detail at mid-zooms
-        '--minimum-detail=10',  # Increased from 10
-        '--extend-zooms-if-still-dropping-maximum=14',
-        '--coalesce-densest-as-needed',
-        '--drop-densest-as-needed',
-        '-y', 'subtype'
-    ],
-
-    'land_cover.fgb': [
-        '--no-polygon-splitting',
-        '--detect-shared-borders',
-        '--simplification=4',  # Reduced from 10 for better detail preservation
-        '--drop-rate=0.2',  # Reduced from 0.40 to keep more features
-        # '--full-detail=14',  # Increased from 12 for better detail at mid-zooms
-        '--minimum-detail=11',  # Increased from 10
-        # '--no-duplication',
-        '--hilbert',
-        '--coalesce-densest-as-needed',
-        '--drop-densest-as-needed',
-        '--extend-zooms-if-still-dropping-maximum=14',
-    ],
-
-    'land_residential.fgb': [
-        '--hilbert',
-        '--no-polygon-splitting',
-        '--detect-shared-borders',
-        # '--simplification=5',  # Added for geometry simplification
-        # '--drop-rate=0.2',  # Increased from 0.1
-        '--coalesce-densest-as-needed',
-        '--drop-densest-as-needed',
-        '--extend-zooms-if-still-dropping-maximum=16',
-        '-y', 'subtype'
-    ],
-
-    'land.fgb': [
-        '--no-polygon-splitting',
-        '--detect-shared-borders',
-        '--simplification=4',  # Reduced from 10 for better detail preservation
-        '--drop-rate=0.2',
-        '--low-detail=9',  # Added to preserve detail at lower zooms
-        '--full-detail=13',  # Added for better detail at mid-zooms
-        '--minimum-detail=11',  # Added to ensure minimum detail level
-        '--coalesce-densest-as-needed',
-        '--drop-densest-as-needed',
-    ],
-
-    # Roads - linear features with line-specific optimizations
-    'roads.fgb': [
-        '--minimum-zoom=7',
-        # '--maximum-zoom=15',
-        '--buffer=16',
-        '--hilbert',
-        # '--no-line-simplification',
-        # '--drop-smallest',
-        # '--minimum-detail=5',  # Added to ensure minimum detail level
-        '--no-simplification-of-shared-nodes',
-        '--no-clipping',
-        '--extend-zooms-if-still-dropping-maximum=16',
-        '--coalesce-smallest-as-needed',
-        # '--simplification=5',
-        '-P',
-        '-y', 'class',  
-        '-y', 'subclass',
-        '-y', 'subtype',
-        # '--maximum-tile-bytes=4194304',  # Increased limit to 4MB for road density
-        # '--drop-densest-as-needed',  # Drop densest features when tiles get too large
-        '-j', '{"*":["any",[">=","$zoom",10],["!=","class","path"]]}',  # Exclude class=path below zoom 10
-    ],
-
-    # Water polygons - enhanced detail at zoom 13+
-    'water.fgb': [
-        # '--no-polygon-splitting',
-        '--detect-shared-borders',
-        '--simplification=1', 
-        # '--drop-rate=0.15', 
-        # '--extend-zooms-if-still-dropping-maximum=15',
-        # '--no-clipping',
-        '--hilbert',
-        '--drop-densest-as-needed',
-        '--no-simplification-of-shared-nodes',
-        # '--maximum-tile-bytes=4194304',
-        # '--minimum-zoom=7',
-        '--buffer=8',
-        '--maximum-zoom=13',
-        '-j', '{"*":["all",["any",[">=","$zoom",12],["!=","class","stream"]],["any",[">=","$zoom",10],["==","$type","Polygon"]]]}',  # Any streams below zoom 12, only polygons below zoom 10
-    ],
-
-    # # Point features - places and placenames
-    # 'places.geojson': [
-    #     '--cluster-distance=10',
-    #     '--drop-rate=0.0',
-    #     '--no-feature-limit',
-    #     '--extend-zooms-if-still-dropping',
-    #     # '--maximum-zoom=16'
-    # ],
-
-    # 'placenames.geojson': [
-    #     '--cluster-distance=10',
-    #     '--drop-rate=0.0',
-    #     '--no-feature-limit',
-    #     '--extend-zooms-if-still-dropping',
-    #     # '--maximum-zoom=16'
-    # ],
-
-    # Administrative boundaries - health areas
-    # Nested administrative polygons requiring shared boundary topology
-    'GRID3_COD_health_areas_v8_0.fgb': [
-        '--no-polygon-splitting',  # Keep polygons intact across tile boundaries
-        '--no-simplification-of-shared-nodes',  # Preserve shared boundaries identically
-        '--simplification=1',
-        '--low-detail=10',
-        # '--full-detail=16',
-        # '--coalesce-densest-as-needed',  # Merge features when needed, maintaining coverage
-        '--extend-zooms-if-still-dropping-maximum=15',
-        '--no-tiny-polygon-reduction',
-    ],
-
-
-    'GRID3_COD_antenne_v8_0.fgb': [
-        '--no-polygon-splitting',  # Keep polygons intact across tile boundaries
-        '--no-simplification-of-shared-nodes',  # Preserve shared boundaries identically
-        '--simplification=1',
-        '--low-detail=10',
-        # '--full-detail=16',
-        '--extend-zooms-if-still-dropping-maximum=15',
-        '--no-tiny-polygon-reduction',
-    ],
-
-    'GRID3_COD_provinces_v8_0.fgb': [
-        '--no-polygon-splitting',  # Keep polygons intact across tile boundaries
-        '--no-simplification-of-shared-nodes',  # Preserve shared boundaries identically
-        '--simplification=1',
-        '--low-detail=10',
-        # '--full-detail=16',
-        '--extend-zooms-if-still-dropping-maximum=15',
-        '--no-tiny-polygon-reduction',
-    ],
-
-
-
-    # Administrative boundaries - health zones
-    # Higher-level nested administrative polygons
-    'GRID3_COD_health_zones_v8_0.fgb': [
-        '--no-polygon-splitting',  # Keep polygons intact across tile boundaries
-        '--no-simplification-of-shared-nodes',  # Preserve shared boundaries identically
-        '--no-tile-size-limit',
-        '--simplification=2', 
-        '--low-detail=10',
-        '--full-detail=16',
-        # '--coalesce-densest-as-needed',  # Merge features when needed, maintaining coverage
-        '--extend-zooms-if-still-dropping-maximum=15',
-        '--no-tiny-polygon-reduction',
-    ],
-    
-
-    # Health zone centroids - point labels for interior placement
-    # One point per health zone, guaranteed inside polygon
-    'GRID3_COD_health_zones_centroids.fgb': [
-        '--drop-rate=0.0',  # Never drop - one label per zone
-        '--minimum-zoom=5',  # Start 2 levels earlier than areas (matches interior label config)
-        '--maximum-zoom=16',
-        '--no-feature-limit',  # Ensure all centroid points are included
-        '--no-tile-size-limit',  # Small point layer, allow all features
-    ],
-
-    # Health area centroids - point labels for interior placement  
-    # One point per health area, guaranteed inside polygon
-    'GRID3_COD_health_areas_centroids.fgb': [
-        '--drop-rate=0.0',  # Never drop - one label per area
-        '--minimum-zoom=7',  # Start at overview level (matches interior label config)
-        '--maximum-zoom=16',
-        '--no-feature-limit',  # Ensure all centroid points are included
-        '--no-tile-size-limit',  # Small point layer, allow all features
-    ],
-    
-    'GRID3_COD_antenne_v8_0_centroids.fgb': [
-        '--drop-rate=0.0',  # Never drop - one label per zone
-        '--minimum-zoom=5',  # Start 2 levels earlier than areas (matches interior label config)
-        '--maximum-zoom=16',
-        '--no-feature-limit',  # Ensure all centroid points are included
-        '--no-tile-size-limit',  # Small point layer, allow all features
-    ],
-
-    'GRID3_COD_provinces_v8_0_centroids.fgb': [
-        '--drop-rate=0.0',  # Never drop - one label per zone
-        '--minimum-zoom=5',  # Start 2 levels earlier than areas (matches interior label config)
-        '--maximum-zoom=16',
-        '--no-feature-limit',  # Ensure all centroid points are included
-        '--no-tile-size-limit',  # Small point layer, allow all features
-    ],
-
-    # Water centerlines - linear features for labeling elongated water bodies
-    # Medial axis lines through lakes, reservoirs, and other polygonal water features
-    # Label-only layer: simplification is acceptable for text placement
-    # 'water_centerlines.fgb': [
-    #     '--simplification=4',  # Simplify geometry - labels don't need precise curves
-    #     '--drop-rate=0.1',  # Drop smaller features at lower zooms
-    #     '--minimum-zoom=10',  # Start showing centerline labels at mid-zoom
-    #     '--maximum-zoom=16',
-    #     # '--buffer=64',  # Large buffer to prevent label clipping
-    #     '--drop-smallest-as-needed',  # Drop smallest water bodies when tiles too large
-    #     '--coalesce-smallest-as-needed',  # Merge small nearby features
-    #     '--extend-zooms-if-still-dropping-maximum=14'  # Ensure features appear eventually
-    # ],
-
-    # Settlement extents - very numerous small polygons
-    # Heavily optimized for lower zoom levels due to high feature count
-    'GRID3_COD_settlement_extents_v3_1.pmtiles': [
-        # '--no-polygon-splitting',
-        '--hilbert',
-        # '--low-detail=10',
-        # '--full-detail=12',
-        '--minimum-zoom=7',
-        '--no-feature-limit',
-        '--no-simplification-of-shared-nodes',
-        # '--simplification=3',  # Higher simplification for many small features
-        '--drop-rate=0.3', 
-        # '--minimum-detail=8',
-        '--coalesce-smallest-as-needed',  # Merge smallest settlements at low zooms
-        '--drop-smallest-as-needed',  # Drop smallest when tiles too large
-        '--gamma=1.4',  # Reduce density of clustered settlements
-        '--extend-zooms-if-still-dropping-maximum=15',
-        '--maximum-zoom=15',  # Explicit cap; overrides -zg to prevent z15-16 explosion at continental scale
-        # '-y', 'type'
-        ],
-    
-        # Settlement extents - very numerous small polygons
-    # Heavily optimized for lower zoom levels due to high feature count
-    'GRID3_NGA_settlement_extents_v4_0.fgb': [
-        # '--no-polygon-splitting',
-        '--hilbert',
-        # '--low-detail=10',
-        # '--full-detail=12',
-        '--minimum-zoom=13',
-        '--no-feature-limit',
-        '--no-simplification-of-shared-nodes',
-        # '--simplification=3',  # Higher simplification for many small features
-        # '--drop-rate=0.3', 
-        # '--minimum-detail=8',
-        '--coalesce-smallest-as-needed',  # Merge smallest settlements at low zooms
-        # '--drop-smallest-as-needed',  # Drop smallest when tiles too large
-        # '--gamma=1.4',  # Reduce density of clustered settlements
-        # '--extend-zooms-if-still-dropping-maximum=15',
-        # '--maximum-zoom=15',  # Explicit cap; overrides -zg to prevent z15-16 explosion at continental scale
-        # '-y', 'type'
-        ],
-
-
-    # Administrative boundaries - provinces (top-level admin units)
-    # Large-scale administrative boundaries with strict topology preservation
-    'provinces.fgb': [
-        '--no-polygon-splitting',  # Essential for continuous coverage
-        '--no-simplification-of-shared-nodes',  # Preserve provincial boundaries exactly
-        '--simplification=10',  # Higher simplification for large-scale features
-        '--drop-rate=0.0',  # Never drop provincial boundaries
-        '--low-detail=6',
-        '--full-detail=12',
-        '--coalesce-densest-as-needed',  # Maintain full coverage
-        '--extend-zooms-if-still-dropping',
-        # '--maximum-zoom=12',
-        # '--minimum-zoom=3',  # Visible from very low zoom levels
-    ],
-    
-}
-
 # ---------------------------------------------------------------------------
-# Layer groups: files processed together in one tippecanoe call so that
-# --no-simplification-of-shared-nodes can detect shared boundary nodes
-# across layers (e.g. provinces and health_zones sharing border coordinates).
-#
-# polygon_layers / centroid_layers are processed in separate tippecanoe
-# invocations (different tile-size strategies) then merged with tile-join.
+# Profiles: named collections of tippecanoe settings for each thematic layer type.
+# LAYER_GROUPS reference profiles via "profile" key; get_layer_settings() uses
+# SOURCE_DIR_PROFILES to fall back to a profile when no filename match exists.
 # ---------------------------------------------------------------------------
-LAYER_GROUPS = {
-    "GRID3_COD_admin_boundaries": {
-        "output_stem": "GRID3_COD_admin_boundaries",
-
-        # (filename, layer-name-in-tile, minzoom, maxzoom)
-        "polygon_layers": [
-            ("GRID3_COD_provinces_v8_0.fgb",    "GRID3-COD-provinces-v8-0",    0, 15),
-            ("GRID3_COD_antenne_v8_0.fgb",       "GRID3-COD-antenne-v8-0",      0, 15),
-            ("GRID3_COD_health_zones_v8_0.fgb",  "GRID3-COD-health-zones-v8-0", 0, 15),
-            ("GRID3_COD_health_areas_v8_0.fgb",  "GRID3-COD-health-areas-v8-0", 0, 15),
-        ],
-        # Shared topology-preserving flags for all polygon layers.
-        # --no-simplification-of-shared-nodes only identifies shared nodes when
-        # all features are present in the same process — single invocation is
-        # the entire reason these layers are grouped.
+PROFILES = {
+    "boundaries": {
+        "description": "Administrative and operational boundary polygons",
         "polygon_settings": [
             "--no-polygon-splitting",
             "--no-simplification-of-shared-nodes",
-            "--simplification=1",
-            "--full-detail=12",
+            "--simplification=2",
+            "--simplify-only-low-zooms",
             "--low-detail=10",
             "--no-tiny-polygon-reduction",
-            "--extend-zooms-if-still-dropping-maximum=15",
-            "--no-tile-size-limit",
+            "--extend-zooms-if-still-dropping-maximum=16",
+            "--no-feature-limit",
             "--coalesce-densest-as-needed",
         ],
-
-        "centroid_layers": [
-            ("GRID3_COD_provinces_v8_0_centroids.fgb",    "GRID3-COD-provinces-v8-0-centroids",    5, 16),
-            ("GRID3_COD_antenne_v8_0_centroids.fgb",       "GRID3-COD-antenne-v8-0-centroids",      5, 16),
-            ("GRID3_COD_health_zones_v8_0_centroids.fgb",  "GRID3-COD-health-zones-v8-0-centroids", 5, 16),
-            ("GRID3_COD_health_areas_v8_0_centroids.fgb",  "GRID3-COD-health-areas-v8-0-centroids", 7, 16),
-        ],
-        # drop-rate=0 / no-feature-limit for points — kept separate from
-        # polygons to avoid conflicting with tile-size management on heavy layers.
-        "centroid_settings": [
+        "point_settings": [
             "--drop-rate=0",
             "--no-feature-limit",
             "--no-tile-size-limit",
         ],
     },
+    "POI": {
+        "description": "Point features (health facilities, settlement names, and other toponyms)",
+        "settings": [
+            # "--drop-rate=0.0",
+            # "--no-feature-limit",
+            "--no-tile-size-limit",
+            "--extend-zooms-if-still-dropping",
+            "--cluster-densest-as-needed",
+            "-Bg",
+            "-zg"
+        ],
+    },
+    "settlement_extents": {
+        "description": "Settlement extent polygons",
+        "settings": [
+            "--hilbert",
+            "--no-feature-limit",
+            "--no-simplification-of-shared-nodes",
+            "--coalesce-densest-as-needed",
+            "--gamma=1.4",
+            "--drop-rate=0.3",
+            "--simplification=2",
+            "--minimum-zoom=7",
+            "--extend-zooms-if-still-dropping-maximum=15",
+            "--maximum-zoom=15",
+            "--grid-low-zooms",
+            "--calculate-feature-density",
+            "-D8"
+        ],
+    },
 }
+
+# Maps exact scratch subdirectory names -> profile keys.
+# Add a new entry here whenever a new source subdirectory is created.
+SOURCE_DIR_PROFILES = {
+    "GRID3_boundaries":      "boundaries",
+    "GRID3_POIs":            "POI",
+    "GRID3_settlementExtents": "settlement_extents",
+}
+
+    
+# ---------------------------------------------------------------------------
+# Layer groups: files processed together in one tippecanoe call so that
+# --no-simplification-of-shared-nodes can detect shared boundary nodes
+# across layers (e.g. provinces and health_zones sharing border coordinates).
+#
+# polygon_layers / point_layers are processed in separate tippecanoe
+# invocations (different tile-size strategies) then merged with tile-join.
+# ---------------------------------------------------------------------------
+LAYER_GROUPS = {
+    # ── Boundaries COD: all DRC admin levels in one multi-layer pmtile ──
+    # Single invocation so --no-simplification-of-shared-nodes sees all levels.
+    "GRID3_COD_boundaries": {
+        "output_stem": "GRID3_COD_boundaries",
+        "profile": "boundaries",
+
+        # (filename, layer-name-in-tile, minzoom, maxzoom)
+        "polygon_layers": [
+            ("GRID3_COD_provinces_v8_0.fgb",    "GRID3-COD-province-v8-0",   0, 16),
+            ("GRID3_COD_antenne_v8_0.fgb",       "GRID3-COD-antenne-v8-0",    0, 16),
+            ("GRID3_COD_health_zones_v8_0.fgb",  "GRID3-COD-zonesante-v8-0",  0, 16),
+            ("GRID3_COD_health_areas_v8_0.fgb",  "GRID3-COD-airesante-v8-0",  0, 16),
+        ],
+        "point_layers": [
+            ("GRID3_COD_provinces_v8_0_centroids.fgb",   "GRID3-COD-province-v8-0-centroids",   0, 16),
+            ("GRID3_COD_antenne_v8_0_centroids.fgb",      "GRID3-COD-antenne-v8-0-centroids",    0, 16),
+            ("GRID3_COD_health_zones_v8_0_centroids.fgb", "GRID3-COD-zonesante-v8-0-centroids",  0, 16),
+            ("GRID3_COD_health_areas_v8_0_centroids.fgb", "GRID3-COD-airesante-v8-0-centroids",  0, 16),
+        ],
+    },
+
+    # ── Boundaries NGA: all Nigeria operational admin levels ──
+    "GRID3_NGA_boundaries": {
+        "output_stem": "GRID3_NGA_boundaries",
+        "profile": "boundaries",
+
+        "polygon_layers": [
+            ("GRID3_NGA_operational_states_v2_0.fgb", "GRID3-NGA-operational-states-v2-0", 0, 16),
+            ("GRID3_NGA_operational_LGAs_v2_0.fgb",   "GRID3-NGA-operational-LGAs-v2-0",   0, 16),
+            ("GRID3_NGA_operational_wards_v2_0.fgb",  "GRID3-NGA-operational-wards-v2-0",  0, 16),
+        ],
+        # No centroid files available yet — add below when generated
+        "point_layers": [
+            ("GRID3_NGA_operational_states_v2_0_centroids.fgb", "GRID3-NGA-operational-states-v2-0-centroids", 0, 16),
+            ("GRID3_NGA_operational_LGAs_v2_0_centroids.fgb",   "GRID3-NGA-operational-LGAs-v2-0-centroids",   0, 16),
+            ("GRID3_NGA_operational_wards_v2_0_centroids.fgb",  "GRID3-NGA-operational-wards-v2-0-centroids",  0, 16),
+            ],
+    },
+
+    # ── Settlement extents COD ──
+    "GRID3_COD_settlementExtents": {
+        "output_stem": "GRID3_COD_settlementExtents",
+        "profile": "settlement_extents",
+
+        "polygon_layers": [
+            ("GRID3_COD_settlement_extents_v3_1.fgb", "GRID3-COD-settlement-extents-v3-1", 7, 15),
+        ],
+        "point_layers": [],
+    },
+
+    # ── Settlement extents NGA: both versions as separate layers ──
+    # v4.0 = settlement blocks (very dense, z13+); v3.0 = classic extents (z7+)
+    "GRID3_NGA_settlementExtents": {
+        "output_stem": "GRID3_NGA_settlementExtents",
+        "profile": "settlement_extents",
+
+        "polygon_layers": [
+            ("GRID3_NGA_settlement_extents_v3_0.fgb", "GRID3-NGA-settlement-extents-v3-0",  7, 14),
+            ("GRID3_NGA_settlement_extents_v4_0.fgb", "GRID3-NGA-settlement-extents-v4-0", 13, 16),
+        ],
+        "point_layers": [],
+    },
+
+    # ── POIs COD: health facilities + settlement names ──
+    "GRID3_COD_POIs": {
+        "output_stem": "GRID3_COD_POIs",
+        "profile": "POI",
+
+        "polygon_layers": [],
+        "point_layers": [
+            ("GRID3_COD_health_facilities_v8_0.fgb", "GRID3-COD-health-facilities-v8-0", 5, 18),
+            ("GRID3_COD_settlement_names_v8_0.fgb",   "GRID3-COD-settlement-names-v8-0",  5, 18),
+        ],
+    },
+
+    # ── POIs NGA: add filenames as data is acquired ──
+    "GRID3_NGA_POIs": {
+        "output_stem": "GRID3_NGA_POIs",
+        "profile": "POI",
+
+        "polygon_layers": [],
+        "point_layers": [
+            # ("GRID3_NGA_settlement_names_v8_0.fgb", "GRID3-NGA-settlement-names-v8-0", 5, 18),
+        ],
+    },
+}
+
+
+# Per-file tippecanoe overrides for one-off layers not covered by LAYER_GROUPS.
+# All current GRID3 layers route through LAYER_GROUPS + PROFILES instead.
+LAYER_SETTINGS = {}
+
+
+# ---------------------------------------------------------------------------
+# Layer metadata: loaded lazily from layer_metadata.json (same directory).
+# Maps layer name → {title, doi, license, source, ...}.
+# ---------------------------------------------------------------------------
+_LAYER_METADATA_CACHE = None
+
+def _get_layer_metadata():
+    """Return the layer_metadata.json dict, loading it once on first call."""
+    global _LAYER_METADATA_CACHE
+    if _LAYER_METADATA_CACHE is None:
+        import json as _json
+        from pathlib import Path as _Path
+        p = _Path(__file__).with_name('layer_metadata.json')
+        _LAYER_METADATA_CACHE = _json.load(open(p)) if p.exists() else {}
+    return _LAYER_METADATA_CACHE
 
 
 def build_tippecanoe_group_command(group_name, layer_tuples, output_file,
@@ -389,7 +220,7 @@ def build_tippecanoe_group_command(group_name, layer_tuples, output_file,
         layer_tuples (list):    [(filename, layer_name, minzoom, maxzoom, abs_path), ...]
                                 abs_path is the resolved on-disk path to pass to tippecanoe.
         output_file (str):      Path to output PMTiles.
-        layer_kind (str):       "polygon" or "centroid" — selects settings from LAYER_GROUPS.
+        layer_kind (str):       "polygon" or "point" — selects settings from LAYER_GROUPS.
         extent (tuple|None):    Optional (xmin, ymin, xmax, ymax) clipping box.
 
     Returns:
@@ -401,22 +232,43 @@ def build_tippecanoe_group_command(group_name, layer_tuples, output_file,
     settings_key = f"{layer_kind}_settings"
 
     if layer_kind == "polygon":
-        zoom_flags = ["-Z0", "-z15"]
-    else:
-        zoom_flags = ["-Z5", "-z16"]
+        zoom_flags = ["-Z0", "-z16"]
+    else:  # "point" — centroids and POI points; -Z0 covers states-level labels at z0
+        zoom_flags = ["-Z0", "-z16"]
+
+    # Resolve settings: profile defaults -> group-level overrides (concatenated;
+    # tippecanoe uses last occurrence so group values win on duplicates).
+    profile_settings = []
+    profile_name = group.get("profile")
+    if profile_name and profile_name in PROFILES:
+        profile = PROFILES[profile_name]
+        # polygon_kind -> polygon_settings; centroid_kind -> centroid_settings;
+        # fall back to generic "settings" key (used by point-only profiles).
+        profile_settings = list(profile.get(settings_key, profile.get("settings", [])))
+
+    group_override = group.get(settings_key, [])
+    resolved_settings = profile_settings + group_override
 
     cmd = ["tippecanoe", "-fo", output_file] + zoom_flags
-    cmd.extend(group.get(settings_key, []))
+    cmd.extend(resolved_settings)
     cmd.append("-P")
 
+    layer_meta = _get_layer_metadata()
     for _, layer_name, minzoom, maxzoom, abs_path in layer_tuples:
-        layer_spec = _json.dumps({
+        spec = {
             "file":    str(abs_path),
             "layer":   layer_name,
             "minzoom": minzoom,
             "maxzoom": maxzoom,
-        })
-        cmd.extend(["-L", layer_spec])
+        }
+        m = layer_meta.get(layer_name)
+        if m:
+            # Compact JSON description stored in tile metadata; omit empty fields
+            spec["description"] = _json.dumps(
+                {k: v for k, v in m.items() if v and not k.startswith('_')},
+                separators=(',', ':')
+            )
+        cmd.extend(["-L", _json.dumps(spec)])
 
     if extent:
         xmin, ymin, xmax, ymax = extent
@@ -428,7 +280,7 @@ def build_tippecanoe_group_command(group_name, layer_tuples, output_file,
 # Base tippecanoe command flags that apply to all layers
 BASE_COMMAND = [
     # '--buffer=8',
-    '-z15',
+    '-z16',
     '-Bg',
     '--no-tile-size-limit', #temp
     # '--drop-smallest',
@@ -440,33 +292,44 @@ BASE_COMMAND = [
     '-P'  # Show progress
 ]
 
-def get_layer_settings(filename):
+def get_layer_settings(filename, source_dir=None):
     """
     Get tippecanoe settings for a specific layer file.
-    
+
     Extension-agnostic but requires exact base name match.
     'buildings.fgb' will match 'buildings.geojsonseq' settings.
     'land.fgb' will NOT match 'land_residential.fgb' settings.
-    
+
+    Lookup priority:
+    1. Exact base-name match in LAYER_SETTINGS
+    2. Parent directory name matched against SOURCE_DIR_PROFILES -> PROFILES["settings"]
+    3. Empty list (caller falls back to geometry-detection heuristics)
+
     Args:
         filename (str): Name of the layer file
-        
+        source_dir (str|Path|None): Parent directory of the file (used for profile fallback)
+
     Returns:
         list: Tippecanoe command arguments for this layer
     """
     import os
-    
-    # Get base name without extension
+
+    # 1. Exact base name match in LAYER_SETTINGS
     base_name = os.path.splitext(filename)[0]
-    
-    # Look for exact base name match in LAYER_SETTINGS
     for template_filename, settings in LAYER_SETTINGS.items():
         template_base = os.path.splitext(template_filename)[0]
-        # Require exact match of base name (not partial/substring match)
         if base_name == template_base:
             return settings
-    
-    # No match found
+
+    # 2. Source directory -> profile fallback (exact directory name match)
+    if source_dir is not None:
+        dir_name = os.path.basename(os.path.normpath(str(source_dir)))
+        profile_name = SOURCE_DIR_PROFILES.get(dir_name)
+        if profile_name:
+            profile = PROFILES.get(profile_name, {})
+            # Prefer generic "settings"; polygon_settings is for group commands
+            return list(profile.get("settings", profile.get("polygon_settings", [])))
+
     return []
 
 def extract_cartography_zoom_range(input_file):
@@ -632,12 +495,13 @@ def build_tippecanoe_command(input_file, output_file, layer_name, extent=None, u
     output_file = to_wsl_path(output_file)
     
     filename = os.path.basename(input_file)
-    
+    source_dir = os.path.dirname(input_file)
+
     # Start with base command
     cmd = ['tippecanoe', '-fo', output_file, '-l', layer_name] + BASE_COMMAND
-    
-    # Add layer-specific settings
-    layer_settings = get_layer_settings(filename)
+
+    # Add layer-specific settings (source_dir enables profile fallback for ungrouped files)
+    layer_settings = get_layer_settings(filename, source_dir=source_dir)
     cmd.extend(layer_settings)
     
     # Try to extract and apply Overture cartography zoom levels

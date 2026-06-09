@@ -60,6 +60,11 @@ INPUT_DIR = DATA_DIR / "1-input"
 OVERTURE_DATA_DIR = INPUT_DIR / "overture"
 GRID3_DATA_DIR = INPUT_DIR / "grid3"
 SCRATCH_DIR = DATA_DIR / "2-scratch"
+# Source subdirectories — one per thematic group, matched by SOURCE_DIR_PROFILES in tippecanoe.py
+SCRATCH_BOUNDARIES_DIR   = SCRATCH_DIR / "GRID3_boundaries"
+SCRATCH_POIS_DIR         = SCRATCH_DIR / "GRID3_POIs"
+SCRATCH_EXTENTS_DIR      = SCRATCH_DIR / "GRID3_settlementExtents"
+
 OUTPUT_DIR = DATA_DIR / "3-pmtiles"
 TILE_DIR = OUTPUT_DIR  # Alias for consistency with scripts
 
@@ -137,7 +142,7 @@ DEFAULT_CONFIG = {
         "verbose": True
     },
     "tiling": {
-        "input_dirs": [SCRATCH_DIR],  # Read FlatGeobuf files from scratch directory
+        "input_dirs": [SCRATCH_BOUNDARIES_DIR, SCRATCH_POIS_DIR, SCRATCH_EXTENTS_DIR],
         "output_dir": OUTPUT_DIR,
         "parallel": True,
         "overwrite": True,
@@ -156,6 +161,9 @@ def ensure_directories():
         OVERTURE_DATA_DIR,
         GRID3_DATA_DIR,
         SCRATCH_DIR,
+        SCRATCH_BOUNDARIES_DIR,
+        SCRATCH_POIS_DIR,
+        SCRATCH_EXTENTS_DIR,
         OUTPUT_DIR,
     ]
     

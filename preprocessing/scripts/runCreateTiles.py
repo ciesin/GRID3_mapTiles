@@ -33,6 +33,13 @@ import argparse
 from pathlib import Path
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
+# Allow DATA_DISK to be injected via environment variable (same logic as config.py)
+def _resolve_data_disk():
+    val = os.environ.get("DATA_DISK", "/mnt/pool/gis/mapTiles")
+    if val.startswith(('.', '..')):
+        return (Path(__file__).resolve().parent.parent.parent / val).resolve()
+    return Path(val)
+
 # Import tippecanoe settings template
 # Use a dynamic import to avoid static analysis failures when the optional
 # `tippecanoe` helper module isn't installed, but still support runtime use.
@@ -62,7 +69,7 @@ get_layer_settings, build_tippecanoe_command, BASE_COMMAND, LAYER_GROUPS, build_
 
 # Set up project paths - aligned with config.py
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_DISK = Path("/mnt/disk02/gis/mapTiles")
+DATA_DISK = _resolve_data_disk()
 DATA_DIR = DATA_DISK / "data"
 INPUT_DIR = DATA_DIR / "1-input"
 OVERTURE_DATA_DIR = INPUT_DIR / "overture"
@@ -213,7 +220,7 @@ def detect_geometry_type(file_path):
         print(f"Error detecting geometry type for {file_path}: {e}")
         return 'Unknown'
 
-def get_layer_tippecanoe_settings(layer_name, filename_or_path=None):
+def get_layer_tippecanoe_settings(layer_name, filename_or_path=None, source_dir=None):
     """Get layer-specific tippecanoe settings based on layer name and filename/path
     
     First tries to load settings from tippecanoe.py template (LAYER_SETTINGS).
@@ -247,7 +254,7 @@ def get_layer_tippecanoe_settings(layer_name, filename_or_path=None):
         get_layer_settings, _, _, _, _ = _import_tippecanoe_template()
     
     if get_layer_settings is not None and filename:
-        template_settings = get_layer_settings(filename)
+        template_settings = get_layer_settings(filename, source_dir=source_dir)
         if template_settings:
             print(f"  Using template settings for {filename} ({len(template_settings)} options)")
             return template_settings
@@ -524,7 +531,8 @@ def get_tippecanoe_command(input_path, tile_path, layer_name, extent=None, use_o
     
     # Add polygon-specific options for non-point layers
     # We'll detect this based on the layer settings
-    layer_settings = get_layer_tippecanoe_settings(layer_name, input_path)
+    layer_settings = get_layer_tippecanoe_settings(layer_name, input_path,
+                                                   source_dir=Path(input_path).parent)
     
     # Check if this appears to be a polygon layer (add polygon-specific options)
     if not any('cluster-distance' in setting for setting in layer_settings):
@@ -628,13 +636,13 @@ def process_file_group(group_name, file_path_map, extent=None, output_dir=None):
     if missing:
         return {"success": False, "message": f"Missing polygon layer for group '{group_name}': {missing}"}
 
-    centroid_tuples, missing = _resolve_layers("centroid_layers")
+    point_tuples, missing = _resolve_layers("point_layers")
     if missing:
-        return {"success": False, "message": f"Missing centroid layer for group '{group_name}': {missing}"}
+        return {"success": False, "message": f"Missing point layer for group '{group_name}': {missing}"}
 
     final_path = tile_dir / f"{output_stem}.pmtiles"
-    tmp_polygon  = tile_dir / f"_tmp_{output_stem}_polygons.pmtiles"
-    tmp_centroid = tile_dir / f"_tmp_{output_stem}_centroids.pmtiles"
+    tmp_polygon = tile_dir / f"_tmp_{output_stem}_polygons.pmtiles"
+    tmp_points  = tile_dir / f"_tmp_{output_stem}_points.pmtiles"
 
     try:
         # ── Step 1: polygon layers ──────────────────────────────────────────
@@ -644,18 +652,18 @@ def process_file_group(group_name, file_path_map, extent=None, output_dir=None):
         )
         subprocess.run(cmd, check=True, capture_output=False, text=True)
 
-        # ── Step 2: centroid layers (if any) ───────────────────────────────
-        if centroid_tuples:
+        # ── Step 2: point layers (centroids + POI, if any) ─────────────────
+        if point_tuples:
             cmd = build_tippecanoe_group_command(
-                group_name, centroid_tuples, str(tmp_centroid),
-                layer_kind="centroid", extent=extent,
+                group_name, point_tuples, str(tmp_points),
+                layer_kind="point", extent=extent,
             )
             subprocess.run(cmd, check=True, capture_output=False, text=True)
 
         # ── Step 3: merge with tile-join ────────────────────────────────────
         merge_inputs = [str(tmp_polygon)]
-        if centroid_tuples:
-            merge_inputs.append(str(tmp_centroid))
+        if point_tuples:
+            merge_inputs.append(str(tmp_points))
 
         join_cmd = [
             "tile-join", "-fo", str(final_path),
@@ -668,7 +676,7 @@ def process_file_group(group_name, file_path_map, extent=None, output_dir=None):
             "message": f"Group tiles generated: {final_path.name}",
             "output_file": final_path,
             "group_name": group_name,
-            "layer_count": len(polygon_tuples) + len(centroid_tuples or []),
+            "layer_count": len(polygon_tuples) + len(point_tuples or []),
         }
 
     except subprocess.CalledProcessError as e:
@@ -679,7 +687,7 @@ def process_file_group(group_name, file_path_map, extent=None, output_dir=None):
     except Exception as e:
         return {"success": False, "message": f"Error: {str(e)}"}
     finally:
-        for tmp in (tmp_polygon, tmp_centroid):
+        for tmp in (tmp_polygon, tmp_points):
             if tmp.exists():
                 tmp.unlink()
 
@@ -723,12 +731,13 @@ def process_to_tiles(extent=None, input_dirs=None, filter_pattern=None,
     # Find all GeoJSON/GeoJSONSeq/FlatGeobuf files in data directories
     geospatial_files = []
     
-    # Search in all input directories for supported formats (prioritize FlatGeobuf)
+    # Search in all input directories (including subdirs) for supported formats.
+    # rglob discovers files in scratch/admin/, scratch/poi/, etc. automatically.
     for data_dir in input_dirs:
         data_dir = Path(data_dir)
         if data_dir.exists():
             for pattern in ['*.fgb', '*.geojsonseq', '*.geojson']:
-                geospatial_files.extend(data_dir.glob(pattern))
+                geospatial_files.extend(data_dir.rglob(pattern))
     
     # Apply filter if provided
     if filter_pattern:
@@ -752,13 +761,18 @@ def process_to_tiles(extent=None, input_dirs=None, filter_pattern=None,
     if not LAYER_GROUPS:
         _, _, _, LAYER_GROUPS, _ = _import_tippecanoe_template()
 
-    file_path_map = {f.name: f for f in geospatial_files}
+    file_path_map = {}
+    for f in geospatial_files:
+        if f.name in file_path_map:
+            print(f"  Warning: duplicate filename '{f.name}' in multiple subdirs; "
+                  f"using {f}, ignoring {file_path_map[f.name]}")
+        file_path_map[f.name] = f
 
     groups_to_process = {}
     for gname, gconfig in LAYER_GROUPS.items():
         all_members = (
             [fn for fn, *_ in gconfig.get("polygon_layers", [])]
-            + [fn for fn, *_ in gconfig.get("centroid_layers", [])]
+            + [fn for fn, *_ in gconfig.get("point_layers", [])]
         )
         if all(fn in file_path_map for fn in all_members):
             groups_to_process[gname] = gconfig
@@ -766,7 +780,7 @@ def process_to_tiles(extent=None, input_dirs=None, filter_pattern=None,
     group_member_names = {
         fn
         for gname in groups_to_process
-        for key in ("polygon_layers", "centroid_layers")
+        for key in ("polygon_layers", "point_layers")
         for fn, *_ in LAYER_GROUPS[gname].get(key, [])
     }
     individual_files = [f for f in geospatial_files if f.name not in group_member_names]
