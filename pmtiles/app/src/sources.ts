@@ -28,14 +28,21 @@ export const SOURCES = {
   // Base layers
   // ---------------------------------------------------------------------------
 
-  protomaps: {
+  protomaps_base: {
     archive: "tiles/base",
     attribution: '<a href="https://github.com/protomaps/basemaps">Protomaps</a> © <a href="https://openstreetmap.org">OpenStreetMap Contributors</a>',
     maxzoom: 15,
     ext: "mvt",
   },
 
-  overture: {
+  overture_base: {
+    archive: "tiles/overture/base",
+    attribution: '<a href="https://overturemaps.org">Overture Maps Foundation</a>',
+    maxzoom: 13,
+    ext: "mvt",
+  },
+
+  overture_buildings: {
     archive: "tiles/overture/buildings",
     attribution: '<a href="https://overturemaps.org">Overture Maps Foundation</a>',
     maxzoom: 14,
@@ -60,78 +67,24 @@ export const SOURCES = {
     ext: "mvt",
   },
 
-    grid3_cod_antenne: {
-    archive: "tiles/grid3/cod/GRID3_COD_antenne_v8_0",
+
+  grid3_cod_boundaries: {
+    archive: "tiles/grid3/cod/GRID3_COD_boundaries",
     attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
-    maxzoom: 8,
+    maxzoom: 12,
     ext: "mvt",
   },
 
-  grid3_cod_antenne_centroids: {
-    archive: "tiles/grid3/cod/GRID3_COD_antenne_v8_0_centroids",
-    attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
-    maxzoom: 16,
-    ext: "mvt",
-  },
 
-    grid3_cod_provinces: {
-    archive: "tiles/grid3/cod/GRID3_COD_provinces_v8_0",
+  GRID3_COD_POIs: {
+    archive: "tiles/grid3/cod/GRID3_COD_POIs",
     attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
-    maxzoom: 7,
-    ext: "mvt",
-  },
-
-  grid3_cod_provinces_centroids: {
-    archive: "tiles/grid3/cod/GRID3_COD_provinces_v8_0_centroids",
-    attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
-    maxzoom: 16,
-    ext: "mvt",
-  },
-
-  grid3_cod_health_zones: {
-    archive: "tiles/grid3/cod/GRID3_COD_health_zones_v8_0",
-    attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
-    maxzoom: 8,
-    ext: "mvt",
-  },
-
-  grid3_cod_health_zones_centroids: {
-    archive: "tiles/grid3/cod/GRID3_COD_health_zones_v8_0_centroids",
-    attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
-    maxzoom: 2,
-    ext: "mvt",
-  },
-
-  grid3_cod_health_areas: {
-    archive: "tiles/grid3/cod/GRID3_COD_health_areas_v8_0",
-    attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
-    maxzoom: 8,
-    ext: "mvt",
-  },
-
-  grid3_cod_health_areas_centroids: {
-    archive: "tiles/grid3/cod/GRID3_COD_health_areas_v8_0_centroids",
-    attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
-    maxzoom: 4,
-    ext: "mvt",
-  },
-
-  grid3_cod_health_facilities: {
-    archive: "tiles/grid3/cod/GRID3_COD_health_facilities_v8_0",
-    attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
-    maxzoom: 8,
-    ext: "mvt",
-  },
-
-  grid3_cod_settlement_names: {
-    archive: "tiles/grid3/cod/GRID3_COD_settlement_names_v8_0",
-    attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
-    maxzoom: 8,
+    maxzoom: 9,
     ext: "mvt",
   },
 
   grid3_cod_settlement_extents: {
-    archive: "tiles/grid3/cod/GRID3_COD_settlement_extents_v3_1",
+    archive: "tiles/grid3/cod/GRID3_COD_settlement_extents",
     attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
     maxzoom: 15,
     ext: "mvt",
@@ -142,16 +95,9 @@ export const SOURCES = {
   // ---------------------------------------------------------------------------
 
   grid3_nga_settlement_extents: {
-    archive: "tiles/grid3/nga/GRID3_NGA_settlement_extents_v3_0",
+    archive: "tiles/grid3/nga/GRID3_NGA_settlement_extents",
     attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
-    maxzoom: 14,
-    ext: "mvt",
-  },
-
-    grid3_nga_settlement_blocks: {
-    archive: "tiles/grid3/nga/GRID3_NGA_settlement_extents_v4_0",
-    attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
-    maxzoom: 14,
+    maxzoom: 15,
     ext: "mvt",
   },
 

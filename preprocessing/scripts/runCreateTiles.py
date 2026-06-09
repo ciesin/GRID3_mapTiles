@@ -25,13 +25,12 @@ Usage:
 import os
 import subprocess
 import fnmatch
-import time
 from tqdm import tqdm
 import sys
 import json
 import argparse
 from pathlib import Path
-from concurrent.futures import ProcessPoolExecutor, as_completed
+import importlib
 
 # Allow DATA_DISK to be injected via environment variable (same logic as config.py)
 def _resolve_data_disk():
@@ -40,32 +39,21 @@ def _resolve_data_disk():
         return (Path(__file__).resolve().parent.parent.parent / val).resolve()
     return Path(val)
 
-# Import tippecanoe settings template
-# Use a dynamic import to avoid static analysis failures when the optional
-# `tippecanoe` helper module isn't installed, but still support runtime use.
-import importlib
-
 def _import_tippecanoe_template():
-    """Import tippecanoe template with proper path setup for worker processes"""
+    """Import tippecanoe template; re-called in worker processes if needed."""
     try:
-        # Add scripts directory to path if not already there
         scripts_dir = Path(__file__).resolve().parent
         if str(scripts_dir) not in sys.path:
             sys.path.insert(0, str(scripts_dir))
-
         tippecanoe_mod = importlib.import_module('tippecanoe')
         return (
-            getattr(tippecanoe_mod, 'get_layer_settings', None),
-            getattr(tippecanoe_mod, 'build_tippecanoe_command', None),
-            getattr(tippecanoe_mod, 'BASE_COMMAND', None),
             getattr(tippecanoe_mod, 'LAYER_GROUPS', {}),
             getattr(tippecanoe_mod, 'build_tippecanoe_group_command', None),
         )
     except Exception:
-        return None, None, None, {}, None
+        return {}, None
 
-# Try to import template at module load
-get_layer_settings, build_tippecanoe_command, BASE_COMMAND, LAYER_GROUPS, build_tippecanoe_group_command = _import_tippecanoe_template()
+LAYER_GROUPS, build_tippecanoe_group_command = _import_tippecanoe_template()
 
 # Set up project paths - aligned with config.py
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -80,517 +68,6 @@ OUTPUT_DIR = DATA_DIR / "3-pmtiles"
 TILE_DIR = OUTPUT_DIR
 PUBLIC_TILES_DIR = PROJECT_ROOT.parent / "2-viewer" / "public" / "tiles"
 
-def windows_to_wsl_path(path):
-    """Convert Windows path to WSL path format
-    
-    Args:
-        path: Path object or string (e.g., 'C:\\Users\\...')
-        
-    Returns:
-        str: WSL-formatted path (e.g., '/mnt/c/Users/...')
-    """
-    path_str = str(path)
-    
-    # Check if already a WSL path
-    if path_str.startswith('/mnt/'):
-        return path_str
-    
-    # Convert Windows path to WSL format
-    # C:\Users\... -> /mnt/c/Users/...
-    if len(path_str) >= 2 and path_str[1] == ':':
-        drive = path_str[0].lower()
-        rest = path_str[2:].replace('\\', '/')
-        return f'/mnt/{drive}{rest}'
-    
-    return path_str
-
-def validate_geojson(file_path):
-    """Validate and clean GeoJSON files (skip for binary formats)"""
-    # Skip validation for non-JSON formats
-    if file_path.suffix in ['.geojsonseq', '.fgb']:
-        return
-        
-    # Only validate regular GeoJSON files
-    with open(file_path, 'r') as f:
-        data = json.load(f)
-
-    if 'features' in data:
-        data['features'] = [
-            feature for feature in data['features']
-            if feature.get('geometry') and feature['geometry'].get('coordinates')
-        ]
-
-    with open(file_path, 'w') as f:
-        json.dump(data, f)
-
-def detect_geometry_type(file_path):
-    """Detect the primary geometry type from a GeoJSON, GeoJSONSeq, or FlatGeobuf file
-    
-    Returns: 'Point', 'LineString', 'Polygon', 'MultiPoint', 'MultiLineString', 'MultiPolygon', or 'Mixed'
-    """
-    try:
-        # Handle FlatGeobuf files
-        if file_path.suffix == '.fgb':
-            try:
-                import fiona
-                with fiona.open(file_path) as src:
-                    # Get geometry types from schema
-                    geom_type = src.schema.get('geometry', 'Unknown')
-                    # Fiona may return "3D Point", "Point", etc.
-                    # Normalize to basic type
-                    if '3D' in geom_type:
-                        geom_type = geom_type.replace('3D ', '')
-                    return geom_type
-            except ImportError:
-                # Fiona not available, let tippecanoe handle it
-                print(f"  Note: Fiona not available for geometry detection, tippecanoe will auto-detect")
-                return 'Unknown'
-            except Exception as e:
-                print(f"  Warning: Could not detect geometry from FlatGeobuf: {e}")
-                return 'Unknown'
-        
-        # Handle GeoJSON/GeoJSONSeq files (existing logic)
-        geometry_types = set()
-        sample_count = 0
-        max_samples = 100  # Sample first 100 features for performance
-        
-        with open(file_path, 'r') as f:
-            # First, try to detect if this is actually a line-delimited JSON file
-            # even if it has a .geojson extension
-            first_line = f.readline().strip()
-            f.seek(0)  # Reset file pointer
-            
-            # Check if first line is a complete JSON object (feature)
-            is_line_delimited = False
-            try:
-                first_obj = json.loads(first_line)
-                if isinstance(first_obj, dict) and first_obj.get('type') == 'Feature':
-                    # Check if there's more content after the first line
-                    f.readline()  # Skip first line
-                    second_line = f.readline().strip()
-                    if second_line:
-                        try:
-                            second_obj = json.loads(second_line)
-                            if isinstance(second_obj, dict) and second_obj.get('type') == 'Feature':
-                                is_line_delimited = True
-                        except json.JSONDecodeError:
-                            pass
-                f.seek(0)  # Reset file pointer again
-            except json.JSONDecodeError:
-                pass
-            
-            if file_path.suffix == '.geojsonseq' or is_line_delimited:
-                # Handle GeoJSONSeq files or line-delimited JSON files
-                for line in f:
-                    line = line.strip()
-                    if line and sample_count < max_samples:
-                        try:
-                            feature = json.loads(line)
-                            if 'geometry' in feature and feature['geometry'] and 'type' in feature['geometry']:
-                                geom_type = feature['geometry']['type']
-                                geometry_types.add(geom_type)
-                                sample_count += 1
-                        except json.JSONDecodeError:
-                            continue
-            else:
-                # Handle regular GeoJSON files
-                try:
-                    data = json.load(f)
-                    if 'features' in data:
-                        for feature in data['features'][:max_samples]:
-                            if 'geometry' in feature and feature['geometry'] and 'type' in feature['geometry']:
-                                geom_type = feature['geometry']['type']
-                                geometry_types.add(geom_type)
-                                sample_count += 1
-                    elif 'geometry' in data and data['geometry'] and 'type' in data['geometry']:
-                        # Single feature GeoJSON
-                        geometry_types.add(data['geometry']['type'])
-                        sample_count = 1
-                except json.JSONDecodeError:
-                    return 'Unknown'
-        
-        if not geometry_types:
-            return 'Unknown'
-        elif len(geometry_types) == 1:
-            return list(geometry_types)[0]
-        else:
-            return 'Mixed'
-            
-    except Exception as e:
-        print(f"Error detecting geometry type for {file_path}: {e}")
-        return 'Unknown'
-
-def get_layer_tippecanoe_settings(layer_name, filename_or_path=None, source_dir=None):
-    """Get layer-specific tippecanoe settings based on layer name and filename/path
-    
-    First tries to load settings from tippecanoe.py template (LAYER_SETTINGS).
-    Falls back to hardcoded detection logic if template not available or no match.
-        
-    """
-    start_time = time.time()
-    
-    # Handle both Path objects and filename strings
-    if filename_or_path:
-        if hasattr(filename_or_path, 'name'):  # Path object
-            filename = filename_or_path.name
-            file_path = filename_or_path
-        else:  # String filename
-            filename = filename_or_path
-            file_path = None
-            # Try to find the file in data directories
-            for data_dir in [CUSTOM_DATA_DIR, OVERTURE_DATA_DIR, OUTPUT_DIR, DATA_DIR]:
-                potential_path = data_dir / filename
-                if potential_path.exists():
-                    file_path = potential_path
-                    break
-    else:
-        filename = None
-        file_path = None
-    
-    # PRIORITY 1: Try to get settings from tippecanoe template if available
-    # Re-import in worker processes if needed
-    global get_layer_settings
-    if get_layer_settings is None:
-        get_layer_settings, _, _, _, _ = _import_tippecanoe_template()
-    
-    if get_layer_settings is not None and filename:
-        template_settings = get_layer_settings(filename, source_dir=source_dir)
-        if template_settings:
-            print(f"  Using template settings for {filename} ({len(template_settings)} options)")
-            return template_settings
-    
-    # PRIORITY 2: Fallback to automatic detection if no template match
-    # Determine layer type from layer name or filename
-    layer_type = None
-    detection_method = None
-    
-    # Check layer name first for explicit layer type detection
-    if layer_name:
-        layer_name_lower = layer_name.lower()
-        if layer_name_lower in ['water']:
-            layer_type = 'water'
-            detection_method = 'layer_name'
-        elif layer_name_lower in ['settlement-extents', 'settlement_extents', 'settlementextents', 'extents']:
-            layer_type = 'settlement-extents'
-            detection_method = 'layer_name'
-        elif layer_name_lower in ['roads']:
-            layer_type = 'roads'
-            detection_method = 'layer_name'
-        elif layer_name_lower in ['places', 'placenames']:
-            layer_type = 'places'
-            detection_method = 'layer_name'
-        elif layer_name_lower in ['land_use', 'land_cover', 'land_residential', 'infrastructure']:
-            layer_type = 'base-polygons'
-            detection_method = 'layer_name'
-    
-    # If layer type not determined from layer name, check filename
-    if layer_type is None and filename:
-        filename_lower = filename.lower()
-        # Check for base-polygons first to give land* patterns priority
-        # Look for any land-related keywords or specific land layer patterns
-        land_keywords = ['land_use', 'land_cover', 'land_residential', 'infrastructure', 'land']
-        if any(keyword in filename_lower for keyword in land_keywords):
-            layer_type = 'base-polygons'
-            detection_method = 'filename_pattern'
-        elif 'water' in filename_lower:
-            layer_type = 'water'
-            detection_method = 'filename_pattern'
-        elif 'extents' in filename_lower or 'settlement' in filename_lower:
-            layer_type = 'settlement-extents'
-            detection_method = 'filename_pattern'
-        elif 'roads' in filename_lower:
-            layer_type = 'roads'
-            detection_method = 'filename_pattern'
-        elif 'building' in filename_lower:
-            layer_type = 'buildings'
-            detection_method = 'filename_pattern'
-        elif 'places' in filename_lower or 'placenames' in filename_lower:
-            layer_type = 'places'
-            detection_method = 'filename_pattern'
-    
-    # Track whether geometry detection was needed
-    geometry_detection_time = 0
-    geometry_type = None
-    
-    # Return layer-specific tippecanoe flags (common options moved to base command)
-    if layer_type == 'water':
-        # Optimized for water polygons with enhanced detail at zoom 13+
-        settings = [
-            '--no-tiny-polygon-reduction',
-            '--extend-zooms-if-still-dropping',
-            '--maximum-tile-bytes=2097152',  # 2MB for water features (override base)
-            '--maximum-zoom=15',         # Extended to match base polygons
-        ]
-    
-    elif layer_type == 'settlement-extents':
-        # Settlement extents with special preserved settings
-        settings = [
-            '--simplification=10',
-            '--drop-rate=0.25',
-            '--low-detail=11',
-            '--full-detail=14',
-            '--coalesce-smallest-as-needed',
-            '--gamma=0.8',
-            '--maximum-zoom=13',
-            '--minimum-zoom=6',
-            '--cluster-distance=2',
-            '--minimum-detail=8'
-        ]
-    
-    elif layer_type == 'roads':
-        # Optimized for road lines
-        settings = [
-            '--no-line-simplification',  # Unique to roads
-            '--buffer=16',               # Override base buffer for roads (better quality)
-            '--drop-rate=0.05',          # Very conservative for roads
-            '--drop-smallest',
-            '--simplification=5',
-            '--minimum-zoom=7',
-            '--extend-zooms-if-still-dropping',
-            '--coalesce-smallest-as-needed',
-            '--full-detail=13',
-            '--minimum-detail=10'
-        ]
-    
-    elif layer_type == 'places':
-        # Optimized for point features (minimal settings needed)
-        settings = [
-            '--cluster-distance=10',     # Reduced for better point preservation
-            '--drop-rate=0.0',          # NO dropping for point features
-            '--no-feature-limit',       # Ensure all points are preserved
-            '--extend-zooms-if-still-dropping',  # Extend zooms to prevent dropping
-            '--maximum-zoom=16',        # Ensure points visible at highest zooms
-        ]
-    
-    elif layer_type == 'base-polygons':
-        # Optimized for base polygon layers (land_use, land_cover, etc.)
-        settings = [
-            '--extend-zooms-if-still-dropping-maximum=16',
-            '--drop-rate=0.1',
-            '--coalesce-densest-as-needed',
-            '--minimum-zoom=8',
-            '--maximum-zoom=15',
-        ]
-
-    elif layer_type == 'buildings':
-        # Optimized for building footprints (high detail at close zooms)
-        settings = [
-            '--simplification=4',        # Slight simplification for buildings
-            '--drop-rate=0.05',          # Very conservative dropping
-            '--low-detail=12',           # High detail start for buildings
-            '--full-detail=15',          # Full detail at close zooms
-            '--coalesce-smallest-as-needed',
-            '--extend-zooms-if-still-dropping',
-            '--gamma=0.6',
-            '--maximum-zoom=16',         # Ensure buildings visible at highest zooms
-            '--minimum-zoom=12',         # Buildings at closer zooms only
-            '--buffer=12',               # Higher buffer for building features
-        ]
-    
-    else:
-        # Default settings based on geometry type detection
-        detection_method = 'geometry_detection'
-        if file_path and file_path.exists():
-            geom_start_time = time.time()
-            geometry_type = detect_geometry_type(file_path)
-            geometry_detection_time = time.time() - geom_start_time
-            print(f"  Detected geometry type: {geometry_type} for {filename} ({geometry_detection_time:.3f}s)")
-        else:
-            geometry_type = 'Unknown'
-            print(f"  Could not detect geometry type for {filename}, using polygon defaults")
-        
-        # Return geometry-specific settings
-        if geometry_type == 'Point':
-            # Optimized for point features
-            settings = [
-                '--cluster-distance=35',     # Point clustering for better display
-                '--drop-rate=0.05',         # Very conservative for points
-                '--low-detail=8',           # Earlier detail for points visibility
-                '--full-detail=11',         # Earlier full detail for points
-                '--coalesce-smallest-as-needed',
-                '--extend-zooms-if-still-dropping',
-                '--gamma=0.3',              # Less aggressive for point density
-                '--maximum-zoom=15',
-                '--minimum-zoom=6',         # Points visible at lower zooms
-                '--simplification=1',       # Minimal simplification for points
-            ]
-        
-        elif geometry_type == 'LineString':
-            # Optimized for line features (roads, infrastructure, etc.)
-            settings = [
-                '--no-line-simplification', # Preserve line geometry
-                '--drop-rate=0.08',         # Conservative for linear features
-                '--low-detail=9',           # Good detail preservation
-                '--full-detail=12',         
-                '--coalesce-smallest-as-needed',
-                '--extend-zooms-if-still-dropping',
-                '--gamma=0.4',              # Moderate density reduction
-                '--maximum-zoom=15',
-                '--minimum-zoom=7',         # Lines visible at medium zooms
-                '--simplification=3',       # Moderate simplification for lines
-                '--buffer=12',              # Higher buffer for line features
-            ]
-        
-        elif geometry_type == 'Polygon':
-            # Optimized for polygon features (default polygon settings)
-            settings = [
-                # '--simplification=10',        # Moderate simplification for polygons
-                '--drop-rate=0.1',          # Conservative dropping
-                '--low-detail=8',          # Standard detail start
-                '--full-detail=15',         # Good full detail
-                '--coalesce-smallest-as-needed',
-                '--extend-zooms-if-still-dropping',
-                '--gamma=0.5',              # Balanced density reduction
-                '--maximum-zoom=15',
-                '--minimum-zoom=8',         # Polygons at higher zooms
-                '--no-simplification-of-shared-nodes' # Preserve shared borders
-            ]
-        
-        else:
-            # Mixed or Unknown geometry types - use conservative polygon defaults
-            settings = [
-                '--simplification=19',        # Conservative simplification
-                '--drop-rate=0.08',         # Very conservative dropping
-                '--low-detail=9',           # Early detail preservation
-                '--full-detail=15',         
-                '--coalesce-smallest-as-needed',
-                '--extend-zooms-if-still-dropping',
-                '--maximum-zoom=15',
-                '--minimum-zoom=7',
-            ]
-    
-    # Log performance and decision metrics
-    total_time = time.time() - start_time
-    
-    # Only log detailed metrics if debugging is enabled (check for debug flag or verbose mode)
-    if hasattr(sys, 'argv') and ('--debug' in sys.argv or '--verbose' in sys.argv):
-        identifier = layer_name if layer_name else (filename if filename else 'unknown')
-        print(f"  Settings selection for '{identifier}':")
-        print(f"    Method: {detection_method}")
-        print(f"    Layer type: {layer_type}")
-        print(f"    Geometry type: {geometry_type}")
-        print(f"    Total time: {total_time:.3f}s")
-        print(f"    Geometry detection time: {geometry_detection_time:.3f}s")
-        print(f"    Settings count: {len(settings)}")
-    
-    return settings
-
-def get_tippecanoe_command(input_path, tile_path, layer_name, extent=None, use_overture_zooms=True):
-    """Generate optimized tippecanoe command for converting GeoJSON/GeoParquet to PMTiles
-    
-    Args:
-        input_path (Path): Path to input GeoJSON/GeoJSONSeq/GeoParquet file
-        tile_path (Path): Path for output PMTiles file
-        layer_name (str): Name for the tile layer
-        extent (tuple): Optional bounding box (xmin, ymin, xmax, ymax)
-        use_overture_zooms (bool): If True, extract and use zoom levels from Overture cartography properties
-    
-    Returns:
-        list: Command arguments for subprocess.run()
-    """
-    
-    # Convert Windows paths to WSL format for tippecanoe
-    input_wsl = windows_to_wsl_path(input_path)
-    output_wsl = windows_to_wsl_path(tile_path)
-    
-    # Try to use tippecanoe.py's build_tippecanoe_command if available
-    # This provides centralized zoom level extraction from Overture cartography
-    if build_tippecanoe_command is not None:
-        try:
-            cmd = build_tippecanoe_command(
-                input_wsl,  # Use WSL path
-                output_wsl,  # Use WSL path
-                layer_name, 
-                extent=extent,
-                use_overture_zooms=use_overture_zooms
-            )
-            return cmd
-        except Exception as e:
-            # Fall through to manual command building
-            pass
-    
-    # Fallback: Manual command building (original implementation)
-    # Base tippecanoe command with common optimizations
-    base_cmd = [
-        'wsl', 'tippecanoe',  # Run tippecanoe in WSL
-        '-fo', output_wsl,  # Force overwrite output to PMTiles (WSL path)
-        '-l', layer_name,       # Layer name
-        '--buffer=8',           # Higher quality buffer (most layers)
-        '--drop-smallest',      # Quality optimization
-        '--maximum-tile-bytes=1048576',  # 1MB standard tile size
-        '--preserve-input-order',        # Consistency
-        '--coalesce-densest-as-needed',  # Most layers
-        '--drop-fraction-as-needed',     # Most layers
-        '-P',                   # Parallel processing
-    ]
-    
-    # Add extent clipping if provided
-    if extent:
-        xmin, ymin, xmax, ymax = extent
-        base_cmd.extend(['--clip-bounding-box', f"{xmin},{ymin},{xmax},{ymax}"])
-    
-    # Add polygon-specific options for non-point layers
-    # We'll detect this based on the layer settings
-    layer_settings = get_layer_tippecanoe_settings(layer_name, input_path,
-                                                   source_dir=Path(input_path).parent)
-    
-    # Check if this appears to be a polygon layer (add polygon-specific options)
-    if not any('cluster-distance' in setting for setting in layer_settings):
-        # This is likely a polygon layer, add polygon-specific optimizations
-        base_cmd.extend([
-            '--no-polygon-splitting',
-            '--detect-shared-borders',
-        ])
-    
-    # Add layer-specific settings
-    base_cmd.extend(layer_settings)
-    
-    # Add input file at the end (use WSL path)
-    base_cmd.append(input_wsl)
-    
-    return base_cmd
-
-def process_single_file(file_path, extent=None, output_dir=None):
-    """Process a single file into PMTiles - designed for parallel execution"""
-    try:
-        layer_name = file_path.stem.replace('_', '-')  # Use filename as layer name
-        
-        # Determine output directory
-        if output_dir:
-            tile_dir = Path(output_dir)
-        else:
-            tile_dir = TILE_DIR
-        
-        tile_dir.mkdir(parents=True, exist_ok=True)
-        tile_path = tile_dir / f"{file_path.stem}.pmtiles"
-        
-        if not file_path.exists():
-            return {"success": False, "message": f"File does not exist: {file_path}"}
-        
-        # Validate GeoJSON structure
-        validate_geojson(file_path)
-        
-        # Get optimized tippecanoe settings based on file type
-        cmd = get_tippecanoe_command(file_path, tile_path, layer_name, extent)
-        
-        # Execute tippecanoe
-        result = subprocess.run(cmd, check=True, capture_output=False, text=True)
-        
-        return {
-            "success": True,
-            "message": f"Tiles generated successfully: {tile_path.name}",
-            "output_file": tile_path,
-            "layer_name": layer_name
-        }
-        
-    except subprocess.CalledProcessError as e:
-        return {
-            "success": False,
-            "message": f"Tippecanoe error: {e.stderr if e.stderr else str(e)}",
-            "command": ' '.join(cmd) if 'cmd' in locals() else 'unknown'
-        }
-    except Exception as e:
-        return {"success": False, "message": f"Error: {str(e)}"}
 
 def process_file_group(group_name, file_path_map, extent=None, output_dir=None):
     """Process a named group of FGB files into a single multi-layer PMTiles.
@@ -611,7 +88,9 @@ def process_file_group(group_name, file_path_map, extent=None, output_dir=None):
     """
     global LAYER_GROUPS, build_tippecanoe_group_command
     if not LAYER_GROUPS or build_tippecanoe_group_command is None:
-        _, _, _, LAYER_GROUPS, build_tippecanoe_group_command = _import_tippecanoe_template()
+        LAYER_GROUPS, build_tippecanoe_group_command = _import_tippecanoe_template()
+    if build_tippecanoe_group_command is None:
+        return {"success": False, "message": "Could not import build_tippecanoe_group_command from tippecanoe.py"}
 
     if group_name not in LAYER_GROUPS:
         return {"success": False, "message": f"Unknown group: {group_name}"}
@@ -645,14 +124,15 @@ def process_file_group(group_name, file_path_map, extent=None, output_dir=None):
     tmp_points  = tile_dir / f"_tmp_{output_stem}_points.pmtiles"
 
     try:
-        # ── Step 1: polygon layers ──────────────────────────────────────────
-        cmd = build_tippecanoe_group_command(
-            group_name, polygon_tuples, str(tmp_polygon),
-            layer_kind="polygon", extent=extent,
-        )
-        subprocess.run(cmd, check=True, capture_output=False, text=True)
+        # ── Step 1: polygon layers (skipped for point-only groups like POI) ─
+        if polygon_tuples:
+            cmd = build_tippecanoe_group_command(
+                group_name, polygon_tuples, str(tmp_polygon),
+                layer_kind="polygon", extent=extent,
+            )
+            subprocess.run(cmd, check=True, capture_output=False, text=True)
 
-        # ── Step 2: point layers (centroids + POI, if any) ─────────────────
+        # ── Step 2: point layers (skipped for polygon-only groups) ─────────
         if point_tuples:
             cmd = build_tippecanoe_group_command(
                 group_name, point_tuples, str(tmp_points),
@@ -660,23 +140,29 @@ def process_file_group(group_name, file_path_map, extent=None, output_dir=None):
             )
             subprocess.run(cmd, check=True, capture_output=False, text=True)
 
-        # ── Step 3: merge with tile-join ────────────────────────────────────
-        merge_inputs = [str(tmp_polygon)]
-        if point_tuples:
-            merge_inputs.append(str(tmp_points))
+        # ── Step 3: merge or promote single archive ─────────────────────────
+        merge_inputs = (
+            ([str(tmp_polygon)] if polygon_tuples else []) +
+            ([str(tmp_points)]  if point_tuples  else [])
+        )
 
-        join_cmd = [
-            "tile-join", "-fo", str(final_path),
-            "--no-tile-size-limit",
-        ] + merge_inputs
-        subprocess.run(join_cmd, check=True, capture_output=False, text=True)
+        if len(merge_inputs) > 1:
+            join_cmd = [
+                "tile-join", "-fo", str(final_path),
+                "--no-tile-size-limit",
+            ] + merge_inputs
+            subprocess.run(join_cmd, check=True, capture_output=False, text=True)
+        elif merge_inputs:
+            # Only one archive produced — move it directly to the final path
+            import shutil as _shutil
+            _shutil.move(merge_inputs[0], str(final_path))
 
         return {
             "success": True,
             "message": f"Group tiles generated: {final_path.name}",
             "output_file": final_path,
             "group_name": group_name,
-            "layer_count": len(polygon_tuples) + len(point_tuples or []),
+            "layer_count": (len(polygon_tuples) if polygon_tuples else 0) + (len(point_tuples) if point_tuples else 0),
         }
 
     except subprocess.CalledProcessError as e:
@@ -759,7 +245,7 @@ def process_to_tiles(extent=None, input_dirs=None, filter_pattern=None,
     # in one tippecanoe call; remaining files are processed individually.
     global LAYER_GROUPS
     if not LAYER_GROUPS:
-        _, _, _, LAYER_GROUPS, _ = _import_tippecanoe_template()
+        LAYER_GROUPS, _ = _import_tippecanoe_template()
 
     file_path_map = {}
     for f in geospatial_files:
@@ -783,8 +269,13 @@ def process_to_tiles(extent=None, input_dirs=None, filter_pattern=None,
         for key in ("polygon_layers", "point_layers")
         for fn, *_ in LAYER_GROUPS[gname].get(key, [])
     }
-    individual_files = [f for f in geospatial_files if f.name not in group_member_names]
-    # ── End group detection ───────────────────────────────────────────────────
+
+    # Files not matched to any group are skipped (group paradigm only)
+    unmatched = [f for f in geospatial_files if f.name not in group_member_names]
+    if unmatched and verbose:
+        print(f"  Note: {len(unmatched)} file(s) not in any LAYER_GROUP — skipped:")
+        for f in unmatched:
+            print(f"    {f.name}")
 
     if verbose:
         print(f"Found {len(geospatial_files)} files to process:")
@@ -824,80 +315,6 @@ def process_to_tiles(extent=None, input_dirs=None, filter_pattern=None,
             if verbose:
                 tqdm.write(f"✗ {gname}: {result['message']}")
 
-    # ── Process individual files ──────────────────────────────────────────────
-    if parallel and len(individual_files) > 1:
-        # Parallel processing
-        with ProcessPoolExecutor(max_workers=min(4, len(individual_files))) as executor:
-            # Submit all jobs
-            future_to_file = {
-                executor.submit(process_single_file, geospatial_file, extent, output_dir): geospatial_file
-                for geospatial_file in individual_files
-            }
-            
-            # Process results with progress bar
-            if verbose:
-                progress_bar = tqdm(total=len(individual_files), desc="Processing files", unit="file")
-            
-            for future in as_completed(future_to_file):
-                geospatial_file = future_to_file[future]
-                try:
-                    result = future.result()
-                    if result["success"]:
-                        results["processed_files"].append({
-                            "input_file": geospatial_file.name,
-                            "output_file": result.get("output_file"),
-                            "layer_name": result.get("layer_name")
-                        })
-                        if verbose:
-                            tqdm.write(f"✓ {geospatial_file.name} -> {result.get('output_file', 'unknown')}")
-                    else:
-                        results["errors"].append({
-                            "file": geospatial_file.name,
-                            "error": result["message"]
-                        })
-                        if verbose:
-                            tqdm.write(f"✗ {geospatial_file.name}: {result['message']}")
-                except Exception as e:
-                    error_msg = f"Unexpected error: {str(e)}"
-                    results["errors"].append({
-                        "file": geospatial_file.name,
-                        "error": error_msg
-                    })
-                    if verbose:
-                        tqdm.write(f"✗ {geospatial_file.name}: {error_msg}")
-                
-                if verbose:
-                    progress_bar.update(1)
-            
-            if verbose:
-                progress_bar.close()
-    
-    elif individual_files:
-        # Sequential processing
-        if verbose:
-            progress_bar = tqdm(individual_files, desc="Processing files", unit="file")
-        else:
-            progress_bar = individual_files
-
-        for geospatial_file in progress_bar:
-            result = process_single_file(geospatial_file, extent, output_dir)
-            
-            if result["success"]:
-                results["processed_files"].append({
-                    "input_file": geospatial_file.name,
-                    "output_file": result.get("output_file"),
-                    "layer_name": result.get("layer_name")
-                })
-                if verbose:
-                    tqdm.write(f"✓ {geospatial_file.name} -> {result.get('output_file', 'unknown')}")
-            else:
-                results["errors"].append({
-                    "file": geospatial_file.name,
-                    "error": result["message"]
-                })
-                if verbose:
-                    tqdm.write(f"✗ {geospatial_file.name}: {result['message']}")
-    
     # Set overall success status
     if results["errors"]:
         results["success"] = False
@@ -991,8 +408,6 @@ def main():
                         help='Output directory for PMTiles files')
     parser.add_argument('--filter',
                         help='Only process files matching this pattern (e.g., "roads*" or "*.fgb")')
-    parser.add_argument('--no-parallel', action='store_true',
-                        help='Disable parallel processing')
     parser.add_argument('--create-tilejson', action='store_true',
                         help='Create TileJSON file after processing')
     parser.add_argument('--verbose', action='store_true', default=True,
@@ -1019,7 +434,6 @@ def main():
         input_dirs=args.input_dir,
         filter_pattern=args.filter,
         output_dir=args.output_dir,
-        parallel=not args.no_parallel,
         verbose=args.verbose
     )
     

@@ -270,9 +270,9 @@ function MapLibreView() {
       container: mapContainer,
       style: style,
       center: [14.08, 0],
-      zoom: 3, 
-      minZoom: 3,
-      maxZoom: 15.99,
+      zoom: 4, 
+      minZoom: 4,
+      maxZoom: 20,
       maxBounds: africaBounds, // viewport restriction
       attributionControl: false,
       refreshExpiredTiles: false,

@@ -37,8 +37,13 @@ export default defineConfig({
 	plugins: [solid(), servePmtilesInTilesDir(), serveSpritesInSpritesDir(), tailwindcss()],
 	build: {
 		rollupOptions: {
-			input: {
-				mapview: resolve(__dirname, "index.html"),
+			input: { mapview: resolve(__dirname, "index.html") },
+			output: {
+				manualChunks: {
+					maplibre: ["maplibre-gl"],
+					"maplibre-inspect": ["@maplibre/maplibre-gl-inspect"],
+					solid: ["solid-js"],
+				},
 			},
 		},
 	},

@@ -24,7 +24,7 @@ rclone copyto GRID3_AFRICA_settlement_extents_v3_0.pmtiles ciesin-r2:ciesin-dev/
 
 rclone copy . ciesin-r2:ciesin-dev/tiles/grid3/cod --include "GRID3_COD_*.pmtiles" --progress --s3-no-check-bucket --s3-chunk-size=256M --header-upload "Content-Type: application/vnd.pmtiles"
 
-rclone copy . ciesin-r2:ciesin-dev/tiles/grid3/nga --include "GRID3_NGA_*.pmtiles" --progress --stats=1m --s3-no-check-bucket --s3-chunk-size=256M --multi-thread-streams=16 --multi-thread-cutoff=64M  --buffer-size=64M --header-upload "Content-Type: application/vnd.pmtiles" --dry-run
+rclone copy . ciesin-r2:ciesin-dev/tiles/grid3/nga --include "GRID3_NGA_*.pmtiles" --progress --s3-no-check-bucket --s3-chunk-size=256M --multi-thread-streams=16 --multi-thread-cutoff=64M  --buffer-size=64M --header-upload "Content-Type: application/vnd.pmtiles" --dry-run
 
 rclone copy ciesin-r2:ciesin-dev/stac/ ciesin-r2:ciesin-prod/stac --progress --s3-no-check-bucket --s3-chunk-size=256M --multi-thread-streams=32 --multi-thread-cutoff=64M --checkers=32 --buffer-size=64M --header-upload "Content-Type: application/json" --dry-run
  
