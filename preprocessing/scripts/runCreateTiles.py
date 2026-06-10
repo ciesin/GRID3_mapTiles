@@ -147,10 +147,14 @@ def process_file_group(group_name, file_path_map, extent=None, output_dir=None):
         )
 
         if len(merge_inputs) > 1:
-            join_cmd = [
-                "tile-join", "-fo", str(final_path),
-                "--no-tile-size-limit",
-            ] + merge_inputs
+            join_cmd = ["tile-join", "-fo", str(final_path), "--no-tile-size-limit"]
+            if group.get("name"):
+                join_cmd.extend(["-n", group["name"]])
+            if group.get("description"):
+                join_cmd.extend(["-N", group["description"]])
+            if group.get("attribution"):
+                join_cmd.extend(["-A", group["attribution"]])
+            join_cmd += merge_inputs
             subprocess.run(join_cmd, check=True, capture_output=False, text=True)
         elif merge_inputs:
             # Only one archive produced — move it directly to the final path

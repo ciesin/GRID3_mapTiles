@@ -31,41 +31,44 @@ PROFILES = {
     "boundaries": {
         "description": "Administrative and operational boundary polygons",
         "polygon_settings": [
-            "-zg",
-            "-Bg",
             "--hilbert",
-            "--maximum-tile-bytes=1280000",
             "--no-polygon-splitting",
-            "--no-simplification-of-shared-nodes",
+            "--no-simplification-of-shared-nodes",  # required: preserves shared borders across all levels in one invocation
             "--simplify-only-low-zooms",
+            "--simplification=2",
             "--no-tiny-polygon-reduction",
-            "--extend-zooms-if-still-dropping-maximum=14",
             "--no-feature-limit",
+            "--no-tile-size-limit",  # admin boundaries must be geometrically complete — never truncate
         ],
         "point_settings": [
             "--drop-rate=0",
+            "--no-feature-limit",
+            "--no-tile-size-limit",
         ],
     },
     "POI": {
         "description": "Point features (health facilities, settlement names, and other toponyms)",
         "settings": [
-            "-zg",
-            "-Bg",
+            "--drop-rate=0",
             "--no-feature-limit",
-            '--coalesce-densest-as-needed'
+            "--no-tile-size-limit",  # point features are small; preserve all
         ],
     },
     "settlement_extents": {
         "description": "Settlement extent polygons",
         "settings": [
-            "-zg",
-            "-Bg",
             "--hilbert",
-            "--no-feature-limit",
-            "--maximum-tile-bytes=5120000",
-            "--no-simplification-of-shared-nodes",
-            "--coalesce-smallest-as-needed",
-            "--calculate-feature-density"
+            "--simplification=2",            # raster-derived polygons — simplify aggressively
+            "--drop-smallest-as-needed",     # overflow: drop smallest (rural) extents, keep dense (urban) ones
+            "--coalesce-smallest-as-needed", # merge tiny adjacent polygons at low zoom rather than discard
+            "--maximum-tile-bytes=2097152",  # 2 MB tile cap
+            "--calculate-feature-density",   # adds tippecanoe_feature_density for style-side density expressions
+            # "--single-precision",            # halves coordinate storage → meaningful size reduction for dense datasets
+            # "-y extent_type",
+            # "-y type",
+            # "-y building_count",
+            # "-y building_count_density_quantile_rank",
+            # "-y iso3",
         ],
     },
 }
@@ -84,19 +87,22 @@ LAYER_GROUPS = {
     "GRID3_COD_boundaries": {
         "output_stem": "GRID3_COD_boundaries",
         "profile": "boundaries",
+        "name": "GRID3 DRC Administrative Boundaries v8.0",
+        "description": "Health zones, health areas, antennes, a`nd provinces for the Democratic Republic of the Congo, with label centroids",
+        "attribution": "© GRID3, CIESIN Columbia University. CC BY-SA 4.0. https://doi.org/10.7916/asa4-jc67",
 
         # (filename, layer-name-in-tile, minzoom, maxzoom)
         "polygon_layers": [
-            ("GRID3_COD_provinces_v8_0.fgb",   "GRID3-COD-province-v8-0",  4, 16),
-            ("GRID3_COD_antenne_v8_0.fgb",     "GRID3-COD-antenne-v8-0",   6, 16),
-            ("GRID3_COD_health_zones_v8_0.fgb","GRID3-COD-zonesante-v8-0", 7, 16),
-            ("GRID3_COD_health_areas_v8_0.fgb","GRID3-COD-airesante-v8-0", 8, 16),
+            ("GRID3_COD_provinces_v8_0.fgb",   "GRID3-COD-province-v8-0",  4, 15),
+            ("GRID3_COD_antenne_v8_0.fgb",     "GRID3-COD-antenne-v8-0",   6, 15),
+            ("GRID3_COD_health_zones_v8_0.fgb","GRID3-COD-zonesante-v8-0", 7, 15),
+            ("GRID3_COD_health_areas_v8_0.fgb","GRID3-COD-airesante-v8-0", 8, 15),
         ],
         "point_layers": [
-            ("GRID3_COD_provinces_v8_0_centroids.fgb",   "GRID3-COD-province-v8-0-centroids",   4, 16),
-            ("GRID3_COD_antenne_v8_0_centroids.fgb",      "GRID3-COD-antenne-v8-0-centroids",    6, 16),
-            ("GRID3_COD_health_zones_v8_0_centroids.fgb", "GRID3-COD-zonesante-v8-0-centroids",  7, 16),
-            ("GRID3_COD_health_areas_v8_0_centroids.fgb", "GRID3-COD-airesante-v8-0-centroids",  8, 16),
+            ("GRID3_COD_provinces_v8_0_centroids.fgb",   "GRID3-COD-province-v8-0-centroids",   4, 15),
+            ("GRID3_COD_antenne_v8_0_centroids.fgb",      "GRID3-COD-antenne-v8-0-centroids",    6, 15),
+            ("GRID3_COD_health_zones_v8_0_centroids.fgb", "GRID3-COD-zonesante-v8-0-centroids",  7, 15),
+            ("GRID3_COD_health_areas_v8_0_centroids.fgb", "GRID3-COD-airesante-v8-0-centroids",  8, 15),
         ],
     },
 
@@ -104,16 +110,19 @@ LAYER_GROUPS = {
     "GRID3_NGA_boundaries": {
         "output_stem": "GRID3_NGA_boundaries",
         "profile": "boundaries",
+        "name": "GRID3 Nigeria Operational Boundaries v2.0",
+        "description": "Operational states, LGAs, and wards for Nigeria, with label centroids",
+        "attribution": "© GRID3, CIESIN Columbia University. CC BY 4.0. https://doi.org/10.7916/gpv6-dq34",
 
         "polygon_layers": [
-            ("GRID3_NGA_operational_states_v2_0.fgb", "GRID3-NGA-operational-states-v2-0", 4, 16),
-            ("GRID3_NGA_operational_LGAs_v2_0.fgb",   "GRID3-NGA-operational-LGAs-v2-0",   5, 16),
-            ("GRID3_NGA_operational_wards_v2_0.fgb",  "GRID3-NGA-operational-wards-v2-0",  7, 16),
+            ("GRID3_NGA_operational_states_v2_0.fgb", "GRID3-NGA-operational-states-v2-0", 4, 15),
+            ("GRID3_NGA_operational_LGAs_v2_0.fgb",   "GRID3-NGA-operational-LGAs-v2-0",   5, 15),
+            ("GRID3_NGA_operational_wards_v2_0.fgb",  "GRID3-NGA-operational-wards-v2-0",  7, 15),
         ],
         "point_layers": [
-            ("GRID3_NGA_operational_states_v2_0_centroids.fgb", "GRID3-NGA-operational-states-v2-0-centroids", 4, 16),
-            ("GRID3_NGA_operational_LGAs_v2_0_centroids.fgb",   "GRID3-NGA-operational-LGAs-v2-0-centroids",   5, 16),
-            ("GRID3_NGA_operational_wards_v2_0_centroids.fgb",  "GRID3-NGA-operational-wards-v2-0-centroids",  7, 16),
+            ("GRID3_NGA_operational_states_v2_0_centroids.fgb", "GRID3-NGA-operational-states-v2-0-centroids", 4, 15),
+            ("GRID3_NGA_operational_LGAs_v2_0_centroids.fgb",   "GRID3-NGA-operational-LGAs-v2-0-centroids",   5, 15),
+            ("GRID3_NGA_operational_wards_v2_0_centroids.fgb",  "GRID3-NGA-operational-wards-v2-0-centroids",  7, 15),
             ],
     },
 
@@ -121,9 +130,12 @@ LAYER_GROUPS = {
     "GRID3_COD_settlement_extents": {
         "output_stem": "GRID3_COD_settlement_extents",
         "profile": "settlement_extents",
+        "name": "GRID3 DRC Settlement Extents v3.1",
+        "description": "Settlement extent polygons for the Democratic Republic of the Congo",
+        "attribution": "© GRID3, CIESIN Columbia University. CC BY-SA 4.0. https://doi.org/10.7916/d6gy-yh28",
 
         "polygon_layers": [
-            ("GRID3_COD_settlement_extents_v3_1.fgb", "GRID3-COD-settlement-extents-v3-1", 7, 20),
+            ("GRID3_COD_settlement_extents_v3_1.fgb", "GRID3-COD-settlement-extents-v3-1", 7, 15),
         ],
         "point_layers": [],
     },
@@ -133,10 +145,13 @@ LAYER_GROUPS = {
     "GRID3_NGA_settlement_extents": {
         "output_stem": "GRID3_NGA_settlement_extents",
         "profile": "settlement_extents",
+        "name": "GRID3 Nigeria Settlement Extents v3.0 / Settlement Blocks v4.0",
+        "description": "Settlement extent polygons (v3.0, z7–13) and settlement block polygons (v4.0, z13–16) for Nigeria",
+        "attribution": "© GRID3, CIESIN Columbia University. CC BY-SA 4.0. https://doi.org/10.7916/tbgr-4j86",
 
         "polygon_layers": [
-            ("GRID3_NGA_settlement_extents_v3_0.fgb", "GRID3-NGA-settlement-extents-v3-0",  7, 14),
-            ("GRID3_NGA_settlement_extents_v4_0.fgb", "GRID3-NGA-settlement-extents-v4-0", 13, 18),
+            ("GRID3_NGA_settlement_extents_v3_0.fgb", "GRID3-NGA-settlement-extents-v3-0",  7, 13),
+            ("GRID3_NGA_settlement_extents_v4_0.fgb", "GRID3-NGA-settlement-extents-v4-0", 13, 16),
         ],
         "point_layers": [],
     },
@@ -145,6 +160,9 @@ LAYER_GROUPS = {
     "GRID3_COD_POIs": {
         "output_stem": "GRID3_COD_POIs",
         "profile": "POI",
+        "name": "GRID3 DRC Points of Interest v8.0",
+        "description": "Health facilities and settlement names for the Democratic Republic of the Congo",
+        "attribution": "© GRID3, CIESIN Columbia University. CC BY-SA 4.0. https://doi.org/10.7916/f1ft-y872",
 
         "polygon_layers": [],
         "point_layers": [
@@ -157,6 +175,9 @@ LAYER_GROUPS = {
     "GRID3_NGA_POIs": {
         "output_stem": "GRID3_NGA_POIs",
         "profile": "POI",
+        "name": "GRID3 Nigeria Points of Interest",
+        "description": "Health facilities and settlement names for Nigeria",
+        "attribution": "© GRID3, CIESIN Columbia University. CC BY 4.0.",
 
         "polygon_layers": [],
         "point_layers": [
@@ -245,8 +266,8 @@ def build_tippecanoe_group_command(group_name, layer_tuples, output_file,
         }
         m = layer_meta.get(layer_name)
         if m:
-            # Compact JSON description stored in tile metadata; omit empty fields
-            spec["metadata"] = _json.dumps(
+            # Compact JSON in the description field (standard -L JSON spec key)
+            spec["description"] = _json.dumps(
                 {k: v for k, v in m.items() if v and not k.startswith('_')},
                 separators=(',', ':')
             )

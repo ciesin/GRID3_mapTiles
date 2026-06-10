@@ -10,7 +10,7 @@
 			"attribution": "",
 			"tiles": []
 		},
-		"overture_base": {
+		"protomaps_base": {
 			"type": "vector",
 			"attribution": "",
 			"tiles": []
@@ -1017,7 +1017,7 @@
 		{
 			"id": "water_stream_casing",
 			"type": "line",
-			"source": "overture_base",
+			"source": "protomaps_base",
 			"source-layer": "water",
 			"minzoom": 12,
 			"filter": [
@@ -1060,7 +1060,7 @@
 		{
 			"id": "water_stream",
 			"type": "line",
-			"source": "overture_base",
+			"source": "protomaps_base",
 			"source-layer": "water",
 			"minzoom": 12,
 			"filter": [
@@ -1131,7 +1131,7 @@
 		{
 			"id": "water_river",
 			"type": "line",
-			"source": "overture_base",
+			"source": "protomaps_base",
 			"source-layer": "water",
 			"minzoom": 9,
 			"filter": [
@@ -1179,7 +1179,7 @@
 				"$type",
 				"Polygon"
 			],
-			"source": "overture_base",
+			"source": "protomaps_base",
 			"source-layer": "water",
 			"paint": {
 				"line-color": [
@@ -1218,7 +1218,7 @@
 				"$type",
 				"Polygon"
 			],
-			"source": "overture_base",
+			"source": "protomaps_base",
 			"source-layer": "water",
 			"paint": {
 				"fill-color": "#A4DBE8"
