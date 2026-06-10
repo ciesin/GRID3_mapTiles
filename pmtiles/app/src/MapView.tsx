@@ -272,7 +272,7 @@ function MapLibreView() {
       center: [14.08, 0],
       zoom: 4, 
       minZoom: 4,
-      maxZoom: 20,
+      maxZoom: 17,
       maxBounds: africaBounds, // viewport restriction
       attributionControl: false,
       refreshExpiredTiles: false,
