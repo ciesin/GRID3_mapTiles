@@ -144,7 +144,7 @@ DEFAULT_CONFIG = {
     "tiling": {
         "input_dirs": [SCRATCH_BOUNDARIES_DIR, SCRATCH_POIS_DIR, SCRATCH_EXTENTS_DIR],
         "output_dir": OUTPUT_DIR,
-        "parallel": True,
+        "parallel": False,
         "overwrite": True,
         "verbose": True,
         "create_tilejson": True,

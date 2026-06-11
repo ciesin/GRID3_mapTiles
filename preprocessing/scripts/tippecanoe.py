@@ -58,17 +58,19 @@ PROFILES = {
         "description": "Settlement extent polygons",
         "settings": [
             "--hilbert",
-            "--simplification=2",            # raster-derived polygons — simplify aggressively
-            "--drop-smallest-as-needed",     # overflow: drop smallest (rural) extents, keep dense (urban) ones
-            "--coalesce-smallest-as-needed", # merge tiny adjacent polygons at low zoom rather than discard
+            "--simplification=3",            # raster-derived polygons — simplify aggressively
+            # "--drop-smallest-as-needed",     # overflow: drop smallest (rural) extents, keep dense (urban) ones
+            # "--coalesce-smallest-as-needed", # merge tiny adjacent polygons at low zoom rather than discard
             "--maximum-tile-bytes=2097152",  # 2 MB tile cap
-            "--calculate-feature-density",   # adds tippecanoe_feature_density for style-side density expressions
+            # "--calculate-feature-density",   # adds tippecanoe_feature_density for style-side density expressions
             # "--single-precision",            # halves coordinate storage → meaningful size reduction for dense datasets
-            # "-y extent_type",
-            # "-y type",
-            # "-y building_count",
-            # "-y building_count_density_quantile_rank",
-            # "-y iso3",
+            "--include=extent_type",
+            "--include=type",
+            "--include=building_count",
+            "--include=building_count_density_quantile_rank",
+            "--include=iso3",
+            "--include=mgrs_code", 
+            "--calculate-feature-index"
         ],
     },
 }
@@ -88,21 +90,21 @@ LAYER_GROUPS = {
         "output_stem": "GRID3_COD_boundaries",
         "profile": "boundaries",
         "name": "GRID3 DRC Administrative Boundaries v8.0",
-        "description": "Health zones, health areas, antennes, a`nd provinces for the Democratic Republic of the Congo, with label centroids",
+        "description": "Province, antenna, health zone, and health area operational boundaries for the Democratic Republic of the Congo.",
         "attribution": "© GRID3, CIESIN Columbia University. CC BY-SA 4.0. https://doi.org/10.7916/asa4-jc67",
 
         # (filename, layer-name-in-tile, minzoom, maxzoom)
         "polygon_layers": [
-            ("GRID3_COD_provinces_v8_0.fgb",   "GRID3-COD-province-v8-0",  4, 15),
-            ("GRID3_COD_antenne_v8_0.fgb",     "GRID3-COD-antenne-v8-0",   6, 15),
-            ("GRID3_COD_health_zones_v8_0.fgb","GRID3-COD-zonesante-v8-0", 7, 15),
-            ("GRID3_COD_health_areas_v8_0.fgb","GRID3-COD-airesante-v8-0", 8, 15),
+            ("GRID3_COD_province_v8_0.fgb",  "GRID3-COD-province-v8-0",  4, 15),
+            ("GRID3_COD_antenne_v8_0.fgb",   "GRID3-COD-antenne-v8-0",   6, 15),
+            ("GRID3_COD_zonesante_v8_0.fgb", "GRID3-COD-zonesante-v8-0", 7, 15),
+            ("GRID3_COD_airesante_v8_0.fgb", "GRID3-COD-airesante-v8-0", 8, 15),
         ],
         "point_layers": [
-            ("GRID3_COD_provinces_v8_0_centroids.fgb",   "GRID3-COD-province-v8-0-centroids",   4, 15),
-            ("GRID3_COD_antenne_v8_0_centroids.fgb",      "GRID3-COD-antenne-v8-0-centroids",    6, 15),
-            ("GRID3_COD_health_zones_v8_0_centroids.fgb", "GRID3-COD-zonesante-v8-0-centroids",  7, 15),
-            ("GRID3_COD_health_areas_v8_0_centroids.fgb", "GRID3-COD-airesante-v8-0-centroids",  8, 15),
+            ("GRID3_COD_province_v8_0_centroids.fgb",  "GRID3-COD-province-v8-0-centroids",  4, 15),
+            ("GRID3_COD_antenne_v8_0_centroids.fgb",   "GRID3-COD-antenne-v8-0-centroids",   6, 15),
+            ("GRID3_COD_zonesante_v8_0_centroids.fgb", "GRID3-COD-zonesante-v8-0-centroids", 7, 15),
+            ("GRID3_COD_airesante_v8_0_centroids.fgb", "GRID3-COD-airesante-v8-0-centroids", 8, 15),
         ],
     },
 
@@ -111,18 +113,19 @@ LAYER_GROUPS = {
         "output_stem": "GRID3_NGA_boundaries",
         "profile": "boundaries",
         "name": "GRID3 Nigeria Operational Boundaries v2.0",
-        "description": "Operational states, LGAs, and wards for Nigeria, with label centroids",
+        "description": "Operational administrative boundaries (adm0-adm3) for Nigeria.",
         "attribution": "© GRID3, CIESIN Columbia University. CC BY 4.0. https://doi.org/10.7916/gpv6-dq34",
 
         "polygon_layers": [
-            ("GRID3_NGA_operational_states_v2_0.fgb", "GRID3-NGA-operational-states-v2-0", 4, 15),
-            ("GRID3_NGA_operational_LGAs_v2_0.fgb",   "GRID3-NGA-operational-LGAs-v2-0",   5, 15),
-            ("GRID3_NGA_operational_wards_v2_0.fgb",  "GRID3-NGA-operational-wards-v2-0",  7, 15),
+            ("GRID3_NGA_national_boundary_unpublished_20260429.fgb", "GRID3-NGA-unpublished-adm0", 0, 15),
+            # ("GRID3_NGA_operational_states_v2_0.fgb", "GRID3-NGA-operational-states-v2-0", 4, 15),
+            # ("GRID3_NGA_operational_LGAs_v2_0.fgb",   "GRID3-NGA-operational-LGAs-v2-0",   5, 15),
+            # ("GRID3_NGA_operational_wards_v2_0.fgb",  "GRID3-NGA-operational-wards-v2-0",  7, 15),
         ],
         "point_layers": [
-            ("GRID3_NGA_operational_states_v2_0_centroids.fgb", "GRID3-NGA-operational-states-v2-0-centroids", 4, 15),
-            ("GRID3_NGA_operational_LGAs_v2_0_centroids.fgb",   "GRID3-NGA-operational-LGAs-v2-0-centroids",   5, 15),
-            ("GRID3_NGA_operational_wards_v2_0_centroids.fgb",  "GRID3-NGA-operational-wards-v2-0-centroids",  7, 15),
+            ("GRID3_NGA_national_boundary_unpublished_20260429_centroids.fgb", "GRID3-NGA-unpublished-adm0-centroids", 0, 15)           
+            # ("GRID3_NGA_operational_LGAs_v2_0_centroids.fgb",   "GRID3-NGA-operational-LGAs-v2-0-centroids",   5, 15),
+            # ("GRID3_NGA_operational_wards_v2_0_centroids.fgb",  "GRID3-NGA-operational-wards-v2-0-centroids",  7, 15),
             ],
     },
 
@@ -145,13 +148,13 @@ LAYER_GROUPS = {
     "GRID3_NGA_settlement_extents": {
         "output_stem": "GRID3_NGA_settlement_extents",
         "profile": "settlement_extents",
-        "name": "GRID3 Nigeria Settlement Extents v3.0 / Settlement Blocks v4.0",
-        "description": "Settlement extent polygons (v3.0, z7–13) and settlement block polygons (v4.0, z13–16) for Nigeria",
+        "name": "GRID3 Nigeria Settlement Extents v4.0",
+        "description": "Settlement block polygons dissolved by MGRS code (v4.0, z7–13) and settlement block polygons (v4.0, z13–16) for Nigeria",
         "attribution": "© GRID3, CIESIN Columbia University. CC BY-SA 4.0. https://doi.org/10.7916/tbgr-4j86",
 
         "polygon_layers": [
-            ("GRID3_NGA_settlement_extents_v3_0.fgb", "GRID3-NGA-settlement-extents-v3-0",  7, 13),
-            ("GRID3_NGA_settlement_extents_v4_0.fgb", "GRID3-NGA-settlement-extents-v4-0", 13, 16),
+            ("GRID3_NGA_settlement_extents_dissolve_v4_0.fgb", "GRID3-NGA-settlement-extents-v4-0", 7, 13),
+            ("GRID3_NGA_settlement_extents_v4_0.fgb", "GRID3-NGA-settlement-blocks-v4-0", 13, 16),
         ],
         "point_layers": [],
     },
@@ -166,8 +169,8 @@ LAYER_GROUPS = {
 
         "polygon_layers": [],
         "point_layers": [
-            ("GRID3_COD_health_facilities_v8_0.fgb", "GRID3-COD-health-facilities-v8-0", 5, 18),
-            ("GRID3_COD_settlement_names_v8_0.fgb",   "GRID3-COD-settlement-names-v8-0",  5, 18),
+            ("GRID3_COD_health_facilities_v8_0.fgb", "GRID3-COD-health-facilities-v8-0", 5, 16),
+            ("GRID3_COD_settlement_names_v8_0.fgb",   "GRID3-COD-settlement-names-v8-0",  5, 16),
         ],
     },
 
@@ -181,7 +184,7 @@ LAYER_GROUPS = {
 
         "polygon_layers": [],
         "point_layers": [
-            # ("GRID3_NGA_settlement_names_v8_0.fgb", "GRID3-NGA-settlement-names-v8-0", 5, 18),
+            # ("GRID3_NGA_settlement_names_v8_0.fgb", "GRID3-NGA-settlement-names-v8-0", 5, 16),
         ],
     },
 }

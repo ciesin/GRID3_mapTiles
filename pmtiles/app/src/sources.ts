@@ -76,10 +76,10 @@ export const SOURCES = {
   },
 
 
-  GRID3_COD_POIs: {
+  grid3_cod_pois: {
     archive: "tiles/grid3/cod/GRID3_COD_POIs",
     attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
-    maxzoom: 9,
+    maxzoom: 17,
     ext: "mvt",
   },
 
@@ -97,10 +97,16 @@ export const SOURCES = {
   grid3_nga_settlement_extents: {
     archive: "tiles/grid3/nga/GRID3_NGA_settlement_extents",
     attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
-    maxzoom: 15,
+    maxzoom: 16,
     ext: "mvt",
   },
 
+  grid3_nga_boundaries: {
+    archive: "tiles/grid3/nga/GRID3_NGA_boundaries",
+    attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
+    maxzoom: 15,
+    ext: "mvt",
+  },
 
   // ---------------------------------------------------------------------------
   // GRID3 — Settlement extents by country (ISO 3166-1 alpha-3)

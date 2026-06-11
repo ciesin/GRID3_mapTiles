@@ -10,35 +10,35 @@ SET s3_region='us-west-2';
 SET temp_directory='{{duckdb_temp_dir}}';
 
 -- Configure Overture Maps release version
-SET VARIABLE overture_release = '2026-01-21.0';
+SET VARIABLE overture_release = '2026-05-20.0';
 
 ----------------------------------------------------------------------
 -- 1. LAND USE (NON-RESIDENTIAL)
 ----------------------------------------------------------------------
 
-COPY (
-    SELECT
-        id,
-        subtype,
-        class,
-        surface,
-        names,
-        geometry  -- DuckDB v1.1.0+ treats this as GEOMETRY
-    FROM read_parquet(
-        's3://overturemaps-us-west-2/release/' ||
-        getvariable('overture_release') ||
-        '/theme=base/type=land_use/*',
-        filename = true,
-        hive_partitioning = 1
-    )
-    WHERE
-        subtype <> 'residential'
-        AND bbox.xmin < $extent_xmax AND bbox.xmax > $extent_xmin
-        AND bbox.ymin < $extent_ymax AND bbox.ymax > $extent_ymin
-) TO '{{overture_data_dir}}/land_use.parquet'
-WITH (FORMAT PARQUET, COMPRESSION 'ZSTD');
+-- COPY (
+--     SELECT
+--         id,
+--         subtype,
+--         class,
+--         surface,
+--         names,
+--         geometry  -- DuckDB v1.1.0+ treats this as GEOMETRY
+--     FROM read_parquet(
+--         's3://overturemaps-us-west-2/release/' ||
+--         getvariable('overture_release') ||
+--         '/theme=base/type=land_use/*',
+--         filename = true,
+--         hive_partitioning = 1
+--     )
+--     WHERE
+--         subtype <> 'residential'
+--         AND bbox.xmin < $extent_xmax AND bbox.xmax > $extent_xmin
+--         AND bbox.ymin < $extent_ymax AND bbox.ymax > $extent_ymin
+-- ) TO '{{overture_data_dir}}/land_use.parquet'
+-- WITH (FORMAT PARQUET, COMPRESSION 'ZSTD');
 
--- break
+-- -- break
 
 ----------------------------------------------------------------------
 -- 2. LAND USE (RESIDENTIAL ONLY)
@@ -161,28 +161,28 @@ WITH (FORMAT PARQUET, COMPRESSION 'ZSTD');
 --   cartography.min_zoom, cartography.max_zoom, cartography.sort_key
 ----------------------------------------------------------------------
 
-COPY (
-    SELECT
-        id,
-        subtype,
-        cartography.min_zoom  AS min_zoom,
-        cartography.max_zoom  AS max_zoom,
-        cartography.sort_key  AS sort_key,
-        geometry
-    FROM read_parquet(
-        's3://overturemaps-us-west-2/release/' ||
-        getvariable('overture_release') ||
-        '/theme=base/type=land_cover/*',
-        filename = true,
-        hive_partitioning = 1
-    )
-    WHERE
-        bbox.xmin < $extent_xmax AND bbox.xmax > $extent_xmin
-        AND bbox.ymin < $extent_ymax AND bbox.ymax > $extent_ymin
-) TO '{{overture_data_dir}}/land_cover.parquet'
-WITH (FORMAT PARQUET, COMPRESSION 'ZSTD');
+-- COPY (
+--     SELECT
+--         id,
+--         subtype,
+--         cartography.min_zoom  AS min_zoom,
+--         cartography.max_zoom  AS max_zoom,
+--         cartography.sort_key  AS sort_key,
+--         geometry
+--     FROM read_parquet(
+--         's3://overturemaps-us-west-2/release/' ||
+--         getvariable('overture_release') ||
+--         '/theme=base/type=land_cover/*',
+--         filename = true,
+--         hive_partitioning = 1
+--     )
+--     WHERE
+--         bbox.xmin < $extent_xmax AND bbox.xmax > $extent_xmin
+--         AND bbox.ymin < $extent_ymax AND bbox.ymax > $extent_ymin
+-- ) TO '{{overture_data_dir}}/land_cover.parquet'
+-- WITH (FORMAT PARQUET, COMPRESSION 'ZSTD');
 
--- break
+-- -- break
 
 ----------------------------------------------------------------------
 -- 7. INFRASTRUCTURE

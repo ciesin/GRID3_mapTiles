@@ -31,6 +31,7 @@ import json
 import argparse
 from pathlib import Path
 import importlib
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Allow DATA_DISK to be injected via environment variable (same logic as config.py)
 def _resolve_data_disk():
@@ -123,6 +124,16 @@ def process_file_group(group_name, file_path_map, extent=None, output_dir=None):
     tmp_polygon = tile_dir / f"_tmp_{output_stem}_polygons.pmtiles"
     tmp_points  = tile_dir / f"_tmp_{output_stem}_points.pmtiles"
 
+    captured_stdout: list[str] = []
+    captured_stderr: list[str] = []
+
+    def _run(cmd):
+        proc = subprocess.run(cmd, check=True, capture_output=True, text=True)
+        if proc.stdout:
+            captured_stdout.append(proc.stdout)
+        if proc.stderr:
+            captured_stderr.append(proc.stderr)
+
     try:
         # ── Step 1: polygon layers (skipped for point-only groups like POI) ─
         if polygon_tuples:
@@ -130,7 +141,7 @@ def process_file_group(group_name, file_path_map, extent=None, output_dir=None):
                 group_name, polygon_tuples, str(tmp_polygon),
                 layer_kind="polygon", extent=extent,
             )
-            subprocess.run(cmd, check=True, capture_output=False, text=True)
+            _run(cmd)
 
         # ── Step 2: point layers (skipped for polygon-only groups) ─────────
         if point_tuples:
@@ -138,7 +149,7 @@ def process_file_group(group_name, file_path_map, extent=None, output_dir=None):
                 group_name, point_tuples, str(tmp_points),
                 layer_kind="point", extent=extent,
             )
-            subprocess.run(cmd, check=True, capture_output=False, text=True)
+            _run(cmd)
 
         # ── Step 3: merge or promote single archive ─────────────────────────
         merge_inputs = (
@@ -155,7 +166,7 @@ def process_file_group(group_name, file_path_map, extent=None, output_dir=None):
             if group.get("attribution"):
                 join_cmd.extend(["-A", group["attribution"]])
             join_cmd += merge_inputs
-            subprocess.run(join_cmd, check=True, capture_output=False, text=True)
+            _run(join_cmd)
         elif merge_inputs:
             # Only one archive produced — move it directly to the final path
             import shutil as _shutil
@@ -167,15 +178,24 @@ def process_file_group(group_name, file_path_map, extent=None, output_dir=None):
             "output_file": final_path,
             "group_name": group_name,
             "layer_count": (len(polygon_tuples) if polygon_tuples else 0) + (len(point_tuples) if point_tuples else 0),
+            "stdout": "".join(captured_stdout),
+            "stderr": "".join(captured_stderr),
         }
 
     except subprocess.CalledProcessError as e:
         return {
             "success": False,
             "message": f"Tippecanoe/tile-join error: {e.stderr if e.stderr else str(e)}",
+            "stdout": "".join(captured_stdout),
+            "stderr": "".join(captured_stderr),
         }
     except Exception as e:
-        return {"success": False, "message": f"Error: {str(e)}"}
+        return {
+            "success": False,
+            "message": f"Error: {str(e)}",
+            "stdout": "".join(captured_stdout),
+            "stderr": "".join(captured_stderr),
+        }
     finally:
         for tmp in (tmp_polygon, tmp_points):
             if tmp.exists():
@@ -183,18 +203,21 @@ def process_file_group(group_name, file_path_map, extent=None, output_dir=None):
 
 
 def process_to_tiles(extent=None, input_dirs=None, filter_pattern=None,
-                    output_dir=None, parallel=True, verbose=True):
+                    output_dir=None, parallel=False, max_parallel_groups=None,
+                    verbose=True):
     """Process FlatGeobuf/GeoJSONSeq/GeoJSON files into PMTiles
-    
+
     Prioritizes FlatGeobuf (.fgb) files for optimal performance with large datasets.
     For GeoParquet files, convert to FlatGeobuf first using convertToFlatGeobuf.py
-    
+
     Args:
         extent (tuple): Bounding box as (xmin, ymin, xmax, ymax)
         input_dirs (list): List of directories to search for input files
         filter_pattern (str): Only process files matching this pattern (e.g., "roads*" or "*.fgb")")
         output_dir (str): Directory to write output PMTiles (default: TILE_DIR)
-        parallel (bool): Use parallel processing (default: True)
+        parallel (bool): Run layer groups concurrently (default: True)
+        max_parallel_groups (int|None): Max concurrent tippecanoe invocations.
+            None = all groups at once (good default for multi-core machines).
         verbose (bool): Show progress information (default: True)
     
     Returns:
@@ -301,11 +324,11 @@ def process_to_tiles(extent=None, input_dirs=None, filter_pattern=None,
         "total_files": len(geospatial_files)
     }
     
-    # ── Process groups (sequential; each is already a single subprocess) ─────
-    for gname in groups_to_process:
-        if verbose:
-            print(f"\nProcessing group '{gname}'...")
-        result = process_file_group(gname, file_path_map, extent, output_dir)
+    def _handle_group_result(gname, result):
+        if result.get("stdout") and verbose:
+            print(f"\n── {gname} stdout ──\n{result['stdout'].rstrip()}")
+        if result.get("stderr") and verbose:
+            print(f"\n── {gname} stderr ──\n{result['stderr'].rstrip()}")
         if result["success"]:
             results["processed_files"].append({
                 "input_file": f"[group:{gname}]",
@@ -318,6 +341,25 @@ def process_to_tiles(extent=None, input_dirs=None, filter_pattern=None,
             results["errors"].append({"file": f"[group:{gname}]", "error": result["message"]})
             if verbose:
                 tqdm.write(f"✗ {gname}: {result['message']}")
+
+    # ── Process groups — parallel when requested, sequential as fallback ──────
+    if parallel and len(groups_to_process) > 1:
+        workers = max_parallel_groups or len(groups_to_process)
+        if verbose:
+            print(f"\nProcessing {len(groups_to_process)} groups in parallel (max_workers={workers})...")
+        with ThreadPoolExecutor(max_workers=workers) as executor:
+            futures = {
+                executor.submit(process_file_group, gname, file_path_map, extent, output_dir): gname
+                for gname in groups_to_process
+            }
+            for future in as_completed(futures):
+                gname = futures[future]
+                _handle_group_result(gname, future.result())
+    else:
+        for gname in groups_to_process:
+            if verbose:
+                print(f"\nProcessing group '{gname}'...")
+            _handle_group_result(gname, process_file_group(gname, file_path_map, extent, output_dir))
 
     # Set overall success status
     if results["errors"]:
