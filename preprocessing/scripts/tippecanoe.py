@@ -93,18 +93,36 @@ LAYER_GROUPS = {
         "description": "Province, antenna, health zone, and health area operational boundaries for the Democratic Republic of the Congo.",
         "attribution": "© GRID3, CIESIN Columbia University. CC BY-SA 4.0. https://doi.org/10.7916/asa4-jc67",
 
+        # Filter v8_0 features superseded by the IT layers for the Ituri province.
+        # Mapbox GL expression — applied by tippecanoe at source read time (no preprocessing).
+        # Verify field name: ogrinfo -al -q GRID3_COD_province_v8_0.fgb | grep -i "Field"
+        "modifiers": {
+            "GRID3_COD_province_v8_0.fgb":            {"filter": ["!=", "PROVINCE", "Ituri"]},
+            "GRID3_COD_antenne_v8_0.fgb":             {"filter": ["!=", "PROVINCE", "Ituri"]},
+            "GRID3_COD_zonesante_v8_0.fgb":           {"filter": ["!=", "PROVINCE", "Ituri"]},
+            "GRID3_COD_airesante_v8_0.fgb":           {"filter": ["!=", "PROVINCE", "Ituri"]},
+            "GRID3_COD_province_v8_0_centroids.fgb":  {"filter": ["!=", "PROVINCE", "Ituri"]},
+            "GRID3_COD_antenne_v8_0_centroids.fgb":   {"filter": ["!=", "PROVINCE", "Ituri"]},
+            "GRID3_COD_zonesante_v8_0_centroids.fgb": {"filter": ["!=", "PROVINCE", "Ituri"]},
+            "GRID3_COD_airesante_v8_0_centroids.fgb": {"filter": ["!=", "PROVINCE", "Ituri"]},
+        },
+
         # (filename, layer-name-in-tile, minzoom, maxzoom)
         "polygon_layers": [
             ("GRID3_COD_province_v8_0.fgb",  "GRID3-COD-province-v8-0",  4, 15),
             ("GRID3_COD_antenne_v8_0.fgb",   "GRID3-COD-antenne-v8-0",   6, 15),
             ("GRID3_COD_zonesante_v8_0.fgb", "GRID3-COD-zonesante-v8-0", 7, 15),
             ("GRID3_COD_airesante_v8_0.fgb", "GRID3-COD-airesante-v8-0", 8, 15),
+            ("GRID3_COD_IT_health_zones_20260611.fgb", "GRID3-COD-IT-health-zones-20260611", 7, 15),
+            ("GRID3_COD_IT_health_areas_20260611.fgb", "GRID3-COD-IT-health-areas-20260611", 8, 15),
         ],
         "point_layers": [
             ("GRID3_COD_province_v8_0_centroids.fgb",  "GRID3-COD-province-v8-0-centroids",  4, 15),
             ("GRID3_COD_antenne_v8_0_centroids.fgb",   "GRID3-COD-antenne-v8-0-centroids",   6, 15),
             ("GRID3_COD_zonesante_v8_0_centroids.fgb", "GRID3-COD-zonesante-v8-0-centroids", 7, 15),
             ("GRID3_COD_airesante_v8_0_centroids.fgb", "GRID3-COD-airesante-v8-0-centroids", 8, 15),
+            ("GRID3_COD_IT_health_zones_20260611_centroids.fgb", "GRID3-COD-IT-health-zones-20260611-centroids", 7, 15),
+            ("GRID3_COD_IT_health_areas_20260611_centroids.fgb", "GRID3-COD-IT-health-areas-20260611-centroids", 8, 15),
         ],
     },
 
@@ -253,12 +271,14 @@ def build_tippecanoe_group_command(group_name, layer_tuples, output_file,
         profile_settings = list(profile.get(settings_key, profile.get("settings", [])))
 
     group_override = group.get(settings_key, [])
-    resolved_settings = profile_settings + group_override
+    exclude = set(group.get("profile_exclude", []))
+    resolved_settings = [s for s in (profile_settings + group_override) if s not in exclude]
 
     cmd = ["tippecanoe", "-fo", output_file] + zoom_flags
     cmd.extend(resolved_settings)
     cmd.append("-P")
 
+    modifiers = group.get("modifiers", {})
     layer_meta = _get_layer_metadata()
     for _, layer_name, minzoom, maxzoom, abs_path in layer_tuples:
         spec = {
@@ -274,6 +294,9 @@ def build_tippecanoe_group_command(group_name, layer_tuples, output_file,
                 {k: v for k, v in m.items() if v and not k.startswith('_')},
                 separators=(',', ':')
             )
+        mod = modifiers.get(abs_path.name)
+        if mod and "filter" in mod:
+            spec["filter"] = mod["filter"]
         cmd.extend(["-L", _json.dumps(spec)])
 
     if extent:

@@ -1058,72 +1058,229 @@ def batch_convert_geodata(
     return results
 
 
+def list_gpkg_layers(gpkg_path: Path) -> List[str]:
+    """List all layer names in a GeoPackage via ogrinfo."""
+    import subprocess
+    try:
+        result = subprocess.run(
+            ["ogrinfo", "-al", "-so", str(gpkg_path)],
+            capture_output=True, text=True, check=False
+        )
+        layers = []
+        for line in result.stdout.splitlines():
+            if line.startswith("Layer name:"):
+                layers.append(line.split(":", 1)[1].strip())
+        return layers
+    except Exception:
+        return []
+
+
+def convert_gpkg_to_fgb_layers(
+    gpkg_path: Union[str, Path],
+    output_dir: Union[str, Path],
+    layers: Optional[List[str]] = None,
+    overwrite: bool = False,
+    verbose: bool = True,
+    clip_extent: Optional[Tuple[float, float, float, float]] = None,
+    where: Optional[str] = None,
+) -> dict:
+    """
+    Convert each layer in a GeoPackage to a separate FlatGeobuf file.
+
+    Output files are named {layer_name}.fgb in output_dir. When layers=None,
+    all layers in the GPKG are converted.
+
+    Returns:
+        dict with summary statistics
+    """
+    gpkg_path = Path(gpkg_path)
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    if not gpkg_path.exists():
+        return {"success": False, "message": f"File not found: {gpkg_path}", "errors": []}
+
+    all_layers = list_gpkg_layers(gpkg_path)
+    if not all_layers:
+        return {"success": False, "message": "No layers found in GPKG", "errors": []}
+
+    target_layers = layers if layers else all_layers
+
+    if verbose:
+        gpkg_mb = gpkg_path.stat().st_size / 1024 / 1024
+        print(f"\n{'='*70}")
+        print(f"GPKG → FlatGeobuf: {gpkg_path.name}  ({gpkg_mb:.1f} MB)")
+        print(f"Layers ({len(target_layers)}): {', '.join(target_layers)}")
+        print(f"Output: {output_dir}")
+        print(f"{'='*70}")
+
+    results = {
+        "success": True,
+        "total_layers": len(target_layers),
+        "converted": 0,
+        "skipped": 0,
+        "errors": [],
+        "output_files": [],
+    }
+
+    for i, layer in enumerate(target_layers, 1):
+        out_path = output_dir / f"{layer}.fgb"
+
+        if verbose:
+            print(f"\n[{i}/{len(target_layers)}] {layer}")
+
+        success, message, out = convert_geodata_to_fgb(
+            input_path=gpkg_path,
+            output_path=out_path,
+            layer=layer,
+            clip_extent=clip_extent,
+            where=where,
+            overwrite=overwrite,
+            verbose=verbose,
+        )
+
+        if success:
+            if "already exists" in message.lower():
+                results["skipped"] += 1
+            else:
+                results["converted"] += 1
+                if out:
+                    results["output_files"].append(out)
+        else:
+            results["errors"].append({"layer": layer, "error": message})
+            results["success"] = False
+
+    if verbose:
+        print(f"\n{'='*70}")
+        print(f"SUMMARY: {results['converted']} converted, "
+              f"{results['skipped']} skipped, {len(results['errors'])} errors")
+        if results["output_files"]:
+            total_mb = sum(
+                f.stat().st_size for f in results["output_files"] if f.exists()
+            ) / 1024 / 1024
+            print(f"Output: {total_mb:.1f} MB total")
+        for e in results["errors"]:
+            print(f"  ERROR {e['layer']}: {e['error']}")
+        print(f"{'='*70}\n")
+
+    return results
+
+
 def main():
     """Command-line interface for the converter."""
     import argparse
-    
+
     parser = argparse.ArgumentParser(
-        description="Convert GeoParquet files to FlatGeobuf format for efficient tile generation"
+        description=(
+            "Convert geospatial vector files to FlatGeobuf format.\n\n"
+            "  Single GPKG (all layers):   --input data.gpkg --output-dir /out\n"
+            "  Single GPKG (one layer):    --input data.gpkg --layer settlements --output-dir /out\n"
+            "  Batch GeoParquet dir:       --input-dir /parquets --output-dir /out"
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    parser.add_argument(
+
+    input_group = parser.add_mutually_exclusive_group(required=True)
+    input_group.add_argument(
+        "--input",
+        type=str,
+        metavar="FILE",
+        help="Single input file (GPKG, SHP, GeoJSON, etc.)",
+    )
+    input_group.add_argument(
         "--input-dir",
         type=str,
-        required=True,
-        help="Directory containing GeoParquet (.parquet) files"
+        metavar="DIR",
+        help="Directory containing GeoParquet (.parquet) files",
     )
+
     parser.add_argument(
         "--output-dir",
         type=str,
         default=None,
-        help="Output directory for FlatGeobuf (.fgb) files (default: same as input)"
+        help="Output directory for .fgb files (required with --input; default: same as --input-dir)",
+    )
+    parser.add_argument(
+        "--layer",
+        type=str,
+        default=None,
+        help="Specific layer to convert (only with --input; default: all layers)",
     )
     parser.add_argument(
         "--pattern",
         type=str,
         default="*.parquet",
-        help="Glob pattern for finding parquet files (default: *.parquet)"
+        help="Glob pattern for finding parquet files (only with --input-dir; default: *.parquet)",
     )
     parser.add_argument(
         "--overwrite",
         action="store_true",
-        help="Overwrite existing FlatGeobuf files"
+        help="Overwrite existing FlatGeobuf files",
     )
     parser.add_argument(
         "--quiet",
         action="store_true",
-        help="Suppress progress output"
+        help="Suppress progress output",
     )
     parser.add_argument(
         "--cleanup",
         action="store_true",
-        help="Remove source files after successful conversion (saves disk space)"
+        help="Remove source files after successful conversion (saves disk space)",
     )
     parser.add_argument(
         "--chunk-size",
         type=int,
         default=None,
-        help=f"Features per chunk for streaming mode (default: auto, typically {DEFAULT_CHUNK_SIZE:,})"
+        help=f"Features per chunk for streaming mode (default: auto, typically {DEFAULT_CHUNK_SIZE:,})",
     )
     parser.add_argument(
         "--force-streaming",
         action="store_true",
-        help=f"Force streaming mode for all files (default: auto for files >{LARGE_FILE_THRESHOLD_MB}MB)"
+        help=f"Force streaming mode for all files (default: auto for files >{LARGE_FILE_THRESHOLD_MB}MB)",
     )
-    
+
     args = parser.parse_args()
-    
-    results = batch_convert_directory(
-        input_dir=args.input_dir,
-        output_dir=args.output_dir,
-        pattern=args.pattern,
-        overwrite=args.overwrite,
-        verbose=not args.quiet,
-        cleanup_source=args.cleanup,
-        chunk_size=args.chunk_size,
-        force_streaming=args.force_streaming
-    )
-    
-    sys.exit(0 if results["success"] else 1)
+
+    verbose = not args.quiet
+
+    if args.input:
+        input_path = Path(args.input)
+        if args.output_dir is None:
+            parser.error("--output-dir is required when using --input")
+
+        if args.layer:
+            # Single layer from a multi-layer file
+            out_path = Path(args.output_dir) / f"{args.layer}.fgb"
+            success, message, _ = convert_geodata_to_fgb(
+                input_path=input_path,
+                output_path=out_path,
+                layer=args.layer,
+                overwrite=args.overwrite,
+                verbose=verbose,
+            )
+            sys.exit(0 if success else 1)
+        else:
+            # All layers (GPKG or other multi-layer format)
+            results = convert_gpkg_to_fgb_layers(
+                gpkg_path=input_path,
+                output_dir=args.output_dir,
+                overwrite=args.overwrite,
+                verbose=verbose,
+            )
+            sys.exit(0 if results["success"] else 1)
+
+    else:
+        results = batch_convert_directory(
+            input_dir=args.input_dir,
+            output_dir=args.output_dir,
+            pattern=args.pattern,
+            overwrite=args.overwrite,
+            verbose=verbose,
+            cleanup_source=args.cleanup,
+            chunk_size=args.chunk_size,
+            force_streaming=args.force_streaming,
+        )
+        sys.exit(0 if results["success"] else 1)
 
 
 if __name__ == "__main__":

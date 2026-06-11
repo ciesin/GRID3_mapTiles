@@ -2726,20 +2726,17 @@
 			"type": "fill-extrusion",
 			"source": "overture_buildings",
 			"source-layer": "building",
-			"minzoom": 11,
+			"minzoom": 10,
 			"layout": {
 				"visibility": "visible"
 			},
 			"paint": {
 				"fill-extrusion-color": [
-					"interpolate",
-					[
-						"exponential",
-						2
-					],
+					"step",
 					[
 						"zoom"
 					],
+					"#A2AAAD",
 					14,
 					"#D0D3D4",
 					14.5,
