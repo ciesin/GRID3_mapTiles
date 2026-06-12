@@ -2739,7 +2739,7 @@
 			"type": "fill-extrusion",
 			"source": "overture_buildings",
 			"source-layer": "building",
-			"minzoom": 11,
+			"minzoom": 14,
 			"layout": {
 				"visibility": "visible"
 			},
@@ -2754,9 +2754,9 @@
 						"zoom"
 					],
 					14,
-					"#D0D3D4",
-					14.5,
-					"#A2AAAD"
+					"#BEC6C4",
+					15,
+					"#BEC6C4"
 				],
 				"fill-extrusion-height": [
 					"coalesce",
@@ -2767,7 +2767,20 @@
 					5
 				],
 				"fill-extrusion-base": 1,
-				"fill-extrusion-opacity": 1
+				"fill-extrusion-opacity": [
+					"interpolate",
+					[
+						"exponential",
+						1.6
+					],
+					[
+						"zoom"
+					],
+					14,
+					0,
+					14.5,
+					1
+				]
 			}
 		},
 		{
@@ -8618,8 +8631,8 @@
 					"#EF56BA",
 					"#e2dfda"
 				],
-				"text-halo-color": "#e2dfda",
-				"text-halo-width": 1
+				"text-halo-color": "#f5f5fa",
+				"text-halo-width": 1.5
 			}
 		},
 		{
@@ -11260,7 +11273,7 @@
 					],
 					"#505759",
 					12,
-					"#DD2C00"
+					"#CF4520"
 				],
 				"text-halo-color": "#f5f5fa",
 				"text-halo-width": 1.2
@@ -12807,19 +12820,19 @@
 					["Poste de Santé", "Clinique"],
 					"#3A5DAE",
 					["Centre de Santé", "Hôpital Général de Référence", "Centre Hopitalier", "Centre Médical"],
-					"#A6093D",
+					"#B44769",
 					"Centre de Santé de Référence",
-					"#FFE900",
+					"#F6EB61",
 					"#646464"
 				],
 				"text-halo-color": [
 					"match",
 					["get", "esstype"],
 					"Centre de Santé de Référence",
-					"#646464",
+					"#53565A",
 					"#ffffff"
 				],
-				"text-halo-width": 1
+				"text-halo-width": 1.25
 			}
 		},
 		{

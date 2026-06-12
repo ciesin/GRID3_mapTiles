@@ -35,9 +35,9 @@ import baseStyle from "./style.json";
 // Light configuration for 3D features
 const LIGHT_CONFIG = {
   anchor: "map" as const, // 'viewport' or 'map'
-  position: [240, 45, 45] as [number, number, number], // [radial, azimuthal, polar] in degrees
-  color: "#bebebe",
-  intensity: 0.9, // 0 to 1
+  position: [240, 15, 45] as [number, number, number], // [radial, azimuthal, polar] in degrees
+  color: "#ffffff",
+  intensity: 0.4, // 0 to 1
 };
 
 // function getSourceLayer(l: LayerSpecification): string {
