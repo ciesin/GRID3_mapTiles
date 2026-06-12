@@ -65,7 +65,7 @@
 			"id": "background",
 			"type": "background",
 			"paint": {
-				"background-color": "#e2dfda"
+				"background-color": "#ebe9e5"
 			}
 		},
 		{
@@ -90,6 +90,9 @@
 			"type": "fill",
 			"source": "protomaps_base",
 			"source-layer": "landcover",
+			"layout": {
+				"visibility": "visible"
+			},
 			"paint": {
 				"fill-color": [
 					"match",
@@ -98,7 +101,7 @@
 						"kind"
 					],
 					"grassland",
-					"rgba(210, 239, 207, 1)",
+					"#dcf1d0",
 					"barren",
 					"rgba(255, 243, 215, 1)",
 					"urban_area",
@@ -108,8 +111,8 @@
 					"glacier",
 					"rgba(255, 255, 255, 1)",
 					"scrub",
-					"rgba(234, 239, 210, 1)",
-					"rgba(196, 231, 210, 1)"
+					"#e9f4d7",
+					"#c8e5bd"
 				],
 				"fill-opacity": [
 					"interpolate",
@@ -186,7 +189,7 @@
 							]
 						]
 					],
-					"#9cd3b4",
+					"#6CC24A",
 					[
 						"in",
 						[
@@ -218,7 +221,7 @@
 							]
 						]
 					],
-					"#99d2bb",
+					"#ADDC91",
 					[
 						"in",
 						[
@@ -11154,7 +11157,7 @@
 							"airesante"
 						]
 					],
-					10,
+					9,
 					[
 						"concat",
 						"AS ",
