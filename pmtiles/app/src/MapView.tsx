@@ -6,7 +6,7 @@ import "@maplibre/maplibre-gl-inspect/dist/maplibre-gl-inspect.css";
 import * as maplibregl from "maplibre-gl";
 import {
   AttributionControl,
-  GlobeControl,
+  // GlobeControl,
   Map as MaplibreMap,
   NavigationControl,
   FullscreenControl,

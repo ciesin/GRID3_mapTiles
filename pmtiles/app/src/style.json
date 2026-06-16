@@ -13486,7 +13486,8 @@
 				],
 				"text-radial-offset": 0.4,
 				"text-justify": "auto",
-				"symbol-sort-key": ["*", -1, ["sqrt", ["get", "Shape__Area"]]],
+				"symbol-sort-key": ["*", -1, ["sqrt", ["coalesce", ["get", "Shape__Area"], 0]]],
+				
 				"text-field": [
 					"step",
 					[
@@ -13515,13 +13516,11 @@
 					"Noto Sans Regular"
 				],
 				"text-size": [
-					"interpolate",
-					[
-						"linear"
-					],
+					"step",
 					[
 						"zoom"
 					],
+					8.5,
 					10,
 					[
 						"*",
@@ -13643,7 +13642,7 @@
 				],
 				"text-radial-offset": 0.5,
 				"text-justify": "auto",
-				"symbol-sort-key": ["*", -1, ["sqrt", ["get", "Shape__Area"]]],
+				"symbol-sort-key": ["*", -1, ["sqrt", ["coalesce", ["get", "Shape__Area"], 0]]],
 				"text-field": [
 					"step",
 					[
