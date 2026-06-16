@@ -57,6 +57,26 @@ export const SOURCES = {
   },
 
   // ---------------------------------------------------------------------------
+  // GRID3 ISO3 consolidated
+  // ---------------------------------------------------------------------------
+
+  grid3_cod: {
+    archive: "tiles/grid3/cod/GRID3_COD",
+    attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
+    maxzoom: 15,
+    ext: "mvt",
+  },
+
+  grid3_nga: {
+    archive: "tiles/grid3/nga/GRID3_NGA",
+    attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
+    maxzoom: 15,
+    ext: "mvt",
+  },
+
+
+
+  // ---------------------------------------------------------------------------
   // GRID3 — COD (Democratic Republic of Congo)
   // ---------------------------------------------------------------------------
 

@@ -21,6 +21,16 @@
 			"attribution": "",
 			"tiles": []
 		},
+		"grid3_cod": {
+			"type": "vector",
+			"attribution": "",
+			"tiles": []
+		},
+		"grid3_nga": {
+			"type": "vector",
+			"attribution": "",
+			"tiles": []
+		},
 		"grid3_nga_settlement_extents": {
 			"type": "vector",
 			"attribution": "",
@@ -179,7 +189,7 @@
 						[
 							"literal",
 							[
-																"national_park",
+								"national_park",
 								"park",
 								"cemetery",
 								"protected_area",
@@ -189,7 +199,6 @@
 								"wood",
 								"nature_reserve",
 								"forest"
-
 							]
 						]
 					],
@@ -322,7 +331,6 @@
 						"#EDD9F0",
 						"#EDD9F0"
 					]
-
 				],
 				"fill-opacity": [
 					"interpolate",
@@ -7522,7 +7530,7 @@
 				"text-halo-width": 1
 			}
 		},
-				{
+		{
 			"id": "roads_labels_minor",
 			"type": "symbol",
 			"source": "protomaps_base",
@@ -11550,7 +11558,7 @@
 		{
 			"id": "cod-provinces-boundary",
 			"type": "line",
-			"source": "grid3_cod_boundaries",
+			"source": "grid3_cod",
 			"source-layer": "GRID3-COD-province-v8-0",
 			"minzoom": 3,
 			"maxzoom": 10,
@@ -11558,18 +11566,33 @@
 				"line-color": "#A2AAAD",
 				"line-width": [
 					"interpolate",
-					["exponential", 1.4],
-					["zoom"],
-					3, 0,
-					5, 0.75,
-					6.5, 1.5,
-					8, 2,
-					10, 3
+					[
+						"exponential",
+						1.4
+					],
+					[
+						"zoom"
+					],
+					3,
+					0,
+					5,
+					0.75,
+					6.5,
+					1.5,
+					8,
+					2,
+					10,
+					3
 				],
-				"line-dasharray": [2, 3],
+				"line-dasharray": [
+					2,
+					3
+				],
 				"line-opacity": [
 					"step",
-					["zoom"],
+					[
+						"zoom"
+					],
 					0.5,
 					5,
 					0.7,
@@ -11581,36 +11604,69 @@
 		{
 			"id": "cod-antenne-boundary",
 			"type": "line",
-			"source": "grid3_cod_boundaries",
+			"source": "grid3_cod",
 			"source-layer": "GRID3-COD-antenne-v8-0",
 			"minzoom": 4,
 			"paint": {
 				"line-color": [
 					"interpolate",
-					["linear"],
-					["zoom"],
-					10, "#6CC24A",
-					15, "#009639"
+					[
+						"linear"
+					],
+					[
+						"zoom"
+					],
+					10,
+					"#6CC24A",
+					15,
+					"#009639"
 				],
 				"line-width": [
 					"interpolate",
-					["exponential", 1.4],
-					["zoom"],
-					4, 0,
-					6, 0.25,
-					9, 1,
+					[
+						"exponential",
+						1.4
+					],
+					[
+						"zoom"
+					],
+					4,
+					0,
+					6,
+					0.25,
+					9,
+					1,
 					13,
 					1.5
 				],
 				"line-dasharray": [
 					"step",
-					["zoom"],
-					["literal", [1, 12]],
+					[
+						"zoom"
+					],
+					[
+						"literal",
+						[
+							1,
+							12
+						]
+					],
 					5.5,
-					["literal", [1, 2]],
+					[
+						"literal",
+						[
+							1,
+							2
+						]
+					],
 					15,
-					["literal", [2, 1]]
-
+					[
+						"literal",
+						[
+							2,
+							1
+						]
+					]
 				],
 				"line-gap-width": [
 					"interpolate",
@@ -11630,11 +11686,15 @@
 				],
 				"line-opacity": [
 					"interpolate",
-					["linear"],
-					["zoom"],
-					4, 
+					[
+						"linear"
+					],
+					[
+						"zoom"
+					],
+					4,
 					0,
-					5.5, 
+					5.5,
 					0.25,
 					8,
 					1
@@ -11644,7 +11704,7 @@
 		{
 			"id": "cod-health-zones-boundary",
 			"type": "line",
-			"source": "grid3_cod_boundaries",
+			"source": "grid3_cod",
 			"source-layer": "GRID3-COD-zonesante-v8-0",
 			"minzoom": 5,
 			"paint": {
@@ -11689,7 +11749,7 @@
 					[
 						"zoom"
 					],
-					5, 
+					5,
 					0.15,
 					7,
 					0.25,
@@ -11701,7 +11761,7 @@
 		{
 			"id": "cod-health-areas-boundary-early",
 			"type": "line",
-			"source": "grid3_cod_boundaries",
+			"source": "grid3_cod",
 			"source-layer": "GRID3-COD-airesante-v8-0",
 			"minzoom": 6,
 			"maxzoom": 13,
@@ -11714,10 +11774,12 @@
 					[
 						"zoom"
 					],
-					6,
+					9,
 					"#607D8B",
-					13,
-					"#919D9D"
+					10,
+					"#EA7600",
+					12,
+					"#FF6A39"
 				],
 				"line-width": [
 					"interpolate",
@@ -11734,6 +11796,29 @@
 					12.9,
 					1.2
 				],
+				"line-dasharray": [
+					"step",
+					[
+						"zoom"
+					],
+					[
+						"literal",
+						[
+							1,
+							0
+						]
+					],
+					10,
+						[
+							"literal",
+							[
+								1,
+								1,
+								2,
+								4
+							]
+						]
+				],
 				"line-opacity": [
 					"interpolate",
 					[
@@ -11746,14 +11831,14 @@
 					7,
 					0.15,
 					13,
-					0.6
+					1
 				]
 			}
 		},
 		{
 			"id": "cod-health-areas-boundary-casing",
 			"type": "line",
-			"source": "grid3_cod_boundaries",
+			"source": "grid3_cod",
 			"source-layer": "GRID3-COD-airesante-v8-0",
 			"minzoom": 13,
 			"paint": {
@@ -11785,7 +11870,7 @@
 		{
 			"id": "cod-health-areas-boundary",
 			"type": "line",
-			"source": "grid3_cod_boundaries",
+			"source": "grid3_cod",
 			"source-layer": "GRID3-COD-airesante-v8-0",
 			"minzoom": 13,
 			"paint": {
@@ -11818,24 +11903,51 @@
 				]
 			}
 		},
-				{
+		{
 			"id": "cod-antenne-boundary-label",
 			"type": "symbol",
-			"source": "grid3_cod_boundaries",
+			"source": "grid3_cod",
 			"source-layer": "GRID3-COD-antenne-v8-0",
-			"minzoom": 7,
-			"maxzoom": 20,
+			"minzoom": 8.5,
 			"layout": {
 				"text-field": [
-					"concat",
-					"Antenne ",
+					"step",
 					[
-						"get",
-						"antenne"
+						"zoom"
+					],
+					[
+						"concat",
+						"",
+						[
+							"get",
+							"antenne"
+						]
+					],
+					11,
+					[
+						"concat",
+						"Ant ",
+						[
+							"get",
+							"antenne"
+						]
+					],
+					13,
+					[
+						"concat",
+						"Antenne ",
+						[
+							"get",
+							"antenne"
+						]
 					]
+
 				],
 				"symbol-placement": "line",
-				"text-font": ["Noto Sans Medium"],
+				"text-ignore-placement": false,
+				"text-font": [
+					"Noto Sans Medium"
+				],
 				"text-size": [
 					"interpolate",
 					[
@@ -11850,43 +11962,26 @@
 					20,
 					18
 				],
-
-				"text-padding": [
-					"interpolate",
-					[
-						"linear"
-					],	
-					[
-						"zoom"
-					],
-					7,
-					4,
-					14,
-					6,
-					18,
-					10
-				],
+				"text-padding": 1,
 				"text-letter-spacing": 0.1,
 				"text-transform": "uppercase",
 				"text-offset": [
 					0,
 					1
 				],
-				"symbol-spacing": [		
-						"interpolate",
+				"symbol-spacing": [
+					"interpolate",
 					[
 						"linear"
-					],	
+					],
 					[
 						"zoom"
 					],
 					7,
 					250,
-					14,
-					500,
 					18,
-					1000
-					]
+					500
+				]
 			},
 			"paint": {
 				"text-color": "#424242",
@@ -11910,18 +12005,43 @@
 		{
 			"id": "cod-health-areas-boundary-label",
 			"type": "symbol",
-			"source": "grid3_cod_boundaries",
+			"source": "grid3_cod",
 			"source-layer": "GRID3-COD-airesante-v8-0",
 			"minzoom": 11,
 			"layout": {
 				"symbol-placement": "line",
 				"text-field": [
-					"concat",
-					"Aire de santé ",
+					"step",
 					[
-						"get",
-						"airesante"
+						"zoom"
+					],
+					[
+						"concat",
+						"",
+						[
+							"get",
+							"airesante"
+						]
+					],
+					11,
+					[
+						"concat",
+						"AS ",
+						[
+							"get",
+							"airesante"
+						]
+					],
+					13,
+					[
+						"concat",
+						"Aire de santé ",
+						[
+							"get",
+							"airesante"
+						]
 					]
+
 				],
 				"text-font": [
 					"Noto Sans Regular"
@@ -11936,34 +12056,22 @@
 						"zoom"
 					],
 					7,
-					7,
+					6,
 					20,
 					18
 				],
-				"text-padding": [
-					"interpolate",
-					[
-						"linear"
-					],	
-					[
-						"zoom"
-					],
-					11,
-					4,
-					18,
-					8
-				],
+				"text-padding": 1,
 				"text-letter-spacing": 0.1,
 				"text-transform": "uppercase",
 				"text-offset": [
 					0,
 					1
 				],
-				"symbol-spacing": [		
-						"interpolate",
+				"symbol-spacing": [
+					"interpolate",
 					[
 						"linear"
-					],	
+					],
 					[
 						"zoom"
 					],
@@ -11973,8 +12081,7 @@
 					500,
 					18,
 					1000
-					]
-				
+				]
 			},
 			"paint": {
 				"text-color": "#424242",
@@ -11985,7 +12092,7 @@
 		{
 			"id": "cod-health-zones-boundary-label",
 			"type": "symbol",
-			"source": "grid3_cod_boundaries",
+			"source": "grid3_cod",
 			"source-layer": "GRID3-COD-zonesante-v8-0",
 			"minzoom": 8,
 			"layout": {
@@ -12011,36 +12118,22 @@
 						"zoom"
 					],
 					7,
-					7,
+					6,
 					20,
 					18
 				],
-				"text-padding": [
-					"interpolate",
-					[
-						"linear"
-					],	
-					[
-						"zoom"
-					],
-					8,
-					4,
-					14,
-					6,
-					18,
-					10
-				],
+				"text-padding": 1,
 				"text-letter-spacing": 0.15,
 				"text-transform": "uppercase",
 				"text-offset": [
 					0,
 					1
 				],
-				"symbol-spacing": [		
-						"interpolate",
+				"symbol-spacing": [
+					"interpolate",
 					[
 						"linear"
-					],	
+					],
 					[
 						"zoom"
 					],
@@ -12050,7 +12143,7 @@
 					500,
 					18,
 					1000
-					]
+				]
 			},
 			"paint": {
 				"text-color": "#424242",
@@ -12069,7 +12162,9 @@
 					"get",
 					"localite"
 				],
-				"text-font": ["Noto Sans Regular"],
+				"text-font": [
+					"Noto Sans Regular"
+				],
 				"text-size": [
 					"interpolate",
 					[
@@ -13313,7 +13408,7 @@
 					"interpolate",
 					[
 						"linear"
-					],	
+					],
 					[
 						"zoom"
 					],
@@ -13398,7 +13493,7 @@
 					"interpolate",
 					[
 						"linear"
-					],	
+					],
 					[
 						"zoom"
 					],
@@ -13447,10 +13542,22 @@
 			"paint": {
 				"text-color": [
 					"match",
-					["get", "esstype"],
-					["Poste de Santé", "Clinique"],
+					[
+						"get",
+						"esstype"
+					],
+					[
+						"Poste de Santé",
+						"Clinique"
+					],
 					"#3A5DAE",
-					["Centre de Santé", "Hôpital Général de Référence", "Centre Hopitalier", "Hôpital", "Centre Médical"],
+					[
+						"Centre de Santé",
+						"Hôpital Général de Référence",
+						"Centre Hopitalier",
+						"Hôpital",
+						"Centre Médical"
+					],
 					"#B44769",
 					"Centre de Santé de Référence",
 					"#ffff00",
@@ -13458,7 +13565,10 @@
 				],
 				"text-halo-color": [
 					"match",
-					["get", "esstype"],
+					[
+						"get",
+						"esstype"
+					],
 					"Centre de Santé de Référence",
 					"#53565A",
 					"#ffffff"
@@ -13466,25 +13576,58 @@
 				"text-halo-width": 1.25
 			}
 		},
-				{
+		{
 			"id": "cod-health-areas-centroids-label",
 			"type": "symbol",
-			"source": "grid3_cod_boundaries",
+			"source": "grid3_cod",
 			"source-layer": "GRID3-COD-airesante-v8-0-centroids",
 			"minzoom": 8.5,
 			"layout": {
 				"text-variable-anchor": [
 					"step",
-					["zoom"],
-					["literal", ["top", "bottom", "left", "right", "top-left", "top-right", "bottom-left", "bottom-right"]],
+					[
+						"zoom"
+					],
+					[
+						"literal",
+						[
+							"top",
+							"bottom",
+							"left",
+							"right",
+							"top-left",
+							"top-right",
+							"bottom-left",
+							"bottom-right"
+						]
+					],
 					13,
-					["literal", ["center"]]
+					[
+						"literal",
+						[
+							"center"
+						]
+					]
 				],
 				"text-radial-offset": 1,
 				"text-justify": "auto",
-				"text-allow-overlap": true,
-				"symbol-sort-key": ["*", -1, ["sqrt", ["coalesce", ["get", "Shape__Area"], 0]]],
-				
+				"text-allow-overlap": false,
+				"text-ignore-placement": false,
+				"symbol-sort-key": [
+					"*",
+					-1,
+					[
+						"sqrt",
+						[
+							"coalesce",
+							[
+								"get",
+								"Shape__Area"
+							],
+							0
+						]
+					]
+				],
 				"text-field": [
 					"step",
 					[
@@ -13507,7 +13650,6 @@
 							"airesante"
 						]
 					]
-
 				],
 				"text-font": [
 					"Noto Sans Regular"
@@ -13629,21 +13771,55 @@
 		{
 			"id": "cod-health-zones-centroids-label",
 			"type": "symbol",
-			"source": "grid3_cod_boundaries",
+			"source": "grid3_cod",
 			"source-layer": "GRID3-COD-zonesante-v8-0-centroids",
 			"minzoom": 7,
 			"layout": {
 				"text-variable-anchor": [
 					"step",
-					["zoom"],
-					["literal", ["top", "bottom", "left", "right", "top-left", "top-right", "bottom-left", "bottom-right"]],
+					[
+						"zoom"
+					],
+					[
+						"literal",
+						[
+							"top",
+							"bottom",
+							"left",
+							"right",
+							"top-left",
+							"top-right",
+							"bottom-left",
+							"bottom-right"
+						]
+					],
 					11,
-					["literal", ["center"]]
+					[
+						"literal",
+						[
+							"center"
+						]
+					]
 				],
 				"text-radial-offset": 2.5,
 				"text-justify": "auto",
 				"text-allow-overlap": true,
-				"symbol-sort-key": ["*", -1, ["sqrt", ["coalesce", ["get", "Shape__Area"], 0]]],
+				"text-ignore-placement": false,
+				"symbol-sort-key": [
+					"*",
+					-1,
+					[
+						"sqrt",
+						[
+							"coalesce",
+							[
+								"get",
+								"Shape__Area"
+							],
+							0
+						]
+					]
+				],
 				"text-field": [
 					"step",
 					[
@@ -13788,24 +13964,48 @@
 		{
 			"id": "provinces-centroids-label",
 			"type": "symbol",
-			"source": "grid3_cod_boundaries",
+			"source": "grid3_cod",
 			"source-layer": "GRID3-COD-province-v8-0-centroids",
 			"minzoom": 5.5,
 			"maxzoom": 8.5,
 			"layout": {
 				"text-variable-anchor": [
 					"step",
-					["zoom"],
-					["literal", ["top", "bottom", "left", "right", "top-left", "top-right", "bottom-left", "bottom-right"]],
+					[
+						"zoom"
+					],
+					[
+						"literal",
+						[
+							"top",
+							"bottom",
+							"left",
+							"right",
+							"top-left",
+							"top-right",
+							"bottom-left",
+							"bottom-right"
+						]
+					],
 					8,
-					["literal", ["center"]]
+					[
+						"literal",
+						[
+							"center"
+						]
+					]
 				],
 				"text-radial-offset": 2.5,
 				"text-justify": "auto",
 				"text-allow-overlap": true,
-				"text-ignore-placement": true,
-				"text-field": ["get", "province"],
-				"text-font": ["Noto Sans Medium"],
+				"text-ignore-placement": false,
+				"text-field": [
+					"get",
+					"province"
+				],
+				"text-font": [
+					"Noto Sans Medium"
+				],
 				"text-size": [
 					"interpolate",
 					[
@@ -13825,7 +14025,7 @@
 					"interpolate",
 					[
 						"linear"
-					],	
+					],
 					[
 						"zoom"
 					],
@@ -13867,15 +14067,17 @@
 				"text-color": "#7C878E",
 				"text-halo-color": "#FFFFFF40",
 				"text-halo-width": 1.5,
-			"text-opacity": [
-			"step",
-			["zoom"],
-			0, 
-			6,
-			1,
-			8.5,
-			0
-			]
+				"text-opacity": [
+					"step",
+					[
+						"zoom"
+					],
+					0,
+					6,
+					1,
+					8.5,
+					0
+				]
 			}
 		},
 		{
@@ -14795,7 +14997,6 @@
 				"symbol-spacing": 100
 			}
 		}
-
 	],
 	"sprite": "https://protomaps.github.io/basemaps-assets/sprites/v4/light",
 	"glyphs": "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf"
