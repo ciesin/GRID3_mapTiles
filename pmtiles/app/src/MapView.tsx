@@ -6,9 +6,10 @@ import "@maplibre/maplibre-gl-inspect/dist/maplibre-gl-inspect.css";
 import * as maplibregl from "maplibre-gl";
 import {
   AttributionControl,
-  GlobeControl,
+  // GlobeControl,
   Map as MaplibreMap,
   NavigationControl,
+  FullscreenControl,
   Popup,
   ScaleControl,
   getRTLTextPluginStatus,
@@ -35,9 +36,9 @@ import baseStyle from "./style.json";
 // Light configuration for 3D features
 const LIGHT_CONFIG = {
   anchor: "map" as const, // 'viewport' or 'map'
-  position: [240, 45, 45] as [number, number, number], // [radial, azimuthal, polar] in degrees
-  color: "#bebebe",
-  intensity: 0.9, // 0 to 1
+  position: [240, 15, 45] as [number, number, number], // [radial, azimuthal, polar] in degrees
+  color: "#ffffff",
+  intensity: 0.4, // 0 to 1
 };
 
 // function getSourceLayer(l: LayerSpecification): string {
@@ -283,7 +284,7 @@ function MapLibreView() {
     });
 
     map.addControl(new NavigationControl());
-    map.addControl(new GlobeControl());
+    // map.addControl(new GlobeControl());
     map.addControl(new AttributionInfoControl());
 
     // Add scale control at bottom-left
@@ -326,6 +327,9 @@ function MapLibreView() {
         },
       }),
     );
+
+    map.addControl(new FullscreenControl());
+
 
     // const popup = new Popup({
     //   closeButton: true,
