@@ -1,0 +1,79 @@
+{
+  "_comment": [
+    "Pre-tiling merge rules for COD (DRC) layers.",
+    "Each key under 'merges' is the output path relative to scratch_dir.",
+    "Inputs are listed in order — the first entry's schema wins for column types",
+    "in UNION ALL BY NAME, so the richer v8_0 source should always be listed first.",
+    "IT rows receive NULL for v8_0-only columns (OBJECTID, source_acronym, etc.).",
+    "",
+    "Field note: v8_0 files may have a 'precision_' column (trailing underscore from",
+    "GDAL reserved-word escaping) while IT files use 'precision'. UNION ALL BY NAME",
+    "treats these as two distinct columns; both appear in the merged output. MapLibre",
+    "style expressions should coalesce: [\"coalesce\", [\"get\", \"precision_\"], [\"get\", \"precision\"]].",
+    "",
+    "To add a new data source append another entry to the relevant 'inputs' list.",
+    "To add a new layer, add a new key to 'merges'."
+  ],
+  "merges": {
+    "GRID3_boundaries/GRID3_COD_province_v8_0.fgb": {
+      "inputs": [
+        {"subdir": "GRID3_boundaries/_filtered", "file": "GRID3_COD_province_v8_0.fgb",        "src_tag": "v8_0"},
+        {"subdir": "GRID3_boundaries",            "file": "GRID3_COD_IT_province_20260611.fgb", "src_tag": "IT_20260611"}
+      ]
+    },
+    "GRID3_boundaries/GRID3_COD_antenne_v8_0.fgb": {
+      "inputs": [
+        {"subdir": "GRID3_boundaries/_filtered", "file": "GRID3_COD_antenne_v8_0.fgb",          "src_tag": "v8_0"},
+        {"subdir": "GRID3_boundaries",            "file": "GRID3_COD_IT_antenne_20260611.fgb",   "src_tag": "IT_20260611"}
+      ]
+    },
+    "GRID3_boundaries/GRID3_COD_zonesante_v8_0.fgb": {
+      "inputs": [
+        {"subdir": "GRID3_boundaries/_filtered", "file": "GRID3_COD_zonesante_v8_0.fgb",         "src_tag": "v8_0"},
+        {"subdir": "GRID3_boundaries",            "file": "GRID3_COD_IT_zonesante_20260611.fgb",  "src_tag": "IT_20260611"}
+      ]
+    },
+    "GRID3_boundaries/GRID3_COD_airesante_v8_0.fgb": {
+      "inputs": [
+        {"subdir": "GRID3_boundaries/_filtered", "file": "GRID3_COD_airesante_v8_0.fgb",         "src_tag": "v8_0"},
+        {"subdir": "GRID3_boundaries",            "file": "GRID3_COD_IT_airesante_20260611.fgb",  "src_tag": "IT_20260611"}
+      ]
+    },
+    "GRID3_boundaries/GRID3_COD_province_v8_0_centroids.fgb": {
+      "inputs": [
+        {"subdir": "GRID3_boundaries/_filtered", "file": "GRID3_COD_province_v8_0_centroids.fgb",        "src_tag": "v8_0"},
+        {"subdir": "GRID3_boundaries",            "file": "GRID3_COD_IT_province_20260611_centroids.fgb", "src_tag": "IT_20260611"}
+      ]
+    },
+    "GRID3_boundaries/GRID3_COD_antenne_v8_0_centroids.fgb": {
+      "inputs": [
+        {"subdir": "GRID3_boundaries/_filtered", "file": "GRID3_COD_antenne_v8_0_centroids.fgb",          "src_tag": "v8_0"},
+        {"subdir": "GRID3_boundaries",            "file": "GRID3_COD_IT_antenne_20260611_centroids.fgb",   "src_tag": "IT_20260611"}
+      ]
+    },
+    "GRID3_boundaries/GRID3_COD_zonesante_v8_0_centroids.fgb": {
+      "inputs": [
+        {"subdir": "GRID3_boundaries/_filtered", "file": "GRID3_COD_zonesante_v8_0_centroids.fgb",         "src_tag": "v8_0"},
+        {"subdir": "GRID3_boundaries",            "file": "GRID3_COD_IT_zonesante_20260611_centroids.fgb",  "src_tag": "IT_20260611"}
+      ]
+    },
+    "GRID3_boundaries/GRID3_COD_airesante_v8_0_centroids.fgb": {
+      "inputs": [
+        {"subdir": "GRID3_boundaries/_filtered", "file": "GRID3_COD_airesante_v8_0_centroids.fgb",         "src_tag": "v8_0"},
+        {"subdir": "GRID3_boundaries",            "file": "GRID3_COD_IT_airesante_20260611_centroids.fgb",  "src_tag": "IT_20260611"}
+      ]
+    },
+    "GRID3_POIs/GRID3_COD_health_facilities_v8_0.fgb": {
+      "inputs": [
+        {"subdir": "GRID3_POIs/_filtered", "file": "GRID3_COD_health_facilities_v8_0.fgb",        "src_tag": "v8_0"},
+        {"subdir": "GRID3_POIs",           "file": "GRID3_COD_IT_health_facilities_20260611.fgb",  "src_tag": "IT_20260611"}
+      ]
+    },
+    "GRID3_POIs/GRID3_COD_settlement_names_v8_0.fgb": {
+      "inputs": [
+        {"subdir": "GRID3_POIs/_filtered", "file": "GRID3_COD_settlement_names_v8_0.fgb",         "src_tag": "v8_0"},
+        {"subdir": "GRID3_POIs",           "file": "GRID3_COD_IT_settlement_names_20260611.fgb",   "src_tag": "IT_20260611"}
+      ]
+    }
+  }
+}

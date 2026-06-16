@@ -71,7 +71,7 @@ export const SOURCES = {
   grid3_cod_boundaries: {
     archive: "tiles/grid3/cod/GRID3_COD_boundaries",
     attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
-    maxzoom: 12,
+    maxzoom: 14,
     ext: "mvt",
   },
 
@@ -79,7 +79,7 @@ export const SOURCES = {
   grid3_cod_pois: {
     archive: "tiles/grid3/cod/GRID3_COD_POIs",
     attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
-    maxzoom: 17,
+    maxzoom: 16,
     ext: "mvt",
   },
 

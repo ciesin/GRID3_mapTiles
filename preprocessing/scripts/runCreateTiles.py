@@ -124,15 +124,8 @@ def process_file_group(group_name, file_path_map, extent=None, output_dir=None):
     tmp_polygon = tile_dir / f"_tmp_{output_stem}_polygons.pmtiles"
     tmp_points  = tile_dir / f"_tmp_{output_stem}_points.pmtiles"
 
-    captured_stdout: list[str] = []
-    captured_stderr: list[str] = []
-
     def _run(cmd):
-        proc = subprocess.run(cmd, check=True, capture_output=True, text=True)
-        if proc.stdout:
-            captured_stdout.append(proc.stdout)
-        if proc.stderr:
-            captured_stderr.append(proc.stderr)
+        subprocess.run(cmd, check=True)
 
     try:
         # ── Step 1: polygon layers (skipped for point-only groups like POI) ─
@@ -178,23 +171,17 @@ def process_file_group(group_name, file_path_map, extent=None, output_dir=None):
             "output_file": final_path,
             "group_name": group_name,
             "layer_count": (len(polygon_tuples) if polygon_tuples else 0) + (len(point_tuples) if point_tuples else 0),
-            "stdout": "".join(captured_stdout),
-            "stderr": "".join(captured_stderr),
         }
 
     except subprocess.CalledProcessError as e:
         return {
             "success": False,
-            "message": f"Tippecanoe/tile-join error: {e.stderr if e.stderr else str(e)}",
-            "stdout": "".join(captured_stdout),
-            "stderr": "".join(captured_stderr),
+            "message": f"Tippecanoe/tile-join error (exit {e.returncode})",
         }
     except Exception as e:
         return {
             "success": False,
             "message": f"Error: {str(e)}",
-            "stdout": "".join(captured_stdout),
-            "stderr": "".join(captured_stderr),
         }
     finally:
         for tmp in (tmp_polygon, tmp_points):
@@ -250,7 +237,10 @@ def process_to_tiles(extent=None, input_dirs=None, filter_pattern=None,
         data_dir = Path(data_dir)
         if data_dir.exists():
             for pattern in ['*.fgb', '*.geojsonseq', '*.geojson']:
-                geospatial_files.extend(data_dir.rglob(pattern))
+                geospatial_files.extend(
+                    f for f in data_dir.rglob(pattern)
+                    if "_filtered" not in f.parts
+                )
     
     # Apply filter if provided
     if filter_pattern:
@@ -305,15 +295,12 @@ def process_to_tiles(extent=None, input_dirs=None, filter_pattern=None,
             print(f"    {f.name}")
 
     if verbose:
-        print(f"Found {len(geospatial_files)} files to process:")
-        for f in geospatial_files:
-            file_type = {
-                '.fgb': 'FlatGeobuf',
-                '.geojsonseq': 'GeoJSONSeq',
-                '.geojson': 'GeoJSON'
-            }.get(f.suffix, 'Unknown')
-            marker = " [group]" if f.name in group_member_names else ""
-            print(f"  {f.name} ({file_type}){marker}")
+        type_label = {'.fgb': 'FlatGeobuf', '.geojsonseq': 'GeoJSONSeq', '.geojson': 'GeoJSON'}
+        group_files = [f for f in geospatial_files if f.name in group_member_names]
+        print(f"Found {len(group_files)} file(s) assigned to groups"
+              + (f" ({len(unmatched)} unmatched, skipped)" if unmatched else "") + ":")
+        for f in group_files:
+            print(f"  {f.name} ({type_label.get(f.suffix, 'Unknown')})")
         for gname in groups_to_process:
             print(f"  → group '{gname}': {LAYER_GROUPS[gname]['output_stem']}.pmtiles")
 
@@ -325,10 +312,6 @@ def process_to_tiles(extent=None, input_dirs=None, filter_pattern=None,
     }
     
     def _handle_group_result(gname, result):
-        if result.get("stdout") and verbose:
-            print(f"\n── {gname} stdout ──\n{result['stdout'].rstrip()}")
-        if result.get("stderr") and verbose:
-            print(f"\n── {gname} stderr ──\n{result['stderr'].rstrip()}")
         if result["success"]:
             results["processed_files"].append({
                 "input_file": f"[group:{gname}]",

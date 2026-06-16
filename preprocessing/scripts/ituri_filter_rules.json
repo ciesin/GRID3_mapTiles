@@ -1,0 +1,13 @@
+{
+  "_comment": "Remove Ituri province features from v8_0 COD layers before tiling. IT (Ituri) datasets are tiled separately and merged via tile-join.",
+  "GRID3_COD_province_v8_0.fgb":            "province = 'Ituri'",
+  "GRID3_COD_antenne_v8_0.fgb":             "province = 'Ituri'",
+  "GRID3_COD_zonesante_v8_0.fgb":           "province = 'Ituri'",
+  "GRID3_COD_airesante_v8_0.fgb":           "province = 'Ituri'",
+  "GRID3_COD_province_v8_0_centroids.fgb":  "province = 'Ituri'",
+  "GRID3_COD_antenne_v8_0_centroids.fgb":   "province = 'Ituri'",
+  "GRID3_COD_zonesante_v8_0_centroids.fgb": "province = 'Ituri'",
+  "GRID3_COD_airesante_v8_0_centroids.fgb": "province = 'Ituri'",
+  "GRID3_COD_health_facilities_v8_0.fgb":   "province = 'Ituri'",
+  "GRID3_COD_settlement_names_v8_0.fgb":    "province = 'Ituri'"
+}
