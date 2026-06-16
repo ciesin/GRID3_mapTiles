@@ -1,25 +1,15 @@
 """
-Tippecanoe configuration template for layer-specific settings.
+Tippecanoe configuration for layer groups.
 
-Simple 1:1 mapping between layers and their optimized tippecanoe parameters.
-Import this into runCreateTiles.py to get settings for each layer.
-
-Usage:
-    from tippecanoe import get_layer_settings
-    settings = get_layer_settings('buildings.fgb')  # Automatically matches 'buildings.geojsonseq'
-    
-Note: get_layer_settings() matches on base filename, ignoring extensions.
-      So 'buildings.fgb' will match 'buildings.geojsonseq' in LAYER_SETTINGS.
+PROFILES: named flag sets (boundaries, POI, settlement_extents).
+LAYER_GROUPS: files processed together in one tippecanoe call.
+  - polygon_layers / point_layers run in separate invocations then merged by tile-join.
+  - modifiers: per-file zoom_filter_windows only (attribute filtering is done upstream
+    by filter_fgb.py before tiling).
 
 Shared Boundary Handling:
-    Administrative layers (health_areas, health_zones, provinces) use:
-    - --no-polygon-splitting: Keeps polygons intact across tile boundaries
-    - --no-simplification-of-shared-nodes: Ensures shared boundaries are simplified 
-      identically in adjacent features (replaces deprecated --detect-shared-borders)
-    - --coalesce-densest-as-needed: Merges features while maintaining coverage
-    
-    This creates properly nested boundary polygons where adjacent administrative
-    units share exact boundary coordinates, similar to TopoJSON topology.
+    --no-polygon-splitting + --no-simplification-of-shared-nodes ensure adjacent
+    admin polygons share identical boundary coordinates across tile edges.
 """
 
 # ---------------------------------------------------------------------------
@@ -32,12 +22,13 @@ PROFILES = {
         "description": "Administrative and operational boundary polygons",
         "polygon_settings": [
             "--hilbert",
-            "--no-polygon-splitting",
             "--no-simplification-of-shared-nodes",  # required: preserves shared borders across all levels in one invocation
-            "--simplify-only-low-zooms",
+            # "--simplify-only-low-zooms",
             "--simplification=2",
             "--no-tiny-polygon-reduction",
             "--no-feature-limit",
+            # "--coalesce-densest-as-needed",
+            "--no-polygon-splitting",
             "--no-tile-size-limit",  # admin boundaries must be geometrically complete — never truncate
         ],
         "point_settings": [
@@ -58,17 +49,19 @@ PROFILES = {
         "description": "Settlement extent polygons",
         "settings": [
             "--hilbert",
-            "--simplification=2",            # raster-derived polygons — simplify aggressively
-            "--drop-smallest-as-needed",     # overflow: drop smallest (rural) extents, keep dense (urban) ones
-            "--coalesce-smallest-as-needed", # merge tiny adjacent polygons at low zoom rather than discard
+            "--simplification=3",            # raster-derived polygons — simplify aggressively
+            # "--drop-smallest-as-needed",     # overflow: drop smallest (rural) extents, keep dense (urban) ones
+            # "--coalesce-smallest-as-needed", # merge tiny adjacent polygons at low zoom rather than discard
             "--maximum-tile-bytes=2097152",  # 2 MB tile cap
-            "--calculate-feature-density",   # adds tippecanoe_feature_density for style-side density expressions
+            # "--calculate-feature-density",   # adds tippecanoe_feature_density for style-side density expressions
             # "--single-precision",            # halves coordinate storage → meaningful size reduction for dense datasets
-            # "-y extent_type",
-            # "-y type",
-            # "-y building_count",
-            # "-y building_count_density_quantile_rank",
-            # "-y iso3",
+            "--include=extent_type",
+            "--include=type",
+            "--include=building_count",
+            "--include=building_count_density_quantile_rank",
+            "--include=iso3",
+            "--include=mgrs_code", 
+            "--calculate-feature-index"
         ],
     },
 }
@@ -88,21 +81,28 @@ LAYER_GROUPS = {
         "output_stem": "GRID3_COD_boundaries",
         "profile": "boundaries",
         "name": "GRID3 DRC Administrative Boundaries v8.0",
-        "description": "Health zones, health areas, antennes, a`nd provinces for the Democratic Republic of the Congo, with label centroids",
+        "description": "Province, antenna, health zone, and health area operational boundaries for the Democratic Republic of the Congo.",
         "attribution": "© GRID3, CIESIN Columbia University. CC BY-SA 4.0. https://doi.org/10.7916/asa4-jc67",
 
+        # Allow simplification at all zooms — --simplify-only-low-zooms causes tippecanoe
+        # to embed full-resolution IT polygon geometry at z8-15, ballooning tile sizes.
+        # With --simplification=2, the effect at z8+ is imperceptible.
+        # "profile_exclude": ["--simplify-only-low-zooms"],
+
+
         # (filename, layer-name-in-tile, minzoom, maxzoom)
+        # IT (Ituri) data is pre-merged into v8_0 files by merge_fgb.py (Step 3c).
         "polygon_layers": [
-            ("GRID3_COD_provinces_v8_0.fgb",   "GRID3-COD-province-v8-0",  4, 15),
-            ("GRID3_COD_antenne_v8_0.fgb",     "GRID3-COD-antenne-v8-0",   6, 15),
-            ("GRID3_COD_health_zones_v8_0.fgb","GRID3-COD-zonesante-v8-0", 7, 15),
-            ("GRID3_COD_health_areas_v8_0.fgb","GRID3-COD-airesante-v8-0", 8, 15),
+            ("GRID3_COD_province_v8_0.fgb",  "GRID3-COD-province-v8-0",  3, 14),
+            ("GRID3_COD_antenne_v8_0.fgb",   "GRID3-COD-antenne-v8-0",   3, 14),
+            ("GRID3_COD_zonesante_v8_0.fgb", "GRID3-COD-zonesante-v8-0", 5, 14),
+            ("GRID3_COD_airesante_v8_0.fgb", "GRID3-COD-airesante-v8-0", 5, 14),
         ],
         "point_layers": [
-            ("GRID3_COD_provinces_v8_0_centroids.fgb",   "GRID3-COD-province-v8-0-centroids",   4, 15),
-            ("GRID3_COD_antenne_v8_0_centroids.fgb",      "GRID3-COD-antenne-v8-0-centroids",    6, 15),
-            ("GRID3_COD_health_zones_v8_0_centroids.fgb", "GRID3-COD-zonesante-v8-0-centroids",  7, 15),
-            ("GRID3_COD_health_areas_v8_0_centroids.fgb", "GRID3-COD-airesante-v8-0-centroids",  8, 15),
+            ("GRID3_COD_province_v8_0_centroids.fgb",  "GRID3-COD-province-v8-0-centroids",  3, 14),
+            ("GRID3_COD_antenne_v8_0_centroids.fgb",   "GRID3-COD-antenne-v8-0-centroids",   3, 14),
+            ("GRID3_COD_zonesante_v8_0_centroids.fgb", "GRID3-COD-zonesante-v8-0-centroids", 5, 14),
+            ("GRID3_COD_airesante_v8_0_centroids.fgb", "GRID3-COD-airesante-v8-0-centroids", 5, 14),
         ],
     },
 
@@ -111,18 +111,19 @@ LAYER_GROUPS = {
         "output_stem": "GRID3_NGA_boundaries",
         "profile": "boundaries",
         "name": "GRID3 Nigeria Operational Boundaries v2.0",
-        "description": "Operational states, LGAs, and wards for Nigeria, with label centroids",
+        "description": "Operational administrative boundaries (adm0-adm3) for Nigeria.",
         "attribution": "© GRID3, CIESIN Columbia University. CC BY 4.0. https://doi.org/10.7916/gpv6-dq34",
 
         "polygon_layers": [
-            ("GRID3_NGA_operational_states_v2_0.fgb", "GRID3-NGA-operational-states-v2-0", 4, 15),
-            ("GRID3_NGA_operational_LGAs_v2_0.fgb",   "GRID3-NGA-operational-LGAs-v2-0",   5, 15),
-            ("GRID3_NGA_operational_wards_v2_0.fgb",  "GRID3-NGA-operational-wards-v2-0",  7, 15),
+            # ("GRID3_NGA_national_boundary_unpublished_20260429.fgb", "GRID3-NGA-unpublished-adm0", 0, 15),
+            # ("GRID3_NGA_operational_states_v2_0.fgb", "GRID3-NGA-operational-states-v2-0", 4, 15),
+            # ("GRID3_NGA_operational_LGAs_v2_0.fgb",   "GRID3-NGA-operational-LGAs-v2-0",   5, 15),
+            # ("GRID3_NGA_operational_wards_v2_0.fgb",  "GRID3-NGA-operational-wards-v2-0",  7, 15),
         ],
         "point_layers": [
-            ("GRID3_NGA_operational_states_v2_0_centroids.fgb", "GRID3-NGA-operational-states-v2-0-centroids", 4, 15),
-            ("GRID3_NGA_operational_LGAs_v2_0_centroids.fgb",   "GRID3-NGA-operational-LGAs-v2-0-centroids",   5, 15),
-            ("GRID3_NGA_operational_wards_v2_0_centroids.fgb",  "GRID3-NGA-operational-wards-v2-0-centroids",  7, 15),
+            # ("GRID3_NGA_national_boundary_unpublished_20260429_centroids.fgb", "GRID3-NGA-unpublished-adm0-centroids", 0, 15)           
+            # ("GRID3_NGA_operational_LGAs_v2_0_centroids.fgb",   "GRID3-NGA-operational-LGAs-v2-0-centroids",   5, 15),
+            # ("GRID3_NGA_operational_wards_v2_0_centroids.fgb",  "GRID3-NGA-operational-wards-v2-0-centroids",  7, 15),
             ],
     },
 
@@ -133,6 +134,17 @@ LAYER_GROUPS = {
         "name": "GRID3 DRC Settlement Extents v3.1",
         "description": "Settlement extent polygons for the Democratic Republic of the Congo",
         "attribution": "© GRID3, CIESIN Columbia University. CC BY-SA 4.0. https://doi.org/10.7916/d6gy-yh28",
+
+        "modifiers": {
+            "GRID3_COD_settlement_extents_v3_1.fgb": {
+                "zoom_filter_windows": [
+                    {"minzoom":  7, "maxzoom": 13, "filter": ["==", "type", "Built-up Area"]},
+                    {"minzoom": 10, "maxzoom": 13, "filter": ["==", "type", "Small Settlement Area"]},
+                    {"minzoom": 12, "maxzoom": 13, "filter": ["==", "type", "Hamlet"]},
+                ],
+            },
+        },
+
 
         "polygon_layers": [
             ("GRID3_COD_settlement_extents_v3_1.fgb", "GRID3-COD-settlement-extents-v3-1", 7, 15),
@@ -145,13 +157,33 @@ LAYER_GROUPS = {
     "GRID3_NGA_settlement_extents": {
         "output_stem": "GRID3_NGA_settlement_extents",
         "profile": "settlement_extents",
-        "name": "GRID3 Nigeria Settlement Extents v3.0 / Settlement Blocks v4.0",
-        "description": "Settlement extent polygons (v3.0, z7–13) and settlement block polygons (v4.0, z13–16) for Nigeria",
+        "name": "GRID3 Nigeria Settlement Extents v4.0",
+        "description": "Settlement block polygons dissolved by MGRS code (v4.0, z7–13) and settlement block polygons (v4.0, z13–16) for Nigeria",
         "attribution": "© GRID3, CIESIN Columbia University. CC BY-SA 4.0. https://doi.org/10.7916/tbgr-4j86",
 
+        # Adjacent blocks share exact borders within MGRS grid cells; synchronize
+        # simplification across those shared nodes so seams don't appear at high zoom.
+        "polygon_settings": [
+            "--no-simplification-of-shared-nodes",
+        ],
+
+        # Dissolve (z7–13): introduce each settlement type only at the zoom level where
+        # the style first renders it, preventing density-based dropout at low zooms and
+        # eliminating the popping caused by tippecanoe dropping same-tier features unevenly.
+        # Field name: extent_type (v4.0 dissolve schema). Blocks (z13–16): no filter needed.
+        "modifiers": {
+            "GRID3_NGA_settlement_extents_dissolve_v4_0.fgb": {
+                "zoom_filter_windows": [
+                    {"minzoom":  7, "maxzoom": 13, "filter": ["==", "extent_type", "Built-up Area"]},
+                    {"minzoom": 10, "maxzoom": 13, "filter": ["==", "extent_type", "Small Settlement Area"]},
+                    {"minzoom": 12, "maxzoom": 13, "filter": ["==", "extent_type", "Hamlet"]},
+                ],
+            },
+        },
+
         "polygon_layers": [
-            ("GRID3_NGA_settlement_extents_v3_0.fgb", "GRID3-NGA-settlement-extents-v3-0",  7, 13),
-            ("GRID3_NGA_settlement_extents_v4_0.fgb", "GRID3-NGA-settlement-extents-v4-0", 13, 16),
+            ("GRID3_NGA_settlement_extents_dissolve_v4_0.fgb", "GRID3-NGA-settlement-extents-v4-0", 7, 13),
+            ("GRID3_NGA_settlement_extents_v4_0.fgb", "GRID3-NGA-settlement-blocks-v4-0", 13, 16),
         ],
         "point_layers": [],
     },
@@ -164,10 +196,12 @@ LAYER_GROUPS = {
         "description": "Health facilities and settlement names for the Democratic Republic of the Congo",
         "attribution": "© GRID3, CIESIN Columbia University. CC BY-SA 4.0. https://doi.org/10.7916/f1ft-y872",
 
+
         "polygon_layers": [],
+        # IT (Ituri) data is pre-merged into v8_0 files by merge_fgb.py (Step 3c).
         "point_layers": [
-            ("GRID3_COD_health_facilities_v8_0.fgb", "GRID3-COD-health-facilities-v8-0", 5, 18),
-            ("GRID3_COD_settlement_names_v8_0.fgb",   "GRID3-COD-settlement-names-v8-0",  5, 18),
+            ("GRID3_COD_health_facilities_v8_0.fgb", "GRID3-COD-health-facilities-v8-0", 5, 16),
+            ("GRID3_COD_settlement_names_v8_0.fgb",  "GRID3-COD-settlement-names-v8-0",  5, 16),
         ],
     },
 
@@ -181,7 +215,7 @@ LAYER_GROUPS = {
 
         "polygon_layers": [],
         "point_layers": [
-            # ("GRID3_NGA_settlement_names_v8_0.fgb", "GRID3-NGA-settlement-names-v8-0", 5, 18),
+            # ("GRID3_NGA_settlement_names_v8_0.fgb", "GRID3-NGA-settlement-names-v8-0", 5, 16),
         ],
     },
 }
@@ -250,13 +284,16 @@ def build_tippecanoe_group_command(group_name, layer_tuples, output_file,
         profile_settings = list(profile.get(settings_key, profile.get("settings", [])))
 
     group_override = group.get(settings_key, [])
-    resolved_settings = profile_settings + group_override
+    exclude = set(group.get("profile_exclude", []))
+    resolved_settings = [s for s in (profile_settings + group_override) if s not in exclude]
 
-    cmd = ["tippecanoe", "-fo", output_file] + zoom_flags
+    cmd = ["tippecanoe", "-fo", output_file, "-U", "1"] + zoom_flags
     cmd.extend(resolved_settings)
     cmd.append("-P")
 
+    modifiers = group.get("modifiers", {})
     layer_meta = _get_layer_metadata()
+
     for _, layer_name, minzoom, maxzoom, abs_path in layer_tuples:
         spec = {
             "file":    str(abs_path),
@@ -266,12 +303,21 @@ def build_tippecanoe_group_command(group_name, layer_tuples, output_file,
         }
         m = layer_meta.get(layer_name)
         if m:
-            # Compact JSON in the description field (standard -L JSON spec key)
             spec["description"] = _json.dumps(
                 {k: v for k, v in m.items() if v and not k.startswith('_')},
                 separators=(',', ':')
             )
-        cmd.extend(["-L", _json.dumps(spec)])
+        mod = modifiers.get(abs_path.name)
+        windows = mod.get("zoom_filter_windows") if mod else None
+        if windows:
+            # Emit one -L spec per window; tippecanoe merges same-name layers correctly.
+            for w in windows:
+                wspec = {**spec, "minzoom": w["minzoom"], "maxzoom": w["maxzoom"]}
+                if "filter" in w:
+                    wspec["filter"] = w["filter"]
+                cmd.extend(["-L", _json.dumps(wspec)])
+        else:
+            cmd.extend(["-L", _json.dumps(spec)])
 
     if extent:
         xmin, ymin, xmax, ymax = extent

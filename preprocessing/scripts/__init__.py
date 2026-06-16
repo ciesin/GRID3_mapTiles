@@ -9,12 +9,15 @@ from .downloadOverture import download_overture_data
 from .convertCustomData import convert_file
 from .runCreateTiles import process_to_tiles, create_tilejson
 from .convertToFlatGeobuf import (
-    convert_parquet_to_fgb, 
+    convert_parquet_to_fgb,
     batch_convert_directory,
     convert_geodata_to_fgb,
-    batch_convert_geodata
+    batch_convert_geodata,
+    convert_gpkg_to_fgb_layers,
 )
 from .downloadArcGIS import download_arcgis_data, batch_download_arcgis_layers, test_service_connection
+from .filter_fgb import filter_fgb, _resolve_filter
+from .merge_fgb import merge_fgb, run_merge_config
 from .generateLabels import (
     generate_centroids, 
     batch_generate_centroids,
@@ -41,9 +44,14 @@ __all__ = [
     'batch_convert_directory',
     'convert_geodata_to_fgb',
     'batch_convert_geodata',
+    'convert_gpkg_to_fgb_layers',
     'download_arcgis_data',
     'batch_download_arcgis_layers',
     'test_service_connection',
+    'filter_fgb',
+    '_resolve_filter',
+    'merge_fgb',
+    'run_merge_config',
     'generate_centroids',
     'batch_generate_centroids',
     'generate_centerlines',

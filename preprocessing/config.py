@@ -61,9 +61,11 @@ OVERTURE_DATA_DIR = INPUT_DIR / "overture"
 GRID3_DATA_DIR = INPUT_DIR / "grid3"
 SCRATCH_DIR = DATA_DIR / "2-scratch"
 # Source subdirectories — one per thematic group, matched by SOURCE_DIR_PROFILES in tippecanoe.py
-SCRATCH_BOUNDARIES_DIR   = SCRATCH_DIR / "GRID3_boundaries"
-SCRATCH_POIS_DIR         = SCRATCH_DIR / "GRID3_POIs"
-SCRATCH_EXTENTS_DIR      = SCRATCH_DIR / "GRID3_settlementExtents"
+SCRATCH_BOUNDARIES_DIR          = SCRATCH_DIR / "GRID3_boundaries"
+SCRATCH_POIS_DIR                = SCRATCH_DIR / "GRID3_POIs"
+SCRATCH_EXTENTS_DIR             = SCRATCH_DIR / "GRID3_settlementExtents"
+SCRATCH_BOUNDARIES_FILTERED_DIR = SCRATCH_BOUNDARIES_DIR / "_filtered"
+SCRATCH_POIS_FILTERED_DIR       = SCRATCH_POIS_DIR / "_filtered"
 
 OUTPUT_DIR = DATA_DIR / "3-pmtiles"
 TILE_DIR = OUTPUT_DIR  # Alias for consistency with scripts
@@ -144,7 +146,7 @@ DEFAULT_CONFIG = {
     "tiling": {
         "input_dirs": [SCRATCH_BOUNDARIES_DIR, SCRATCH_POIS_DIR, SCRATCH_EXTENTS_DIR],
         "output_dir": OUTPUT_DIR,
-        "parallel": True,
+        "parallel": False,
         "overwrite": True,
         "verbose": True,
         "create_tilejson": True,
@@ -164,6 +166,8 @@ def ensure_directories():
         SCRATCH_BOUNDARIES_DIR,
         SCRATCH_POIS_DIR,
         SCRATCH_EXTENTS_DIR,
+        SCRATCH_BOUNDARIES_FILTERED_DIR,
+        SCRATCH_POIS_FILTERED_DIR,
         OUTPUT_DIR,
     ]
     

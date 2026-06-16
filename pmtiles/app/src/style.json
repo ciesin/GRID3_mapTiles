@@ -35,7 +35,7 @@
 			"attribution": "",
 			"tiles": []
 		},
-		"GRID3_COD_POIs": {
+		"grid3_cod_pois": {
 			"type": "vector",
 			"attribution": "",
 			"tiles": []
@@ -351,7 +351,7 @@
 						0,
 						0
 					],
-					8.5,
+					9,
 					[
 						"match",
 						[
@@ -418,9 +418,9 @@
 			"id": "nga-settlement-extents",
 			"type": "fill",
 			"source": "grid3_nga_settlement_extents",
-			"source-layer": "GRID3-NGA-settlement-extents-v3-0",
-			"minzoom": 9,
-			"maxzoom": 20,
+			"source-layer": "GRID3-NGA-settlement-extents-v4-0",
+			"minzoom": 7,
+			"maxzoom": 14,
 			"layout": {
 				"visibility": "visible"
 			},
@@ -434,12 +434,12 @@
 					[
 						"zoom"
 					],
-					9,
+					7,
 					[
 						"match",
 						[
 							"get",
-							"type"
+							"extent_type"
 						],
 						"Built-up Area",
 						"#CAA2DD",
@@ -449,7 +449,7 @@
 						"#DFC8E7",
 						"#FF8C0000"
 					],
-					14,
+					13,
 					[
 						"match",
 						[
@@ -473,12 +473,12 @@
 					[
 						"zoom"
 					],
-					9,
+					8,
 					[
 						"match",
 						[
 							"get",
-							"type"
+							"extent_type"
 						],
 						"Built-up Area",
 						0,
@@ -488,12 +488,12 @@
 						0,
 						0
 					],
-					9.5,
+					9,
 					[
 						"match",
 						[
 							"get",
-							"type"
+							"extent_type"
 						],
 						"Built-up Area",
 						1,
@@ -508,7 +508,7 @@
 						"match",
 						[
 							"get",
-							"type"
+							"extent_type"
 						],
 						"Built-up Area",
 						1,
@@ -531,9 +531,9 @@
 						1,
 						"Small Settlement Area",
 						1,
-						0
+						1
 					],
-					16,
+						14,
 					[
 						"match",
 						[
@@ -548,6 +548,7 @@
 						0,
 						0
 					]
+
 				]
 			}
 		},
@@ -555,8 +556,8 @@
 			"id": "nga-settlement-blocks",
 			"type": "fill",
 			"source": "grid3_nga_settlement_extents",
-			"source-layer": "GRID3-NGA-settlement-extents-v4-0",
-			"minzoom": 13,
+			"source-layer": "GRID3-NGA-settlement-blocks-v4-0",
+			"minzoom": 12,
 			"maxzoom": 20,
 			"layout": {
 				"visibility": "visible"
@@ -595,10 +596,12 @@
 					[
 						"zoom"
 					],
-					13,
+					12,
 					0,
 					14,
-					0.5
+					0.5,
+					16,
+					0.666
 				]
 			}
 		},
@@ -751,7 +754,7 @@
 			"id": "nga-settlement-blocks-outline",
 			"type": "line",
 			"source": "grid3_nga_settlement_extents",
-			"source-layer": "GRID3-NGA-settlement-extents-v4-0",
+			"source-layer": "GRID3-NGA-settlement-blocks-v4-0",
 			"minzoom": 13,
 			"maxzoom": 20,
 			"layout": {
@@ -2740,14 +2743,11 @@
 			},
 			"paint": {
 				"fill-extrusion-color": [
-					"interpolate",
-					[
-						"exponential",
-						2
-					],
+					"step",
 					[
 						"zoom"
 					],
+					"#A2AAAD",
 					14,
 					"#BEC6C4",
 					15,
@@ -3443,7 +3443,7 @@
 						0,
 						0
 					],
-					8,
+					9,
 					[
 						"match",
 						[
@@ -3458,7 +3458,7 @@
 						0,
 						0
 					],
-					9,
+					10,
 					[
 						"match",
 						[
@@ -3527,7 +3527,7 @@
 						0,
 						0
 					],
-					8,
+					9,
 					[
 						"match",
 						[
@@ -3542,7 +3542,7 @@
 						0,
 						0
 					],
-					9,
+					10,
 					[
 						"match",
 						[
@@ -3594,7 +3594,7 @@
 			"id": "nga-settlement-extents-outline",
 			"type": "line",
 			"source": "grid3_nga_settlement_extents",
-			"source-layer": "GRID3-NGA-settlement-extents-v3-0",
+			"source-layer": "GRID3-NGA-settlement-extents-v4-0",
 			"minzoom": 7,
 			"maxzoom": 20,
 			"layout": {
@@ -11991,7 +11991,7 @@
 			"type": "symbol",
 			"source": "grid3_cod_boundaries",
 			"source-layer": "GRID3-COD-zonesante-v8-0",
-			"minzoom": 8,
+			"minzoom": 12,
 			"layout": {
 				"symbol-placement": "line",
 				"text-field": [
