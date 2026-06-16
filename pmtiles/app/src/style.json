@@ -11703,25 +11703,56 @@
 			}
 		},
 		{
+			"id": "cod-health-areas-boundary-casing",
+			"type": "line",
+			"source": "grid3_cod",
+			"source-layer": "GRID3-COD-airesante-v8-0",
+			"minzoom": 11,
+			"paint": {
+				"line-color": "#fff",
+				"line-width": [
+					"interpolate",
+					[
+						"linear"
+					],
+					[
+						"zoom"
+					],
+					11.5,
+					2,
+					14,
+					3
+				],
+				"line-opacity": [
+					"step",
+					[
+						"zoom"
+					],
+					0,
+					10,
+					1
+				]
+			}
+		},
+		{
 			"id": "cod-health-areas-boundary-early",
 			"type": "line",
 			"source": "grid3_cod",
 			"source-layer": "GRID3-COD-airesante-v8-0",
 			"minzoom": 6,
-			"maxzoom": 13,
 			"paint": {
 				"line-color": [
 					"step",
 					[
 						"zoom"
 					],
-					"#607D8B",
-					9,
-					"#607D8B",
+					"#9EA2A2",
 					10,
-					"#EA7600",
-					12,
-					"#FF6A39"
+					"#9EA2A2",
+					11,
+					"#CF4520",
+					13,
+					"#FF5722"
 				],
 				"line-width": [
 					"interpolate",
@@ -11733,10 +11764,13 @@
 					],
 					6,
 					0,
-					7,
-					0.75,
-					10,
-					1.5
+					9,
+					0.5,
+					12,
+					1.25,
+					15,
+					2
+
 				],
 				"line-dasharray": [
 					"step",
@@ -11746,112 +11780,44 @@
 					[
 						"literal",
 						[
-							1
+							1, 0
 						]
 					],
 					
-					10,
-						[
-							"literal",
-							[
-							3, 1	
-							]
-						],
-						12,
+						11,
 							[
 							"literal",
 							[
 								2,
 								4
 							]
+						],
+						13,
+							[
+							"literal",
+							[
+								4,
+								8
+							]
 						]
 
 				],
 				"line-opacity": [
-					"interpolate",
-					[
-						"exponential",
-						1.7
-					],
-					[
-						"zoom"
-					],
-					7,
-					0.15,
-					13,
-					1
-				]
-			}
-		},
-		{
-			"id": "cod-health-areas-boundary-casing",
-			"type": "line",
-			"source": "grid3_cod",
-			"source-layer": "GRID3-COD-airesante-v8-0",
-			"minzoom": 13,
-			"paint": {
-				"line-color": "#fff",
-				"line-width": [
-					"interpolate",
-					[
-						"linear"
-					],
-					[
-						"zoom"
-					],
-					13,
-					1,
-					14,
-					2
-				],
-				"line-opacity": [
 					"step",
 					[
 						"zoom"
 					],
 					0,
-					13,
+					6,
+					0.5,
+					9,
+					0.75,
+					10,
 					1
 				]
 			}
 		},
 		{
-			"id": "cod-health-areas-boundary",
-			"type": "line",
-			"source": "grid3_cod",
-			"source-layer": "GRID3-COD-airesante-v8-0",
-			"minzoom": 13,
-			"paint": {
-				"line-color": "#FF5722",
-				"line-width": [
-					"interpolate",
-					[
-						"linear"
-					],
-					[
-						"zoom"
-					],
-					13,
-					1,
-					14,
-					1.5
-				],
-				"line-dasharray": [
-					4,
-					8
-				],
-				"line-opacity": [
-					"step",
-					[
-						"zoom"
-					],
-					0,
-					13,
-					1
-				]
-			}
-		},
-				{
 			"id": "cod-health-zones-boundary",
 			"type": "line",
 			"source": "grid3_cod",
@@ -11879,19 +11845,17 @@
 					"interpolate",
 					[
 						"exponential",
-						1.5
+						1.2
 					],
 					[
 						"zoom"
 					],
-					12,
+					11,
 					0,
-					13,
-					1,
-					16,
-					4,
+					14,
+					5,
 					18,
-					6
+					7
 				],
 				"line-opacity": [
 					"interpolate",
@@ -12186,7 +12150,7 @@
 		{
 			"id": "cod-settlement-names-label",
 			"type": "symbol",
-			"source": "grid3_cod_pois",
+			"source": "grid3_cod",
 			"source-layer": "GRID3-COD-settlement-names-v8-0",
 			"minzoom": 10,
 			"layout": {
@@ -13409,7 +13373,7 @@
 		{
 			"id": "cod-health-facilities-label-early",
 			"type": "symbol",
-			"source": "grid3_cod_pois",
+			"source": "grid3_cod",
 			"source-layer": "GRID3-COD-health-facilities-v8-0",
 			"minzoom": 10,
 			"maxzoom": 14,
@@ -13495,7 +13459,7 @@
 		{
 			"id": "cod-health-facilities-label",
 			"type": "symbol",
-			"source": "grid3_cod_pois",
+			"source": "grid3_cod",
 			"source-layer": "GRID3-COD-health-facilities-v8-0",
 			"minzoom": 14,
 			"layout": {
@@ -13517,7 +13481,7 @@
 					10,
 					9,
 					14,
-					10,
+					12,
 					18,
 					18
 				],
@@ -13532,9 +13496,9 @@
 					10,
 					7.5,
 					14,
-					10,
+					8,
 					18,
-					14
+					7
 				],
 				"text-max-width": [
 					"interpolate",
@@ -13550,6 +13514,7 @@
 					16,
 					8
 				],
+				"text-ignore-placement": true,
 				"text-anchor": "bottom",
 				"text-offset": [
 					0,
@@ -13792,7 +13757,7 @@
 						"zoom"
 					],
 					"#505759",
-					12,
+					11,
 					"#CF4520"
 				],
 				"text-opacity": 1,
