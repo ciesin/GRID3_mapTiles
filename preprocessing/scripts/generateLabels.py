@@ -163,9 +163,23 @@ def generate_centroids(input_file, output_file, verbose=True):
             except Exception:
                 return 0.0  # Default to no rotation if calculation fails
         
+        # Compute Shape__Area and Shape__Length from polygon geometry before
+        # replacing it with the centroid point. The style uses Shape__Area for
+        # text-size scaling; computing here ensures every centroid row carries
+        # the polygon area even when the source file lacks it (e.g. IT data).
+        for col, fn in (
+            ('Shape__Area',   lambda g: g.area),
+            ('Shape__Length', lambda g: g.length),  # perimeter for polygons
+        ):
+            if col not in gdf.columns:
+                gdf[col] = gdf.geometry.apply(fn)
+            elif gdf[col].isna().any():
+                mask = gdf[col].isna()
+                gdf.loc[mask, col] = gdf.loc[mask, 'geometry'].apply(fn)
+
         # Store original geometries for rotation calculation
         original_geoms = gdf.geometry.copy()
-        
+
         # Generate centroids
         gdf['geometry'] = gdf.geometry.representative_point()
         

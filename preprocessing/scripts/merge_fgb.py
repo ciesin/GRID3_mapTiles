@@ -119,6 +119,24 @@ def merge_fgb(
         con.execute(f"DROP TABLE IF EXISTS {tbl}")
         con.execute(f"CREATE TABLE {tbl} AS {union_sql}")
 
+        # Fill NULL Shape__Area / Shape__Length for rows that came from sources
+        # lacking those columns (e.g. IT data from GPKG). Only applied to polygon
+        # geometry types — centroid files are points and ST_Area would return 0.
+        cols_in_tbl = {row[0] for row in con.execute(f"DESCRIBE {tbl}").fetchall()}
+        geom_type_row = con.execute(
+            f"SELECT ST_GeometryType(geom) FROM {tbl} WHERE geom IS NOT NULL LIMIT 1"
+        ).fetchone()
+        is_polygon = geom_type_row and "POLYGON" in (geom_type_row[0] or "").upper()
+        if is_polygon:
+            if "Shape__Area" in cols_in_tbl:
+                con.execute(
+                    f'UPDATE {tbl} SET "Shape__Area" = ST_Area(geom) WHERE "Shape__Area" IS NULL'
+                )
+            if "Shape__Length" in cols_in_tbl:
+                con.execute(
+                    f'UPDATE {tbl} SET "Shape__Length" = ST_Perimeter(geom) WHERE "Shape__Length" IS NULL'
+                )
+
         n_total = (con.execute(f"SELECT COUNT(*) FROM {tbl}").fetchone() or (0,))[0]
 
         # Per-source counts for reporting

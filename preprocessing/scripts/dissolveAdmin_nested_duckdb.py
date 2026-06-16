@@ -50,14 +50,16 @@ con.execute("""
     CREATE TABLE dissolved_antenne AS
     SELECT
         antenne,
-        MIN(pays)                       AS pays,
-        MIN(iso3)                       AS iso3,
-        MIN(province)                   AS province,
-        MIN(prov_uid)                   AS prov_uid,
-        MIN(date)                       AS date,
-        MIN(edit_par)                   AS edit_par,
-        MIN(grid3id)                    AS grid3id,
-        ST_Multi(ST_Union_Agg(geom))    AS geom
+        MIN(pays)                                           AS pays,
+        MIN(iso3)                                           AS iso3,
+        MIN(province)                                       AS province,
+        MIN(prov_uid)                                       AS prov_uid,
+        MIN(date)                                           AS date,
+        MIN(edit_par)                                       AS edit_par,
+        MIN(grid3id)                                        AS grid3id,
+        ST_Multi(ST_Union_Agg(geom))                        AS geom,
+        ST_Area(ST_Multi(ST_Union_Agg(geom)))               AS "Shape__Area",
+        ST_Perimeter(ST_Multi(ST_Union_Agg(geom)))          AS "Shape__Length"
     FROM zones
     GROUP BY antenne
 """)
@@ -71,13 +73,15 @@ con.execute("""
     CREATE TABLE dissolved_province AS
     SELECT
         province,
-        MIN(pays)                       AS pays,
-        MIN(iso3)                       AS iso3,
-        MIN(prov_uid)                   AS prov_uid,
-        MIN(date)                       AS date,
-        MIN(edit_par)                   AS edit_par,
-        MIN(grid3id)                    AS grid3id,
-        ST_Multi(ST_Union_Agg(geom))    AS geom
+        MIN(pays)                                           AS pays,
+        MIN(iso3)                                           AS iso3,
+        MIN(prov_uid)                                       AS prov_uid,
+        MIN(date)                                           AS date,
+        MIN(edit_par)                                       AS edit_par,
+        MIN(grid3id)                                        AS grid3id,
+        ST_Multi(ST_Union_Agg(geom))                        AS geom,
+        ST_Area(ST_Multi(ST_Union_Agg(geom)))               AS "Shape__Area",
+        ST_Perimeter(ST_Multi(ST_Union_Agg(geom)))          AS "Shape__Length"
     FROM zones
     GROUP BY province
 """)

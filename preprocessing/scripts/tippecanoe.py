@@ -40,10 +40,10 @@ PROFILES = {
     "POI": {
         "description": "Point features (health facilities, settlement names, and other toponyms)",
         "settings": [
-            "--drop-rate=0",
-            "--no-feature-limit",
-            "--no-tile-size-limit",  # point features are small; preserve all
-        ],
+            "--cluster-densest-as-needed",
+            # "--no-feature-limit",
+            "--cluster-maxzoom=g",
+            "--preserve-point-density-threshold=16"],
     },
     "settlement_extents": {
         "description": "Settlement extent polygons",
