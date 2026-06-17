@@ -70,6 +70,12 @@ TILE_DIR = OUTPUT_DIR
 PUBLIC_TILES_DIR = PROJECT_ROOT.parent / "2-viewer" / "public" / "tiles"
 
 
+def _extract_iso3(group_name: str) -> str:
+    """Extract ISO3 country code from a LAYER_GROUP name like 'GRID3_COD_boundaries'."""
+    parts = group_name.split("_")
+    return parts[1] if len(parts) >= 3 else group_name
+
+
 def process_file_group(group_name, file_path_map, extent=None, output_dir=None):
     """Process a named group of FGB files into a single multi-layer PMTiles.
 
@@ -191,7 +197,8 @@ def process_file_group(group_name, file_path_map, extent=None, output_dir=None):
 
 def process_to_tiles(extent=None, input_dirs=None, filter_pattern=None,
                     output_dir=None, parallel=False, max_parallel_groups=None,
-                    verbose=True):
+                    verbose=True, tiling_profile="iso3_theme",
+                    keep_theme_files=True):
     """Process FlatGeobuf/GeoJSONSeq/GeoJSON files into PMTiles
 
     Prioritizes FlatGeobuf (.fgb) files for optimal performance with large datasets.
@@ -206,7 +213,14 @@ def process_to_tiles(extent=None, input_dirs=None, filter_pattern=None,
         max_parallel_groups (int|None): Max concurrent tippecanoe invocations.
             None = all groups at once (good default for multi-core machines).
         verbose (bool): Show progress information (default: True)
-    
+        tiling_profile (str): Aggregation level for output archives:
+            "iso3_theme" (default) — one PMTiles per country+theme (existing behaviour)
+            "iso3"                 — one PMTiles per country (tile-join merge)
+            "all"                  — single GRID3.pmtiles for all countries/themes
+        keep_theme_files (bool): When tiling_profile is "iso3" or "all", keep the
+            intermediate per-theme archives (default True).  Set False to remove them
+            after the merge step completes.
+
     Returns:
         dict: Results including processed files and any errors
     """
@@ -304,13 +318,24 @@ def process_to_tiles(extent=None, input_dirs=None, filter_pattern=None,
         for gname in groups_to_process:
             print(f"  → group '{gname}': {LAYER_GROUPS[gname]['output_stem']}.pmtiles")
 
+    # ── Determine where individual group archives land ────────────────────────
+    # iso3_theme: write directly to the final output dir (existing behaviour).
+    # iso3 / all: write to a temp subdir first, then tile-join into merged files.
+    final_tile_dir = Path(output_dir) if output_dir else TILE_DIR
+    if tiling_profile == "iso3_theme":
+        group_output_dir = final_tile_dir
+    else:
+        group_output_dir = final_tile_dir / "_tmp_groups"
+        group_output_dir.mkdir(parents=True, exist_ok=True)
+
     results = {
         "success": True,
         "processed_files": [],
         "errors": [],
-        "total_files": len(geospatial_files)
+        "total_files": len(geospatial_files),
+        "merged_files": [],
     }
-    
+
     def _handle_group_result(gname, result):
         if result["success"]:
             results["processed_files"].append({
@@ -332,7 +357,9 @@ def process_to_tiles(extent=None, input_dirs=None, filter_pattern=None,
             print(f"\nProcessing {len(groups_to_process)} groups in parallel (max_workers={workers})...")
         with ThreadPoolExecutor(max_workers=workers) as executor:
             futures = {
-                executor.submit(process_file_group, gname, file_path_map, extent, output_dir): gname
+                executor.submit(
+                    process_file_group, gname, file_path_map, extent, str(group_output_dir)
+                ): gname
                 for gname in groups_to_process
             }
             for future in as_completed(futures):
@@ -342,18 +369,90 @@ def process_to_tiles(extent=None, input_dirs=None, filter_pattern=None,
         for gname in groups_to_process:
             if verbose:
                 print(f"\nProcessing group '{gname}'...")
-            _handle_group_result(gname, process_file_group(gname, file_path_map, extent, output_dir))
+            _handle_group_result(
+                gname,
+                process_file_group(gname, file_path_map, extent, str(group_output_dir)),
+            )
+
+    # ── Post-process merge for iso3 / all profiles ────────────────────────────
+    if tiling_profile != "iso3_theme" and results["processed_files"]:
+        theme_paths = [
+            entry["output_file"]
+            for entry in results["processed_files"]
+            if entry.get("output_file") and Path(entry["output_file"]).exists()
+        ]
+
+        def _pmtiles_maxzoom(path):
+            """Return maxzoom from a PMTiles archive header, or None on failure."""
+            try:
+                out = subprocess.check_output(
+                    ["pmtiles", "show", "--json", str(path)], stderr=subprocess.DEVNULL
+                )
+                return json.loads(out).get("maxzoom")
+            except Exception:
+                return None
+
+        def _tile_join(output_path, inputs):
+            # Probe maxzoom of each input so tile-join doesn't warn about mismatches.
+            zooms = [z for z in (_pmtiles_maxzoom(p) for p in inputs) if z is not None]
+            cmd = ["tile-join", "-fo", str(output_path), "--no-tile-size-limit"]
+            if zooms:
+                cmd += [f"-z{max(zooms)}"]
+            cmd += [str(p) for p in inputs]
+            try:
+                subprocess.run(cmd, check=True)
+                return True
+            except subprocess.CalledProcessError as e:
+                results["errors"].append({"file": str(output_path), "error": f"tile-join exit {e.returncode}"})
+                return False
+
+        if tiling_profile == "iso3":
+            # Group theme archives by ISO3 prefix and merge each set.
+            from collections import defaultdict as _defaultdict
+            by_iso3 = _defaultdict(list)
+            for p in theme_paths:
+                iso3 = _extract_iso3(Path(p).stem)
+                by_iso3[iso3].append(p)
+
+            if verbose:
+                print(f"\nMerging {len(theme_paths)} theme archive(s) into {len(by_iso3)} country file(s)...")
+
+            for iso3, inputs in sorted(by_iso3.items()):
+                merged = final_tile_dir / f"GRID3_{iso3}.pmtiles"
+                if _tile_join(merged, inputs):
+                    results["merged_files"].append(merged)
+                    if verbose:
+                        print(f"  ✓ GRID3_{iso3}.pmtiles ← {[Path(p).name for p in inputs]}")
+
+        elif tiling_profile == "all":
+            if verbose:
+                print(f"\nMerging {len(theme_paths)} theme archive(s) into GRID3.pmtiles...")
+            merged = final_tile_dir / "GRID3.pmtiles"
+            if _tile_join(merged, theme_paths):
+                results["merged_files"].append(merged)
+                if verbose:
+                    print(f"  ✓ GRID3.pmtiles")
+
+        # Clean up temp group archives unless the caller wants to keep them.
+        if not keep_theme_files:
+            import shutil as _shutil
+            _shutil.rmtree(group_output_dir, ignore_errors=True)
+            if verbose:
+                print(f"  Removed intermediate group archives ({group_output_dir.name}/)")
 
     # Set overall success status
     if results["errors"]:
         results["success"] = False
-    
+
     if verbose:
         print(f"\n=== TILE PROCESSING COMPLETE ===")
+        print(f"Profile: {tiling_profile}")
         print(f"Processed: {len(results['processed_files'])}/{results['total_files']} files")
+        if results["merged_files"]:
+            print(f"Merged archives: {len(results['merged_files'])}")
         if results["errors"]:
             print(f"Errors: {len(results['errors'])}")
-    
+
     return results
 
 def create_tilejson(tile_dir=None, extent=None, output_file=None):

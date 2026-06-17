@@ -5,7 +5,7 @@ This package contains modular scripts for downloading, converting,
 and processing geospatial data into PMTiles format.
 """
 
-from .downloadOverture import download_overture_data
+from .downloadOverture import download_overture_data, download_overture_buildings_cli
 from .convertCustomData import convert_file
 from .runCreateTiles import process_to_tiles, create_tilejson
 from .convertToFlatGeobuf import (
@@ -37,6 +37,7 @@ except ImportError:
 
 __all__ = [
     'download_overture_data',
+    'download_overture_buildings_cli',
     'convert_file',
     'process_to_tiles',
     'create_tilejson',

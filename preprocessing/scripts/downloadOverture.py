@@ -15,6 +15,7 @@ Usage:
 
 import duckdb
 import argparse
+import os
 import sys
 from pathlib import Path
 from tqdm import tqdm
@@ -77,7 +78,7 @@ def get_db_url(sql_section):
     return None
 
 def download_overture_data(extent, buffer_degrees=0, template_path=None, verbose=True,
-                           project_root=None, overture_data_dir=None):
+                           project_root=None, overture_data_dir=None, duckdb_temp_dir=None):
     """Download and process source data from Overture Maps
     
     Args:
@@ -87,6 +88,7 @@ def download_overture_data(extent, buffer_degrees=0, template_path=None, verbose
         verbose (bool): Show progress information (default: True)
         project_root (str|Path|None): Optional project root path to override module default
         overture_data_dir (str|Path|None): Optional data directory path to override module default
+        duckdb_temp_dir (str|Path|None): DuckDB temp directory (must be Linux-native on WSL2)
 
     Returns:
         dict: Results including processed files and any errors
@@ -100,12 +102,17 @@ def download_overture_data(extent, buffer_degrees=0, template_path=None, verbose
     if overture_data_dir is not None:
         overture_data_dir = Path(overture_data_dir)
     else:
-        # Use disk-based path structure
-        # Structure: /mnt/disk02/gis/mapTiles/data/1-input/overture/
-        DATA_DISK = Path("/mnt/disk02/gis/mapTiles")
+        # Use disk-based path structure: DATA_DISK env var matches config.py
+        DATA_DISK = Path(os.environ.get("DATA_DISK", "/mnt/pool/gis/mapTiles"))
         DATA_DIR = DATA_DISK / "data"
         INPUT_DIR = DATA_DIR / "1-input"
         overture_data_dir = INPUT_DIR / "overture"
+
+    if duckdb_temp_dir is not None:
+        duckdb_temp_dir = Path(duckdb_temp_dir)
+    else:
+        # Derive from overture_data_dir: .../1-input/overture -> .../2-scratch/.duckdb_tmp
+        duckdb_temp_dir = overture_data_dir.parent.parent / "2-scratch" / ".duckdb_tmp"
 
     # Snap extent to tile boundaries to prevent rendering artifacts
     snapped_extent = snap_to_tile_bounds(extent, zoom=16)
@@ -130,6 +137,7 @@ def download_overture_data(extent, buffer_degrees=0, template_path=None, verbose
     
     # Ensure directories exist
     overture_data_dir.mkdir(parents=True, exist_ok=True)
+    duckdb_temp_dir.mkdir(parents=True, exist_ok=True)
     
     # Read the SQL template file
     if template_path is None:
@@ -145,6 +153,7 @@ def download_overture_data(extent, buffer_degrees=0, template_path=None, verbose
 
     # Replace template variables with actual paths
     sql_content = template_content.replace('{{overture_data_dir}}', str(overture_data_dir))
+    sql_content = sql_content.replace('{{duckdb_temp_dir}}', str(duckdb_temp_dir))
 
     # Replace the extent variables with buffered extent
     sql_content = sql_content.replace('$extent_xmin', str(buffered_xmin))
@@ -211,6 +220,47 @@ def download_overture_data(extent, buffer_degrees=0, template_path=None, verbose
         results["success"] = False
     
     return results
+
+def download_overture_buildings_cli(extent, output_dir, verbose=True):
+    """Download Overture buildings using the overturemaps Python package (GERS-structured GeoParquet).
+
+    Streams Arrow record batches directly to disk — suitable for continent-scale
+    downloads without loading the full dataset into RAM.
+
+    Args:
+        extent (tuple): (xmin, ymin, xmax, ymax) in WGS84
+        output_dir (str|Path): Directory to write buildings.parquet
+        verbose (bool): Print progress (default: True)
+
+    Returns:
+        dict: {"success": bool, "output_file": Path|None, "error": str|None}
+    """
+    import pyarrow.parquet as pq
+    from overturemaps import core
+
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_file = output_dir / "buildings.parquet"
+
+    xmin, ymin, xmax, ymax = extent
+
+    if verbose:
+        print("=== DOWNLOADING OVERTURE BUILDINGS (overturemaps) ===")
+        print(f"Extent: {xmin}, {ymin} to {xmax}, {ymax}")
+        print(f"Output: {output_file}")
+
+    try:
+        reader = core.record_batch_reader("building", bbox=(xmin, ymin, xmax, ymax))
+        with pq.ParquetWriter(str(output_file), reader.schema) as writer:
+            for batch in reader:
+                writer.write_batch(batch)
+        if verbose:
+            size_mb = output_file.stat().st_size / 1024 / 1024
+            print(f"Done. {output_file.name} ({size_mb:.1f} MB)")
+        return {"success": True, "output_file": output_file, "error": None}
+    except Exception as e:
+        return {"success": False, "output_file": None, "error": str(e)}
+
 
 def main():
     """Main entry point for command line usage"""

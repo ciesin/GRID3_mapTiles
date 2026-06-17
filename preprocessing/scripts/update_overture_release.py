@@ -49,7 +49,7 @@ def update_version(template_path, new_version):
     new_content = re.sub(pattern, replacement, content)
     
     if new_content == content:
-        print("❌ Could not find SET VARIABLE overture_release line in template")
+        print("Could not find SET VARIABLE overture_release line in template")
         return False
     
     with open(template_path, 'w') as f:

@@ -73,30 +73,30 @@ SET VARIABLE overture_release = '2026-05-20.0';
 --        subtype, class, names, is_salt, is_intermittent, etc.)
 ----------------------------------------------------------------------
 
-COPY (
-    SELECT
-        id,
-        subtype,
-        class,
-        names,
-        is_salt,
-        is_intermittent,
-        geometry
-    FROM read_parquet(
-        's3://overturemaps-us-west-2/release/' ||
-        getvariable('overture_release') ||
-        '/theme=base/type=water/*',
-        filename = true,
-        hive_partitioning = 1
-    )
-    WHERE
-        subtype IN ('ocean', 'lake', 'pond', 'reservoir', 'river', 'stream', 'water', 'canal')
-        AND bbox.xmin < $extent_xmax AND bbox.xmax > $extent_xmin
-        AND bbox.ymin < $extent_ymax AND bbox.ymax > $extent_ymin
-) TO '{{overture_data_dir}}/water.parquet'
-WITH (FORMAT PARQUET, COMPRESSION 'ZSTD');
+-- COPY (
+--     SELECT
+--         id,
+--         subtype,
+--         class,
+--         names,
+--         is_salt,
+--         is_intermittent,
+--         geometry
+--     FROM read_parquet(
+--         's3://overturemaps-us-west-2/release/' ||
+--         getvariable('overture_release') ||
+--         '/theme=base/type=water/*',
+--         filename = true,
+--         hive_partitioning = 1
+--     )
+--     WHERE
+--         subtype IN ('ocean', 'lake', 'pond', 'reservoir', 'river', 'stream', 'water', 'canal')
+--         AND bbox.xmin < $extent_xmax AND bbox.xmax > $extent_xmin
+--         AND bbox.ymin < $extent_ymax AND bbox.ymax > $extent_ymin
+-- ) TO '{{overture_data_dir}}/water.parquet'
+-- WITH (FORMAT PARQUET, COMPRESSION 'ZSTD');
 
--- break
+-- -- break
 
 ----------------------------------------------------------------------
 -- 4. ROADS (TRANSPORTATION / SEGMENTS, subtype = 'road')
@@ -130,29 +130,29 @@ WITH (FORMAT PARQUET, COMPRESSION 'ZSTD');
 -- 5. BUILDINGS
 ----------------------------------------------------------------------
 
--- COPY (
---     SELECT
---         id,
---         subtype,
---         class,
---         names,
---         level,
---         height,
---         num_floors,
---         num_floors_underground,
---         geometry
---     FROM read_parquet(
---         's3://overturemaps-us-west-2/release/' ||
---         getvariable('overture_release') ||
---         '/theme=buildings/type=building/*',
---         filename = true,
---         hive_partitioning = 1
---     )
---     WHERE
---         bbox.xmin < $extent_xmax AND bbox.xmax > $extent_xmin
---         AND bbox.ymin < $extent_ymax AND bbox.ymax > $extent_ymin
--- ) TO '{{overture_data_dir}}/buildings.parquet'
--- WITH (FORMAT PARQUET, COMPRESSION 'ZSTD');
+COPY (
+    SELECT
+        id,
+        subtype,
+        class,
+        names,
+        level,
+        height,
+        num_floors,
+        num_floors_underground,
+        geometry
+    FROM read_parquet(
+        's3://overturemaps-us-west-2/release/' ||
+        getvariable('overture_release') ||
+        '/theme=buildings/type=building/*',
+        filename = true,
+        hive_partitioning = 1
+    )
+    WHERE
+        bbox.xmin < $extent_xmax AND bbox.xmax > $extent_xmin
+        AND bbox.ymin < $extent_ymax AND bbox.ymax > $extent_ymin
+) TO '{{overture_data_dir}}/buildings.parquet'
+WITH (FORMAT PARQUET, COMPRESSION 'ZSTD');
 
 -- break
 

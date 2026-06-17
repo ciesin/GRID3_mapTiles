@@ -24,7 +24,7 @@ PROFILES = {
             "--hilbert",
             "--no-simplification-of-shared-nodes",  # required: preserves shared borders across all levels in one invocation
             # "--simplify-only-low-zooms",
-            "--simplification=2",
+            "--simplification=3",
             "--no-tiny-polygon-reduction",
             "--no-feature-limit",
             # "--coalesce-densest-as-needed",
@@ -32,9 +32,10 @@ PROFILES = {
             "--no-tile-size-limit",  # admin boundaries must be geometrically complete — never truncate
         ],
         "point_settings": [
-            "--drop-rate=0",
-            "--no-feature-limit",
-            "--no-tile-size-limit",
+            "--cluster-densest-as-needed",
+            # "--no-feature-limit",
+            "--cluster-maxzoom=12",
+            "--preserve-point-density-threshold=32"
         ],
     },
     "POI": {
@@ -42,16 +43,18 @@ PROFILES = {
         "settings": [
             "--cluster-densest-as-needed",
             # "--no-feature-limit",
-            "--cluster-maxzoom=g",
-            "--preserve-point-density-threshold=16"],
+            "--cluster-maxzoom=12",
+            "--preserve-point-density-threshold=32"],
     },
     "settlement_extents": {
         "description": "Settlement extent polygons",
+        "auto_zoom": True,
         "settings": [
             "--hilbert",
             "--simplification=3",            # raster-derived polygons — simplify aggressively
+            "--drop-densest-as-needed",
             # "--drop-smallest-as-needed",     # overflow: drop smallest (rural) extents, keep dense (urban) ones
-            # "--coalesce-smallest-as-needed", # merge tiny adjacent polygons at low zoom rather than discard
+            "--coalesce-smallest-as-needed", # merge tiny adjacent polygons at low zoom rather than discard
             "--maximum-tile-bytes=2097152",  # 2 MB tile cap
             # "--calculate-feature-density",   # adds tippecanoe_feature_density for style-side density expressions
             # "--single-precision",            # halves coordinate storage → meaningful size reduction for dense datasets
@@ -62,6 +65,7 @@ PROFILES = {
             "--include=iso3",
             "--include=mgrs_code", 
             "--calculate-feature-index"
+            
         ],
     },
 }
@@ -96,13 +100,13 @@ LAYER_GROUPS = {
             ("GRID3_COD_province_v8_0.fgb",  "GRID3-COD-province-v8-0",  3, 14),
             ("GRID3_COD_antenne_v8_0.fgb",   "GRID3-COD-antenne-v8-0",   3, 14),
             ("GRID3_COD_zonesante_v8_0.fgb", "GRID3-COD-zonesante-v8-0", 5, 14),
-            ("GRID3_COD_airesante_v8_0.fgb", "GRID3-COD-airesante-v8-0", 5, 14),
+            ("GRID3_COD_airesante_v8_0.fgb", "GRID3-COD-airesante-v8-0", 7, 14),
         ],
         "point_layers": [
             ("GRID3_COD_province_v8_0_centroids.fgb",  "GRID3-COD-province-v8-0-centroids",  3, 14),
             ("GRID3_COD_antenne_v8_0_centroids.fgb",   "GRID3-COD-antenne-v8-0-centroids",   3, 14),
             ("GRID3_COD_zonesante_v8_0_centroids.fgb", "GRID3-COD-zonesante-v8-0-centroids", 5, 14),
-            ("GRID3_COD_airesante_v8_0_centroids.fgb", "GRID3-COD-airesante-v8-0-centroids", 5, 14),
+            ("GRID3_COD_airesante_v8_0_centroids.fgb", "GRID3-COD-airesante-v8-0-centroids", 7, 14),
         ],
     },
 
@@ -115,13 +119,13 @@ LAYER_GROUPS = {
         "attribution": "© GRID3, CIESIN Columbia University. CC BY 4.0. https://doi.org/10.7916/gpv6-dq34",
 
         "polygon_layers": [
-            # ("GRID3_NGA_national_boundary_unpublished_20260429.fgb", "GRID3-NGA-unpublished-adm0", 0, 15),
+            ("GRID3_NGA_national_boundary_unpublished_20260429.fgb", "GRID3-NGA-unpublished-adm0", 0, 15),
             # ("GRID3_NGA_operational_states_v2_0.fgb", "GRID3-NGA-operational-states-v2-0", 4, 15),
             # ("GRID3_NGA_operational_LGAs_v2_0.fgb",   "GRID3-NGA-operational-LGAs-v2-0",   5, 15),
             # ("GRID3_NGA_operational_wards_v2_0.fgb",  "GRID3-NGA-operational-wards-v2-0",  7, 15),
         ],
         "point_layers": [
-            # ("GRID3_NGA_national_boundary_unpublished_20260429_centroids.fgb", "GRID3-NGA-unpublished-adm0-centroids", 0, 15)           
+            ("GRID3_NGA_national_boundary_unpublished_20260429_centroids.fgb", "GRID3-NGA-unpublished-adm0-centroids", 0, 15)           
             # ("GRID3_NGA_operational_LGAs_v2_0_centroids.fgb",   "GRID3-NGA-operational-LGAs-v2-0-centroids",   5, 15),
             # ("GRID3_NGA_operational_wards_v2_0_centroids.fgb",  "GRID3-NGA-operational-wards-v2-0-centroids",  7, 15),
             ],
@@ -138,16 +142,16 @@ LAYER_GROUPS = {
         "modifiers": {
             "GRID3_COD_settlement_extents_v3_1.fgb": {
                 "zoom_filter_windows": [
-                    {"minzoom":  7, "maxzoom": 13, "filter": ["==", "type", "Built-up Area"]},
-                    {"minzoom": 10, "maxzoom": 13, "filter": ["==", "type", "Small Settlement Area"]},
-                    {"minzoom": 12, "maxzoom": 13, "filter": ["==", "type", "Hamlet"]},
+                    {"minzoom":  7, "maxzoom": 14, "filter": ["==", "type", "Built-up Area"]},
+                    {"minzoom": 10, "maxzoom": 14, "filter": ["==", "type", "Small Settlement Area"]},
+                    {"minzoom": 12, "maxzoom": 14, "filter": ["==", "type", "Hamlet"]},
                 ],
             },
         },
 
 
         "polygon_layers": [
-            ("GRID3_COD_settlement_extents_v3_1.fgb", "GRID3-COD-settlement-extents-v3-1", 7, 15),
+            ("GRID3_COD_settlement_extents_v3_1.fgb", "GRID3-COD-settlement-extents-v3-1", 7, 14),
         ],
         "point_layers": [],
     },
@@ -158,7 +162,7 @@ LAYER_GROUPS = {
         "output_stem": "GRID3_NGA_settlement_extents",
         "profile": "settlement_extents",
         "name": "GRID3 Nigeria Settlement Extents v4.0",
-        "description": "Settlement block polygons dissolved by MGRS code (v4.0, z7–13) and settlement block polygons (v4.0, z13–16) for Nigeria",
+        "description": "Settlement extents and blocks for Nigeria",
         "attribution": "© GRID3, CIESIN Columbia University. CC BY-SA 4.0. https://doi.org/10.7916/tbgr-4j86",
 
         # Adjacent blocks share exact borders within MGRS grid cells; synchronize
@@ -263,20 +267,27 @@ def build_tippecanoe_group_command(group_name, layer_tuples, output_file,
     group = LAYER_GROUPS[group_name]
     settings_key = f"{layer_kind}_settings"
 
-    # Derive tileset zoom range from the layer tuples so POI (z18) and
-    # boundary centroids (z16) each generate the correct number of tiles.
-    # The per-layer -L minzoom/maxzoom controls visibility within that range.
-    # z_min mirrors the lowest per-layer minzoom so tippecanoe never tries to
-    # pack features into tiles below the range where any layer is visible
-    # (avoids tile-too-large failures with --drop-rate=0 at z0).
+    # Derive tileset zoom range from the layer tuples.
+    # z_min anchors the base so tippecanoe doesn't pack features into tiles
+    # below the range where any layer is visible (avoids tile-too-large
+    # failures with --drop-rate=0 at z0).
+    # auto_zoom: non-boundary profiles (POI, settlement_extents) let tippecanoe
+    # guess maxzoom from data density (-zg) so empty high-zoom tiles are skipped.
+    # Boundary groups keep explicit values since they carry design intent
+    # (provinces at z3, health areas at z5, etc.) and span multiple admin levels.
+    profile_name = group.get("profile")
+    profile_obj = PROFILES.get(profile_name, {}) if profile_name else {}
+    use_auto_zoom = profile_obj.get("auto_zoom", False) or group.get("auto_zoom", False)
     z_min = min((mz for _, _, mz, _, _ in layer_tuples), default=0)
-    z_max = max((mz for _, _, _, mz, _ in layer_tuples), default=16)
-    zoom_flags = [f"-Z{z_min}", f"-z{z_max}"]
+    if use_auto_zoom:
+        zoom_flags = [f"-Z{z_min}", "-zg"]
+    else:
+        z_max = max((mz for _, _, _, mz, _ in layer_tuples), default=16)
+        zoom_flags = [f"-Z{z_min}", f"-z{z_max}"]
 
     # Resolve settings: profile defaults -> group-level overrides (concatenated;
     # tippecanoe uses last occurrence so group values win on duplicates).
     profile_settings = []
-    profile_name = group.get("profile")
     if profile_name and profile_name in PROFILES:
         profile = PROFILES[profile_name]
         # polygon_kind -> polygon_settings; centroid_kind -> centroid_settings;

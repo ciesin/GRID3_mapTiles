@@ -41,7 +41,7 @@ PROJECT_ROOT = get_project_root()
 
 # Data disk - check environment variable first, then fall back to default
 # If DATA_DISK is relative (like '.'), resolve it relative to the repository root
-data_disk_env = os.environ.get("DATA_DISK", "/mnt/pool/gis/mapTiles")
+data_disk_env = os.environ.get("DATA_DISK", "/tmp/grid3_tiles")
 if data_disk_env.startswith(('.', '..')):
     # Relative path - resolve from repository root (parent of PROJECT_ROOT)
     repo_root = PROJECT_ROOT.parent
@@ -60,6 +60,7 @@ INPUT_DIR = DATA_DIR / "1-input"
 OVERTURE_DATA_DIR = INPUT_DIR / "overture"
 GRID3_DATA_DIR = INPUT_DIR / "grid3"
 SCRATCH_DIR = DATA_DIR / "2-scratch"
+DUCKDB_TEMP_DIR = SCRATCH_DIR / ".duckdb_tmp"
 # Source subdirectories — one per thematic group, matched by SOURCE_DIR_PROFILES in tippecanoe.py
 SCRATCH_BOUNDARIES_DIR          = SCRATCH_DIR / "GRID3_boundaries"
 SCRATCH_POIS_DIR                = SCRATCH_DIR / "GRID3_POIs"
@@ -114,6 +115,7 @@ DEFAULT_CONFIG = {
         "overture_data_dir": OVERTURE_DATA_DIR,
         "grid3_data_dir": GRID3_DATA_DIR,
         "scratch_dir": SCRATCH_DIR,
+        "duckdb_temp_dir": DUCKDB_TEMP_DIR,
         "output_dir": OUTPUT_DIR,
         "tile_dir": TILE_DIR,
         "template_path": TILE_QUERIES_TEMPLATE,
