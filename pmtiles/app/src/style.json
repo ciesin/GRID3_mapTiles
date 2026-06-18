@@ -10,12 +10,17 @@
 			"attribution": "",
 			"tiles": []
 		},
-		"protomaps_base": {
+		"overture_base": {
 			"type": "vector",
 			"attribution": "",
 			"tiles": []
 		},
 		"overture_buildings": {
+			"type": "vector",
+			"attribution": "",
+			"tiles": []
+		},
+		"google_microsoft_buildings": {
 			"type": "vector",
 			"attribution": "",
 			"tiles": []
@@ -2721,7 +2726,7 @@
 		{
 			"id": "buildings-extrusion",
 			"type": "fill-extrusion",
-			"source": "overture_buildings",
+			"source": "google_microsoft_buildings",
 			"source-layer": "building",
 			"minzoom": 11,
 			"layout": {
@@ -2757,7 +2762,7 @@
 		{
 			"id": "buildings-flat",
 			"type": "fill",
-			"source": "overture_buildings",
+			"source": "google_microsoft_buildings",
 			"source-layer": "building",
 			"minzoom": 11,
 			"maxzoom": 15,
@@ -2804,7 +2809,7 @@
 		{
 			"id": "building-outlines",
 			"type": "line",
-			"source": "overture_buildings",
+			"source": "google_microsoft_buildings",
 			"source-layer": "building",
 			"minzoom": 11,
 			"layout": {

@@ -49,6 +49,14 @@ export const SOURCES = {
     ext: "mvt",
   },
 
+    google_microsoft_buildings: {
+    archive: "tiles/other/goog_msft_buildings",
+    attribution: '<a href="https://source.coop/vida/google-microsoft-osm-open-buildings">© Google, Microsoft, VIDA</a>',
+    maxzoom: 15,
+    ext: "mvt",
+  },
+
+
   terrain: {
     archive: "tiles/terrain",
     attribution: '<a href="https://mapterhorn.com/attribution">© Mapterhorn</a>',
