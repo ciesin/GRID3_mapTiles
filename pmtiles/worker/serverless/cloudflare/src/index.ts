@@ -119,27 +119,7 @@ export default {
     }
 
     const url = new URL(request.url);
-    const { ok, name, tile, ext } = tile_path(url.pathname);
-
     const cache = caches.default;
-
-    if (!ok) {
-      return new Response("Invalid URL", { status: 404 });
-    }
-
-    const cached = await cache.match(request.url);
-    if (cached) {
-      const respHeaders = new Headers(cached.headers);
-      if (allowedOrigin)
-        respHeaders.set("Access-Control-Allow-Origin", allowedOrigin);
-      respHeaders.set("Vary", "Origin");
-      respHeaders.set("Access-Control-Expose-Headers", "ETag, Content-Encoding");
-
-      return new Response(cached.body, {
-        headers: respHeaders,
-        status: cached.status,
-      });
-    }
 
     const cacheableResponse = (
       body: ArrayBuffer | string | undefined,
@@ -166,6 +146,52 @@ export default {
       respHeaders.set("Access-Control-Expose-Headers", "ETag, Content-Encoding");
       return new Response(body, { headers: respHeaders, status: status });
     };
+
+    // Static assets (sprites, fonts) — served directly from R2 without PMTiles
+    if (url.pathname.startsWith("/tiles/assets/")) {
+      const cached = await cache.match(request.url);
+      if (cached) {
+        const respHeaders = new Headers(cached.headers);
+        if (allowedOrigin)
+          respHeaders.set("Access-Control-Allow-Origin", allowedOrigin);
+        respHeaders.set("Vary", "Origin");
+        return new Response(cached.body, { headers: respHeaders, status: cached.status });
+      }
+
+      const r2Key = url.pathname.slice(1); // strip leading "/"
+      const obj = await env.BUCKET.get(r2Key);
+      if (!obj) return new Response("Not found", { status: 404 });
+
+      const dotExt = r2Key.split(".").pop() ?? "";
+      const mime: Record<string, string> = {
+        json: "application/json",
+        png:  "image/png",
+        pbf:  "application/x-protobuf",
+      };
+      const assetHeaders = new Headers();
+      assetHeaders.set("Content-Type", mime[dotExt] ?? "application/octet-stream");
+      return cacheableResponse(await obj.arrayBuffer(), assetHeaders, 200);
+    }
+
+    const { ok, name, tile, ext } = tile_path(url.pathname);
+
+    if (!ok) {
+      return new Response("Invalid URL", { status: 404 });
+    }
+
+    const cached = await cache.match(request.url);
+    if (cached) {
+      const respHeaders = new Headers(cached.headers);
+      if (allowedOrigin)
+        respHeaders.set("Access-Control-Allow-Origin", allowedOrigin);
+      respHeaders.set("Vary", "Origin");
+      respHeaders.set("Access-Control-Expose-Headers", "ETag, Content-Encoding");
+
+      return new Response(cached.body, {
+        headers: respHeaders,
+        status: cached.status,
+      });
+    }
 
     const cacheableHeaders = new Headers();
     const source = new R2Source(env, name);

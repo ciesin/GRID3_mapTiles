@@ -173,3 +173,41 @@ export const SOURCES = {
 } satisfies Record<string, SourceDef>;
 
 export type SourceKey = keyof typeof SOURCES;
+
+// ---------------------------------------------------------------------------
+// Static assets — sprites and fonts served from R2 via the Worker.
+//
+// The Worker serves any request matching /tiles/assets/** directly from R2.
+// Sprite base URLs omit the extension — MapLibre appends .json/.png/@2x.json/@2x.png.
+// Font pattern uses {fontstack} and {range} placeholders (MapLibre convention).
+//
+// To add a new spritesheet:
+//   1. Upload <name>.{json,png,@2x.json,@2x.png} to R2 at the path below.
+//   2. Add an entry here.
+//   3. Reference it in config.ts and inject via getMaplibreStyle() in MapView.tsx.
+// ---------------------------------------------------------------------------
+
+export interface SpriteDef {
+  /** R2 key prefix — Worker serves {path}.{json,png,@2x.json,@2x.png} */
+  path: string;
+}
+
+export interface FontDef {
+  /** R2 key prefix — Worker serves {path}/{fontstack}/{range}.pbf */
+  path: string;
+}
+
+export const ASSETS = {
+  sprites: {
+    maki: {
+      path: "tiles/assets/icons/maki",
+    } satisfies SpriteDef,
+  },
+
+  fonts: {
+    // Placeholder — populate tiles/assets/fonts/ in R2 before switching from CDN
+    // noto: {
+    //   path: "tiles/assets/fonts",
+    // } satisfies FontDef,
+  },
+} as const;

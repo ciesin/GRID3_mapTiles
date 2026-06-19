@@ -13,6 +13,7 @@
 		"format": "biome format --write src test --javascript-formatter-indent-style=space --json-formatter-indent-style=space"
 	},
 	"dependencies": {
+		"@mapbox/maki": "^8.2.0",
 		"@maplibre/maplibre-gl-inspect": "^1.8.1",
 		"maplibre-contour": "^0.1.0",
 		"maplibre-gl": "5.13.0",

@@ -29,7 +29,7 @@ import {
   createSignal,
   onMount,
 } from "solid-js";
-import { getTileSourceConfig } from "./config";
+import { getTileSourceConfig, APP_CONFIG } from "./config";
 import { SOURCES, type SourceKey } from "./sources";
 import baseStyle from "./style.json";
 
@@ -203,13 +203,13 @@ style.sources.contours = {
   minzoom: 10,
 };
 
-  // Add global light source for 3D features
-  // style.light = {
-  //   anchor: LIGHT_CONFIG.anchor,
-  //   position: LIGHT_CONFIG.position,
-  //   color: LIGHT_CONFIG.color,
-  //   intensity: LIGHT_CONFIG.intensity,
-  // };
+  // Multi-sprite: "default" keeps protomaps base icons; "maki" adds our icon set.
+  // Reference maki icons in style layers as "maki:hospital", "maki:school", etc.
+  style.sprite = [
+    { id: "default", url: APP_CONFIG.assets.protomapsSpritesUrl },
+    { id: "maki",    url: APP_CONFIG.assets.makiSpriteUrl },
+  ];
+  style.glyphs = APP_CONFIG.assets.glyphsUrl;
 
   return style;
 }

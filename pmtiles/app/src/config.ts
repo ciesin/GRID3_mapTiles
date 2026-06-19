@@ -1,4 +1,4 @@
-import { SOURCES, type SourceKey } from "./sources";
+import { SOURCES, ASSETS, type SourceKey } from "./sources";
 
 // VITE_CLOUDFLARE_WORKER_URL is the only environment variable needed.
 // It points to the Cloudflare Worker that serves tiles from R2:
@@ -15,9 +15,16 @@ const workerUrl: string =
 export const APP_CONFIG = {
   workerUrl,
   assets: {
-    spriteBaseUrl:
-      import.meta.env["VITE_SPRITE_BASE_URL"] ||
-      "https://protomaps.github.io/basemaps-assets/sprites/v4",
+    // Protomaps base sprites (road shields, POI markers used by the base style)
+    // Served from CDN until a self-hosted flavor is built and uploaded to R2.
+    protomapsSpritesUrl:
+      import.meta.env["VITE_PROTOMAPS_SPRITE_URL"] ||
+      "https://protomaps.github.io/basemaps-assets/sprites/v4/light",
+    // Maki icon set — served from R2 via the Worker
+    makiSpriteUrl:
+      import.meta.env["VITE_MAKI_SPRITE_URL"] ||
+      `${workerUrl}/${ASSETS.sprites.maki.path}`,
+    // Fonts — CDN until tiles/assets/fonts/ is populated in R2
     glyphsUrl:
       import.meta.env["VITE_GLYPHS_URL"] ||
       "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",

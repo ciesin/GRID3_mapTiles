@@ -3503,7 +3503,7 @@
 		{
 			"id": "cod-settlement-extents-outline",
 			"type": "line",
-			"source": "grid3_cod_settlement_extents",
+			"source": "grid3_cod",
 			"source-layer": "GRID3-COD-settlement-extents-v3-1",
 			"minzoom": 7,
 			"layout": {
@@ -14151,6 +14151,7 @@
 				"text-font": [
 					"Noto Sans Bold"
 				],
+				"text-optional": true,
 				"text-size": [
 					"interpolate",
 					[
@@ -14200,7 +14201,7 @@
 					0,
 					-0.5
 				],
-				"icon-image": "capital",
+				"icon-image": "maki:hospital",
 				"icon-size": [
 					"interpolate",
 					[
@@ -14236,6 +14237,7 @@
 				"text-font": [
 					"Noto Sans Bold"
 				],
+				"text-optional": true,
 				"text-size": [
 					"interpolate",
 					[
@@ -14286,7 +14288,7 @@
 					0,
 					-0.5
 				],
-				"icon-image": "capital",
+				"icon-image": "maki:hospital",
 				"icon-size": [
 					"interpolate",
 					[
@@ -14499,7 +14501,7 @@
 					12,
 					0
 				],
-				"text-max-width": 4,
+				"text-max-width": 2,
 				"text-letter-spacing": [
 					"interpolate",
 					[
@@ -14524,6 +14526,8 @@
 					],
 					"#505759",
 					11,
+					"#D14124",
+					14,
 					"#CF4520"
 				],
 				"text-opacity": 1,
