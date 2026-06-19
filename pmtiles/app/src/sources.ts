@@ -29,7 +29,7 @@ export const SOURCES = {
   // ---------------------------------------------------------------------------
 
   protomaps_base: {
-    archive: "tiles/base",
+    archive: "tiles/protomaps/base",
     attribution: '<a href="https://github.com/protomaps/basemaps">Protomaps</a> © <a href="https://openstreetmap.org">OpenStreetMap Contributors</a>',
     maxzoom: 15,
     ext: "mvt",
