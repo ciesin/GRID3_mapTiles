@@ -887,9 +887,7 @@
 					5,
 					0.35,
 					8,
-					0.25,
-					12,
-					0.1,
+					0.2,
 					13,
 					0
 				],
@@ -902,7 +900,7 @@
 						"zoom"
 					],
 					6,
-					"rgba(0,0,0,0.2)",
+					"rgba(0,0,0,0.25)",
 					8,
 					"rgba(0,0,0,0.075)",
 					12,
@@ -2734,24 +2732,36 @@
 				"visibility": "visible"
 			},
 			"filter": [
-				"<=",
-				"kind_detail",
-				2
+				"all",
+				[
+					"<=",
+					"kind_detail",
+					2
+				],
+				[
+					"!=",
+					"brk_a3",
+					"COD"
+				],
+				[
+					"!=",
+					"brk_a3",
+					"NGA"
+				]
 			],
 			"paint": {
 				"line-color": "#adadad",
 				"line-width": [
 					"interpolate",
 					[
-						"exponential",
-						1.2
+						"linear"
 					],
 					[
 						"zoom"
 					],
-					0,
-					1.2,
-					5.5,
+					4,
+					0.8,
+					6.5,
 					0
 				],
 				"line-dasharray": [
@@ -2782,17 +2792,44 @@
 			"type": "line",
 			"source": "protomaps_base",
 			"source-layer": "boundaries",
+			"maxzoom": 6.5,
 			"layout": {
-				"visibility": "none"
+				"visibility": "visible"
 			},
 			"filter": [
-				">",
-				"kind_detail",
-				2
+				"all",
+				[
+					"<=",
+					"kind_detail",
+					2
+				],
+				[
+					"!=",
+					"brk_a3",
+					"COD"
+				],
+				[
+					"!=",
+					"brk_a3",
+					"NGA"
+				]
 			],
 			"paint": {
 				"line-color": "#adadad",
-				"line-width": 0.4,
+				"line-width": [
+					"interpolate",
+					[
+						"exponential",
+						1.2
+					],
+					[
+						"zoom"
+					],
+					0,
+					0.4,
+					6.5,
+					0
+				],
 				"line-dasharray": [
 					"step",
 					[
@@ -10398,7 +10435,7 @@
 			"type": "line",
 			"source": "grid3_nga",
 			"source-layer": "GRID3-NGA-unpublished-adm0",
-			"minzoom": 3,
+			"minzoom": 6.5,
 			"paint": {
 				"line-color": "#A2AAAD",
 				"line-width": [
@@ -10410,55 +10447,12 @@
 					[
 						"zoom"
 					],
-					3,
-					0,
-					5,
-					0.75,
 					6.5,
-					1.5
+					0,
+					8.5,
+					1
 				],
-				"line-dasharray": [
-					"step",
-					[
-						"zoom"
-					],
-					[
-						"literal",
-						[
-							1,
-							0
-						]
-					],
-					5,
-					[
-						"literal",
-						[
-							2,
-							4
-						]
-					],
-					7,
-					[
-						"literal",
-						[
-							1,
-							0
-						]
-					]
-				],
-				"line-opacity": [
-					"interpolate",
-					[
-						"linear"
-					],
-					[
-						"zoom"
-					],
-					5,
-					0.7,
-					12,
-					0.25
-				]
+				"line-opacity": 1
 			}
 		},
 		{
@@ -10509,7 +10503,7 @@
 						"literal",
 						[
 							1,
-							12
+							0
 						]
 					],
 					5.5,
@@ -10517,10 +10511,10 @@
 						"literal",
 						[
 							1,
-							2
+							0
 						]
 					],
-					15,
+					11,
 					[
 						"literal",
 						[
