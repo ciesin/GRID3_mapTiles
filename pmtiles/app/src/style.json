@@ -303,21 +303,6 @@
 						"#DFC8E7",
 						"#DFC8E7"
 					],
-					13,
-					[
-						"match",
-						[
-							"get",
-							"type"
-						],
-						"Built-up Area",
-						"#E0D1E8",
-						"Small Settlement Area",
-						"#E6D4ED",
-						"Hamlet",
-						"#EDD9F0",
-						"#EDD9F0"
-					],
 					14,
 					[
 						"match",
@@ -440,7 +425,7 @@
 					[
 						"zoom"
 					],
-					9,
+					7,
 					[
 						"match",
 						[
@@ -453,7 +438,7 @@
 						"#D7B9E4",
 						"Hamlet",
 						"#DFC8E7",
-						"#FF8C0000"
+						"#DFC8E7"
 					],
 					14,
 					[
@@ -463,12 +448,12 @@
 							"extent_type"
 						],
 						"Built-up Area",
-						"#E0D1E8",
+						"#F3E5F5",
 						"Small Settlement Area",
 						"#E6D4ED",
 						"Hamlet",
 						"#EDD9F0",
-						"#FF8C0000"
+						"#EDD9F0"
 					]
 				],
 				"fill-opacity": [
@@ -2128,9 +2113,9 @@
 					10,
 					0.5,
 					11.5,
-					1,
+					0.75,
 					15,
-					2,
+					1.75,
 					18,
 					11
 				],
@@ -2148,7 +2133,7 @@
 					12,
 					0.5,
 					14,
-					0.85,
+					0.75,
 					16,
 					1.2,
 					18,
@@ -2450,10 +2435,8 @@
 					],
 					10,
 					0.5,
-					11.5,
-					1,
 					15,
-					2,
+					1,
 					18,
 					11
 				]
@@ -10473,7 +10456,7 @@
 					],
 					10,
 					"#6CC24A",
-					15,
+					13,
 					"#009639"
 				],
 				"line-width": [
@@ -10521,6 +10504,14 @@
 							2,
 							1
 						]
+					],
+					15,
+					[
+						"literal",
+						[
+							1,
+							0
+						]
 					]
 				],
 				"line-gap-width": [
@@ -10563,7 +10554,7 @@
 			"source-layer": "GRID3-COD-airesante-v8-0",
 			"minzoom": 11,
 			"paint": {
-				"line-color": "#fff",
+				"line-color": "#e1e1e1",
 				"line-width": [
 					"interpolate",
 					[
@@ -10573,9 +10564,11 @@
 						"zoom"
 					],
 					11.5,
-					2,
+					5,
 					14,
-					3
+					6,
+					18,
+					9
 				],
 				"line-opacity": [
 					"step",
@@ -12661,21 +12654,31 @@
 				"text-transform": "uppercase",
 				"text-offset": [
 					"step",
-					["zoom"],
-						[
-						"literal",
-						[0, 1]
+					[
+						"zoom"
 					],
-
+					[
+						"literal",
+						[
+							0,
+							1
+						]
+					],
 					7,
 					[
 						"literal",
-						[0, 1]
+						[
+							0,
+							1
+						]
 					],
 					13,
 					[
 						"literal",
-						[0, 1.5]
+						[
+							0,
+							1.25
+						]
 					]
 				],
 				"symbol-spacing": [
@@ -12773,21 +12776,31 @@
 				"text-transform": "uppercase",
 				"text-offset": [
 					"step",
-					["zoom"],
-						[
-						"literal",
-						[0, 1]
+					[
+						"zoom"
 					],
-
+					[
+						"literal",
+						[
+							0,
+							1
+						]
+					],
 					7,
 					[
 						"literal",
-						[0, 1]
+						[
+							0,
+							1
+						]
 					],
 					13,
 					[
 						"literal",
-						[0, 1.5]
+						[
+							0,
+							1.25
+						]
 					]
 				],
 				"symbol-spacing": [
@@ -12874,21 +12887,31 @@
 				"text-transform": "uppercase",
 				"text-offset": [
 					"step",
-					["zoom"],
-						[
-						"literal",
-						[0, 1]
+					[
+						"zoom"
 					],
-
+					[
+						"literal",
+						[
+							0,
+							1
+						]
+					],
 					7,
 					[
 						"literal",
-						[0, 1]
+						[
+							0,
+							1
+						]
 					],
 					13,
 					[
 						"literal",
-						[0, 1.5]
+						[
+							0,
+							1.25
+						]
 					]
 				],
 				"symbol-spacing": [
@@ -14137,7 +14160,7 @@
 			}
 		},
 		{
-			"id": "cod-health-facilities-label",
+			"id": "cod-health-facilities",
 			"type": "symbol",
 			"source": "grid3_cod",
 			"source-layer": "GRID3-COD-health-facilities-v8-0",
@@ -14197,12 +14220,30 @@
 					16,
 					8
 				],
-				"text-ignore-placement": true,
-				"text-anchor": "bottom",
-				"text-offset": [
-					0,
-					-0.5
+				"text-ignore-placement": false,
+				"text-variable-anchor-offset": [
+					"top",
+					[
+						0,
+						0.5
+					],
+					"bottom",
+					[
+						0,
+						-0.5
+					],
+					"left",
+					[
+						0.5,
+						0
+					],
+					"right",
+					[
+						-0.5,
+						0
+					]
 				],
+				"text-justify": "auto",
 				"icon-image": "maki:hospital",
 				"icon-size": [
 					"interpolate",
@@ -14280,28 +14321,28 @@
 					1.25
 				],
 				"icon-color": [
-						"match",
-						[
-							"get",
-							"esstype"
-						],
-						[
-							"Poste de Santé",
-							"Clinique"
-						],
-						"#3A5DAE",
-						[
-							"Centre de Santé",
-							"Hôpital Général de Référence",
-							"Centre Hopitalier",
-							"Hôpital",
-							"Centre Médical"
-						],
-						"#B44769",
-						"Centre de Santé de Référence",
-						"#ffff00",
-						"#646464"
-					]
+					"match",
+					[
+						"get",
+						"esstype"
+					],
+					[
+						"Poste de Santé",
+						"Clinique"
+					],
+					"#3A5DAE",
+					[
+						"Centre de Santé",
+						"Hôpital Général de Référence",
+						"Centre Hopitalier",
+						"Hôpital",
+						"Centre Médical"
+					],
+					"#B44769",
+					"Centre de Santé de Référence",
+					"#ffff00",
+					"#646464"
+				]
 			}
 		},
 		{
@@ -14311,6 +14352,9 @@
 			"source-layer": "GRID3-COD-airesante-v8-0-centroids",
 			"minzoom": 8.5,
 			"layout": {
+				"text-font": [
+					"Noto Sans Regular"
+				],
 				"text-variable-anchor": [
 					"step",
 					[
@@ -14369,7 +14413,7 @@
 							"airesante"
 						]
 					],
-					11,
+					14,
 					[
 						"concat",
 						"AS ",
@@ -14378,9 +14422,6 @@
 							"airesante"
 						]
 					]
-				],
-				"text-font": [
-					"Noto Sans Regular"
 				],
 				"text-size": [
 					"interpolate",
@@ -14462,6 +14503,8 @@
 					9,
 					6,
 					12,
+					3,
+					18,
 					0
 				],
 				"text-max-width": 2,
@@ -14960,6 +15003,6 @@
 			}
 		}
 	],
-	"sprite": "https://protomaps.github.io/basemaps-assets/sprites/v4/light",
+	"sprite": "https://prod-tileworker.ciesin.app/tiles/assets/icons/maki",
 	"glyphs": "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf"
 }
