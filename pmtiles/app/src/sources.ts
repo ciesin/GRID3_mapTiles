@@ -35,6 +35,14 @@ export const SOURCES = {
     ext: "mvt",
   },
 
+  protomaps_bg: {
+    archive: "tiles/protomaps/base_z4",
+    attribution: '<a href="https://github.com/protomaps/basemaps">Protomaps</a> © <a href="https://openstreetmap.org">OpenStreetMap Contributors</a>',
+    maxzoom: 4,
+    ext: "mvt",
+  },
+
+
   overture_base: {
     archive: "tiles/overture/base",
     attribution: '<a href="https://overturemaps.org">Overture Maps Foundation</a>',
