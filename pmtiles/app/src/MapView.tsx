@@ -262,7 +262,8 @@ function MapLibreView() {
 
     // const drcBounds: LngLatBoundsLike = [[8, -13], [35, 9]];
     // Updated extent: WEST, SOUTH, EAST, NORTH
-    const africaBounds: LngLatBoundsLike = [[-18.1, -35.1], [51.6, 37.4]];
+    const africaBounds: LngLatBoundsLike = [[-19.1, -36.1], [52.6, 38.4]];
+    // const mapBounds: LngLatBoundsLike = [[-50, -50], [70, 70]]; // wider bounds to avoid tile clipping at edges
 
     // Get style with contours
     const style = getMaplibreStyle(demSource);
@@ -272,8 +273,8 @@ function MapLibreView() {
       container: mapContainer,
       style: style,
       center: [14.08, 0],
-      zoom: 4, 
-      minZoom: 4,
+      zoom: 2, 
+      minZoom: 3,
       maxZoom: 17,
       maxBounds: africaBounds, // viewport restriction
       attributionControl: false,

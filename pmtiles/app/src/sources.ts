@@ -42,7 +42,6 @@ export const SOURCES = {
     ext: "mvt",
   },
 
-
   overture_base: {
     archive: "tiles/overture/base",
     attribution: '<a href="https://overturemaps.org">Overture Maps Foundation</a>',
@@ -51,11 +50,12 @@ export const SOURCES = {
   },
 
   overture_buildings: {
-    archive: "tiles/overture/buildings",
+    archive: "tiles/overture/buildings_composite",
     attribution: '<a href="https://overturemaps.org">Overture Maps Foundation</a>',
     maxzoom: 14,
     ext: "mvt",
   },
+
 
   terrain: {
     archive: "tiles/terrain",
