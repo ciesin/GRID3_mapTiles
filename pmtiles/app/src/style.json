@@ -587,7 +587,6 @@
 			"source": "grid3_nga",
 			"source-layer": "GRID3-NGA-settlement-blocks-v4-0",
 			"minzoom": 11,
-			"maxzoom": 20,
 			"layout": {
 				"visibility": "visible"
 			},
@@ -629,9 +628,10 @@
 					0,
 					14,
 					0.5,
-					16,
+					18,
 					0.75
-				]
+				],
+				"fill-outline-color": "transparent"
 			}
 		},
 		{
@@ -2990,46 +2990,7 @@
 				]
 			}
 		},
-		{
-			"id": "buildings-flat",
-			"type": "fill",
-			"source": "overture_buildings",
-			"source-layer": "building",
-			"minzoom": 14,
-			"layout": {
-				"visibility": "visible"
-			},
-			"paint": {
-				"fill-color": ["interpolate",
-					[
-						"exponential",
-						1.6
-					],
-					[
-						"zoom"
-					],
-					14,
-					"#8E9089",
-					15,
-					"#949A90"
-				],
-					"fill-opacity": [
-					"interpolate",
-					[
-						"exponential",
-						1.6
-					],
-					[
-						"zoom"
-					],
-					14,
-					0,
-					15,
-					1
-				]
-			}
-		},
-		{
+				{
 			"id": "buildings-overview",
 			"type": "circle",
 			"source": "overture_buildings",
@@ -3052,7 +3013,7 @@
 						11,
 						"#83786F",
 						15,
-						"#8E9089"
+						"#BABBB1"
 					],
 				"circle-radius": [
 					"interpolate",
@@ -3066,9 +3027,48 @@
 					12,
 					0.75,
 					15,
-					1.5
+					1.75
 				],
 				"circle-opacity": 1
+			}
+		},
+		{
+			"id": "buildings-flat",
+			"type": "fill",
+			"source": "overture_buildings",
+			"source-layer": "building",
+			"minzoom": 14,
+			"layout": {
+				"visibility": "visible"
+			},
+			"paint": {
+				"fill-color": ["interpolate",
+					[
+						"exponential",
+						1.6
+					],
+					[
+						"zoom"
+					],
+					14,
+					"#BABBB1",
+					16,
+					"#C4BFB6"
+				],
+					"fill-opacity": [
+					"interpolate",
+					[
+						"exponential",
+						1.6
+					],
+					[
+						"zoom"
+					],
+					14,
+					0,
+					14.5,
+					1
+				]
 			}
 		},
 		{
