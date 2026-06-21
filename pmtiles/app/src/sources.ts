@@ -66,6 +66,18 @@ export const SOURCES = {
 
 
   // ---------------------------------------------------------------------------
+  // GRID3 composite
+  // ---------------------------------------------------------------------------
+
+    grid3: {
+    archive: "tiles/grid3/africa/GRID3_africa",
+    attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
+    maxzoom: 14,
+    ext: "mvt",
+  },
+
+
+  // ---------------------------------------------------------------------------
   // GRID3 ISO3 consolidated
   // ---------------------------------------------------------------------------
 
@@ -89,10 +101,11 @@ export const SOURCES = {
   // GRID3 — COD (Democratic Republic of Congo)
   // ---------------------------------------------------------------------------
 
-  grid3: {
-    archive: "tiles/grid3",
+
+    grid3_cod_tracks: {
+    archive: "tiles/grid3/cod/GRID3_COD_tracks",
     attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
-    maxzoom: 15,
+    maxzoom: 14,
     ext: "mvt",
   },
 
