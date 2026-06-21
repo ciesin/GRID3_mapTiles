@@ -2688,70 +2688,66 @@
 				]
 			}
 		},
-		{
-			"id": "roads_highway_casing_early",
-			"type": "line",
-			"source": "protomaps_base",
-			"source-layer": "roads",
-			"maxzoom": 12,
-			"filter": [
-				"all",
-				[
-					"!has",
-					"is_tunnel"
-				],
-				[
-					"!has",
-					"is_bridge"
-				],
-				[
-					"==",
-					"kind",
-					"highway"
-				],
-				[
-					"!has",
-					"is_link"
-				]
-			],
-			"paint": {
-				"line-color": "#BABBB1",
-				"line-gap-width": [
-					"interpolate",
-					[
-						"exponential",
-						1.6
-					],
-					[
-						"zoom"
-					],
-					3,
-					0,
-					6,
-					0.75,
-					12,
-					1.2,
-					15,
-					5,
-					18,
-					15
-				],
-				"line-width": [
-					"interpolate",
-					[
-						"exponential",
-						1.6
-					],
-					[
-						"zoom"
-					],
-					5,
-					0,
-					5.5,
-					1
-				]
-			}
-		},
+        {
+            "id": "roads_highway_casing_early",
+            "type": "line",
+            "source": "protomaps_base",
+            "source-layer": "roads",
+            "maxzoom": 12,
+            "filter": [
+                "all",
+                [
+                    "!has",
+                    "is_tunnel"
+                ],
+                [
+                    "!has",
+                    "is_bridge"
+                ],
+                [
+                    "==",
+                    "kind",
+                    "highway"
+                ],
+                [
+                    "!has",
+                    "is_link"
+                ]
+            ],
+            "paint": {
+                "line-color": "#e0e0e0",
+                "line-gap-width": [
+                    "interpolate",
+                    [
+                        "exponential",
+                        1.6
+                    ],
+                    [
+                        "zoom"
+                    ],
+                    3,
+                    0,
+                    3.5,
+                    0.5,
+                    18,
+                    15
+                ],
+                "line-width": [
+                    "interpolate",
+                    [
+                        "exponential",
+                        1.6
+                    ],
+                    [
+                        "zoom"
+                    ],
+                    7,
+                    0,
+                    7.5,
+                    1
+                ]
+            }
+        },
 		{
 			"id": "roads_highway",
 			"type": "line",
@@ -3154,56 +3150,43 @@
 				]
 			}
 		},
-		{
-			"id": "roads_bridges_other_casing",
-			"type": "line",
-			"source": "protomaps_base",
-			"source-layer": "roads",
-			"visibility": "none",
-			"minzoom": 12,
-			"filter": [
-				"all",
-				[
-					"has",
-					"is_bridge"
-				],
-				[
-					"in",
-					"kind",
-					"other",
-					"path"
-				]
-			],
-			"paint": {
-				"line-color": [
-					"interpolate",
-					[
-						"linear"
-					],
-					[
-						"zoom"
-					],
-					14,
-					"#000",
-					16,
-					"#e0e0e0"
-				],
-				"line-gap-width": [
-					"interpolate",
-					[
-						"exponential",
-						1.6
-					],
-					[
-						"zoom"
-					],
-					14,
-					0,
-					20,
-					7
-				]
-			}
-		},
+        {
+            "id": "roads_bridges_other_casing",
+            "type": "line",
+            "source": "protomaps_base",
+            "source-layer": "roads",
+            "minzoom": 12,
+            "filter": [
+                "all",
+                [
+                    "has",
+                    "is_bridge"
+                ],
+                [
+                    "in",
+                    "kind",
+                    "other",
+                    "path"
+                ]
+            ],
+            "paint": {
+                "line-color": "#e0e0e0",
+                "line-gap-width": [
+                    "interpolate",
+                    [
+                        "exponential",
+                        1.6
+                    ],
+                    [
+                        "zoom"
+                    ],
+                    14,
+                    0,
+                    20,
+                    7
+                ]
+            }
+        },
 		{
 			"id": "roads_bridges_link_casing",
 			"type": "line",
@@ -3270,72 +3253,60 @@
 				]
 			}
 		},
-		{
-			"id": "roads_bridges_minor_casing",
-			"type": "line",
-			"source": "protomaps_base",
-			"source-layer": "roads",
-			"minzoom": 12,
-			"filter": [
-				"all",
-				[
-					"has",
-					"is_bridge"
-				],
-				[
-					"==",
-					"kind",
-					"minor_road"
-				]
-			],
-			"paint": {
-				"line-color": [
-					"interpolate",
-					[
-						"linear"
-					],
-					[
-						"zoom"
-					],
-					11,
-					"#000",
-					16,
-					"#e0e0e0"
-				],
-				"line-gap-width": [
-					"interpolate",
-					[
-						"exponential",
-						1.6
-					],
-					[
-						"zoom"
-					],
-					11,
-					0,
-					12.5,
-					0.5,
-					15,
-					2,
-					18,
-					11
-				],
-				"line-width": [
-					"interpolate",
-					[
-						"exponential",
-						1.6
-					],
-					[
-						"zoom"
-					],
-					13,
-					0,
-					13.5,
-					0.5
-				]
-			}
-		},
+        {
+            "id": "roads_bridges_minor_casing",
+            "type": "line",
+            "source": "protomaps_base",
+            "source-layer": "roads",
+            "minzoom": 12,
+            "filter": [
+                "all",
+                [
+                    "has",
+                    "is_bridge"
+                ],
+                [
+                    "==",
+                    "kind",
+                    "minor_road"
+                ]
+            ],
+            "paint": {
+                "line-color": "#e0e0e0",
+                "line-gap-width": [
+                    "interpolate",
+                    [
+                        "exponential",
+                        1.6
+                    ],
+                    [
+                        "zoom"
+                    ],
+                    11,
+                    0,
+                    12.5,
+                    0.5,
+                    15,
+                    2,
+                    18,
+                    11
+                ],
+                "line-width": [
+                    "interpolate",
+                    [
+                        "exponential",
+                        1.6
+                    ],
+                    [
+                        "zoom"
+                    ],
+                    13,
+                    0,
+                    13.5,
+                    0.8
+                ]
+            }
+        },
 		{
 			"id": "roads_bridges_major_casing",
 			"type": "line",
