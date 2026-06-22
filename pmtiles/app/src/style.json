@@ -2685,52 +2685,49 @@
 				]
 			}
 		},
-		{
-			"id": "roads_major",
-			"type": "line",
-			"source": "protomaps_base",
-			"source-layer": "roads",
-			"layout": {
-				"visibility": "visible"
-			},
-			"filter": [
-				"all",
-				[
-					"!has",
-					"is_tunnel"
-				],
-				[
-					"!has",
-					"is_bridge"
-				],
-				[
-					"==",
-					"kind",
-					"major_road"
-				]
-			],
-			"paint": {
-				"line-color": "#fff",
-				"line-width": [
-					"interpolate",
-					[
-						"exponential",
-						1.5
-					],
-					[
-						"zoom"
-					],
-					6,
-					0,
-					6.5,
-					0.33,
-					11,
-					1.5,
-					18,
-					9
-				]
-			}
-		},
+        {
+            "id": "roads_major",
+            "type": "line",
+            "source": "protomaps_base",
+            "source-layer": "roads",
+            "filter": [
+                "all",
+                [
+                    "!has",
+                    "is_tunnel"
+                ],
+                [
+                    "!has",
+                    "is_bridge"
+                ],
+                [
+                    "==",
+                    "kind",
+                    "major_road"
+                ]
+            ],
+            "paint": {
+                "line-color": "#ffffff",
+                "line-width": [
+                    "interpolate",
+                    [
+                        "exponential",
+                        1.6
+                    ],
+                    [
+                        "zoom"
+                    ],
+                    6,
+                    0,
+                    12,
+                    1.6,
+                    15,
+                    3,
+                    18,
+                    13
+                ]
+            }
+        },
 		{
 			"id": "roads_highway_casing_early",
 			"type": "line",
@@ -10596,17 +10593,34 @@
 					3
 				],
 				"line-dasharray": [
-					2,
-					3
+					"step",
+					[
+						"zoom"
+					],
+					[
+						"literal",
+						[
+							1,
+							0
+						]
+					],
+					5,
+					[
+						"literal",
+						[
+							2,
+							3
+						]
+					]
 				],
 				"line-opacity": [
 					"step",
 					[
 						"zoom"
 					],
-					0.5,
+					0.333,
 					5,
-					0.7,
+					0.5,
 					10,
 					0
 				]
@@ -14569,7 +14583,7 @@
 						"zoom"
 					],
 					"#717C7D",
-					14,
+					11,
 					[
 						"match",
 						[
@@ -14578,9 +14592,10 @@
 						],
 						[
 							"Poste de Santé",
-							"Clinique"
+							"Clinique",
+							"Site Soin Communautaire"
 						],
-						"#3A5DAE",
+						"#407EC9",
 						[
 							"Centre de Santé",
 							"Hôpital Général de Référence",
@@ -14599,7 +14614,7 @@
 					[
 						"zoom"
 					],
-					"#ffffff",
+					"#d6d6d6",
 					14,
 					[
 						"match",
@@ -14609,7 +14624,7 @@
 						],
 						"Centre de Santé de Référence",
 						"#53565A",
-						"#ffffff"
+						"#d6d6d6"
 					]
 				],
 				"text-halo-width": [
@@ -14631,9 +14646,10 @@
 					],
 					[
 						"Poste de Santé",
-						"Clinique"
+						"Clinique",
+						"Site Soin Communautaire"
 					],
-					"#3A5DAE",
+					"#407EC9",
 					[
 						"Centre de Santé",
 						"Hôpital Général de Référence",
@@ -14654,7 +14670,7 @@
 					],
 					"Centre de Santé de Référence",
 					"#53565A",
-					"#fff"
+					"#d6d6d6"
 				],
 				"icon-halo-width": [
 					"interpolate",

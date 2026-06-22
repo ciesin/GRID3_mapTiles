@@ -1,502 +1,371 @@
-# Map Source Attribution
+# CIESIN Vector Basemap Attribution
+https://tiles.ciesin.app
 
-*Last updated: March 10, 2026*
-
-## Table of Contents
-
-- [1. GRID3 COD Geospatial Base Layers](#grid3)
-- [2. Protomaps Global Basemap](#protomaps)
-- [3. Overture Buildings](#overture)
-- [4. Mapterhorn Terrain](#terrain)
-- [Combined Attribution Requirements](#combined)
-- [Summary](#freshness)
-- [License Information](#licenses)
+Last updated: May 29, 2026
 
 ---
 
-<div class="source-card" id="grid3">
+## Nigeria (NGA)
 
-## 1. GRID3 COD Geospatial Base Layers <span class="badge badge-primary">grid3.pmtiles</span>
+Public URL: https://prod.ciesin.app/tiles/grid3/nga/GRID3_NGA.pmtiles
 
-### Archive Details
+**The GRID3 COD consolidated vector tiles include the following input layers:**
 
-<div class="technical-specs">
+### GRID3 NGA - Settlement Blocks v4.0
 
-**Type:** Vector tiles (MVT)  
-**Tile Format:** `.mvt` (Mapbox Vector Tiles)  
-**Compression:** gzip (internal & tile)  
-**Zoom Levels:** 0-15  
-**PMTiles Spec Version:** 3  
-**Coverage:** DRC region (11.95° to 32.34° E, -13.92° to 5.62° N)  
-**Center:** 28.125° E, -5.589° N (zoom 15)
+*The GRID3 NGA - Settlement Blocks v4.0 dataset consists of settlement block polygons with building count, block area, building density, settlement classification, and related attributes for Nigeria (NGA).*
 
-</div>
+Derived from "GRID3 NGA - Settlement Extents v4.0" https://doi.org/10.7916/fr96-f546. Accessed 29 May 2026.
 
-### Data Sources & Attribution
+Geographic extent: Nigeria (2.68° to 14.68° E, 4.27° to 13.89° N)
 
-- **Author:** Center for Integrated Earth System Information (CIESIN), Columbia University
-- **Data Year:** 2026
-- **Tile generator:** Tippecanoe v2.80.0
-- **Type:** Overlay
-- **Country:** Democratic Republic of the Congo (COD/DRC)
+Feature count: 2,558,865
 
-<div class="attribution-box">
-
-**Attribution Text:**
-```
-Center for Integrated Earth System Information (CIESIN), Columbia University, Ministère de la Santé Publique, Hygiène et Prévention, Democratic Republic of the Congo, and GRID3. 2025. GRID3 COD - Geospatial Base Layers v8.0. New York: GRID3. https://data.grid3.org/search?q=COD&sort=Date%20Created%7Ccreated%7Cdesc&tags=latest
-```
-
-**Individual Dataset Citations:**
-
-Health Areas:
-```
-Center for Integrated Earth System Information (CIESIN), Columbia University, Ministère de la Santé Publique, Hygiène et Prévention, Democratic Republic of the Congo, and GRID3. 2025. GRID3 COD - Health Areas v8.0. New York: GRID3. https://doi.org/10.7916/kcq9-7s03. Accessed 10 March 2026.
-```
-
-Health Facilities:
-```
-Center for Integrated Earth System Information (CIESIN), Columbia University, Ministère de la Santé Publique, Hygiène et Prévention, Democratic Republic of the Congo, and GRID3. 2025. GRID3 COD - Health Facilities v8.0. New York: GRID3. https://doi.org/10.7916/f1ft-y872. Accessed 10 March 2026.
-```
-
-Health Zones:
-```
-Center for Integrated Earth System Information (CIESIN), Columbia University, Ministère de la Santé Publique, Hygiène et Prévention, Democratic Republic of the Congo, and GRID3. 2025. GRID3 COD - Health Zones v8.0. New York: GRID3. https://doi.org/10.7916/asa4-jc67. Accessed 10 March 2026.
-```
-
-Settlement Names:
-```
-Center for Integrated Earth System Information (CIESIN), Columbia University, Ministère de la Santé Publique, Hygiène et Prévention, Democratic Republic of the Congo, and GRID3. 2025. GRID3 COD - Settlement Names v8.0. New York: GRID3. https://doi.org/10.7916/qpnw-1c89. Accessed 10 March 2026.
-```
-
-Settlement Extents:
-```
-Center for International Earth Science Information Network (CIESIN), Columbia University. 2024. GRID3 COD - Settlement Extents v3.1. New York: GRID3. https://doi.org/10.7916/d6gy-yh28. Accessed 10 March 2026.
-```
-
-</div>
-
-### Layers <span class="badge badge-info">7 total</span>
-
-#### 1. health-facilities <span class="badge badge-success">Point, min z0, max z15</span>
-
-- **Features:** 341,114
-- **Description:** Health facility locations
-- **Key Attributes:**
-  - essnom1, essnom2 (facility names)
-  - esstype (facility type: 13 categories)
-  - categorie (ownership: Etatique/Publique, Confessionnelle, Privé, ONG)
-  - lat, lon (coordinates)
-  - airesante, zonesante, province
-  - dhis2 (DHIS2 ID), grid3id
-  - date (collection year: 2017-2025)
-  - precision_ (GPS accuracy)
-  - frigo, frigofct (refrigeration status)
-  - vaccfixe (fixed vaccination site)
-- **Data Sources:** Multiple agencies
-  - Sources: BLSQ, CIESIN MSPHP, DSNIS, ECV, ESPK, GRID3 PEV, OMS, PATH GRID3, PEV, PNLP, PNLTHA, PROSANI USAID
-
-#### 2. settlement-names <span class="badge badge-success">Point, min z0, max z15</span>
-
-- **Features:** 1,182,743
-- **Description:** Settlement name and place labels
-- **Attributes:**
-    - localite (settlement name - 1000+ unique values)
-    - localite_alt (alternate names)
-    - localitetype (11 types: Village, Quaŕtier, Avenue, Hameau, Bloc, Campement, etc.)
-    - airesante, zonesante, province
-    - lat, lon (coordinates)
-    - precision_ (GPS accuracy)
-    - enclav (accessibility: Oui/Non)
-    - enclavdate (seasonal accessibility by quarter)
-    - date (collection year: 1994-2025)
-    - grid3id, OBJECTID
-- **Data Sources:**
-    - Sources: CIESIN MSPHP, DSNIS, ESPK, ESPK GRID3 CIESIN, ESPK UCLA, GRID3 PEV, IOM, MONUC GNS, OMS GPEI, OMS ISS, PEV, PNLP IMA, PNLP SANRU, RGC
-
-#### 3. settlement-extents <span class="badge badge-success">Polygon, min z0, max z15</span>
-
-- **Features:** 5,499,158
-- **Description:** Settlement extent polygons
-- **Settlement Types:**
-    - Built-up Area
-    - Small Settlement Area
-    - Hamlet
-
-#### 4. health-areas <span class="badge badge-success">Polygon, min z0, max z15</span>
-
-- **Features:** 2,856,768
-- **Description:** Health area polygons for DRC
-- **Key Attributes:** airesante (health area name), province, zonesante (health zone)
-- **Coverage:** 26 provinces, 517 health zones
-
-#### 5. health-zones <span class="badge badge-success">Polygon, min z0, max z15</span>
-
-- **Features:** 2,280,420
-- **Description:** Health zone boundaries
-- **Key Attributes:** province, zonesante
-- **Coverage:** 517 health zones across 26 provinces
-
-### Geographic Coverage
-
-**DRC Provinces (26 total):**  
-Bas-Uele, Equateur, Haut-Katanga, Haut-Lomami, Haut-Uele, Ituri, Kasaï, Kasaï-Central, Kasaï-Oriental, Kinshasa, Kongo-Central, Kwango, Kwilu, Lomami, Lualaba, Mai-Ndombe, Maniema, Mongala, Nord-Kivu, Nord-Ubangi, Sankuru, Sud-Kivu, Sud-Ubangi, Tanganyika, Tshopo, Tshuapa
-
-**Health Zones:** 517 zones across 26 provinces
-
-### Technical Details
-
-- **Total tiles:** 1,596,724 tile entries
-- **Unique tiles:** 952,932 tile contents
-- **Addressed tiles:** 2,100,350
-- **Clustered:** Yes
-
-</div>
+Technical specifications:
+- Tile Format: .mvt (Mapbox Vector Tiles)
+- Geometry type: polygon
+- Compression: gzip (internal & tile)
+- Zoom Levels: 13–14
+- Map layer(s): GRID3-NGA-settlement-extents-v4-0
+<!-- - Layer attributes: OBJECTID, Shape__Area, Shape__Length, bd_class, block_area_sqm, block_id, block_neighbor_count, block_perimeter, blocks_per_settl_extent, building_area_density, building_area_max, building_area_median, building_area_min, building_area_stdev, building_area_sum, building_count, building_count_density, building_count_density_quantile_rank, building_max_area_quantile_rank, composite_class, country, es_class, evi_mean, extent_type, gbuilding_max_height, gbuilding_mean_height, iso3, ma_class, mgrs_code, ndvi_mean -->
 
 ---
 
-<div class="source-card" id="protomaps">
+### GRID3 NGA - Settlement Extents v3.0
 
-## 2. Protomaps Global Basemap <span class="badge badge-primary">global.pmtiles</span>
+*The GRID3 NGA - Settlement Extents v3.0 consists of a geographic representation of settlements in the Nigeria, in two forms: 1) settlement polygons, and 2) spatial points depicting the centroids of settled grid cells at 3-arc seconds (or ~100 meters) contained within settlement polygons. Both layers include attributes as described in the codebooks. Data inputs and methodology to derive the 2 layers is described in this document.*
 
-### Archive Details
+Derived from "GRID3 NGA - Settlement Extents v3.0" https://doi.org/10.7916/tbgr-4j86. Accessed 10 March 2026.
 
-<div class="technical-specs">
+Geographic extent: Nigeria (2.68° to 14.68° E, 4.27° to 13.89° N)
 
-**Type:** Vector tiles (MVT)  
-**Tile Format:** `.mvt` (Mapbox Vector Tiles)  
-**Compression:** gzip (internal & tile)  
-**Zoom Levels:** 0-15  
-**PMTiles Spec Version:** 3  
-**Coverage:** Global (-180° to 180°, -85.05° to 85.05°)
+Feature count: 745,191
 
-</div>
+Technical specifications:
+- Tile Format: .mvt (Mapbox Vector Tiles)
+- Geometry type: polygon
+- Compression: gzip (internal & tile)
+- Zoom Levels: 0–14
+- Map layer(s): settlement-extents
+<!-- - Layer attributes: type (Built-up Area, Hamlet, Small Settlement Area) -->
 
-### Data Sources & Attribution
+Attribution:
 
-- **Primary Source:** [OpenStreetMap](https://www.openstreetmap.org) contributors
-- **Secondary Source:** [Natural Earth](https://www.naturalearthdata.com)
-- **Tile generator:** Planetiler v0.9.0
-- **Build Date:** May 6, 2025 (2025-05-06T00:22:16.609Z)
-- **OSM Data Date:** February 2, 2026, 04:00:00 UTC
-- **OSM Replication Sequence:** 117381
-- **Version:** 4.13.6 (Protomaps basemap version)
+Center for Integrated Earth System Information (CIESIN), Columbia University. 2024. GRID3 NGA - Settlement Extents v3.0. New York: GRID3. https://doi.org/10.7916/tbgr-4j86. Accessed [DAY MONTH YEAR].
 
-<div class="attribution-box">
+Terms of use:
 
-**Attribution Text:**
-```
+Users are free to download, store, access, use, copy, adapt, transform, alter, arrange, build upon, distribute and transmit this work and any derivative works. Attribution of the source must be provided, and further distribution of this work or derived work must maintain the same terms of data use and license as set forth in this Terms of Use.
+
+License: CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)
+
+© 2024. The Trustees of Columbia University in the City of New York.
+
+---
+
+### GRID3 NGA - Operational Wards v2.0
+
+*The GRID3 NGA - Settlement Extents v4.0 dataset consists of a geographic representation of settlements in Nigeria. Settlement extents are further delineated into settlement blocks nested within urban and small settlement areas, generated from integrated road, railway, river, settlement extent, building footprint, and remote-sensing inputs. Each block is enriched with morphological, environmental and building metrics.*
+
+Derived from "GRID3 NGA - Operational Wards v2.0" https://doi.org/10.7916/fr96-f546. Accessed 8 June 2026.
+
+Geographic extent: Nigeria (2.68° to 14.68° E, 4.27° to 13.89° N)
+
+Feature count: 745,191
+
+Technical specifications:
+- Tile Format: .mvt (Mapbox Vector Tiles)
+- Geometry type: polygon
+- Compression: gzip (internal & tile)
+- Zoom Levels: 0-16
+- Map layer(s): GRID3-NGA-operational-wards-v2-0
+
+
+---
+
+## Democratic Republic of the Congo (COD)
+
+Public URL: https://prod.ciesin.app/tiles/grid3/cod/GRID3_COD.pmtiles
+
+**The GRID3 COD consolidated vector tiles include the following input layers:**
+
+### GRID3 COD - Health Facilities v8.0
+
+*The GRID3 COD - Health Facilities v8.0 dataset consists of health facility points with name, location, health zone, and health area, among other attributes, for all the twenty-six provinces in the Democratic Republic of the Congo (COD).*
+
+*This operational dataset has not been fully validated by government officials or ministries.*
+
+Derived from "GRID3 COD - Health Facilities v8.0" https://doi.org/10.7916/f1ft-y872. Accessed 10 March 2026.
+
+Geographic extent: Democratic Republic of the Congo (12.29° to 31.27° E, -13.26° to 5.13° N)
+
+Feature count: 38,049
+
+Technical specifications:
+- Tile Format: .mvt (Mapbox Vector Tiles)
+- Geometry type: point
+- Compression: gzip (internal & tile)
+- Zoom Levels: 0–8
+- Map layer(s): GRID3-COD-health-facilities-v8-0
+<!-- - Layer attributes: OBJECTID, airesante, antenne, as_uid, categorie, date, dhis2, essnom1, essnom2, esstype, frigo, frigofct, grid3id, iso3, lat, localite, lon, origine, pays, precision_, prov_uid, province, source_acronym, sourceid, typeorig, vaccfixe, zonesante, zs_uid -->
+
+Attribution:
+
+Center for Integrated Earth System Information (CIESIN), Columbia University, Ministère de la Santé Publique, Hygiène et Prévention, Democratic Republic of the Congo, and GRID3. 2025. GRID3 COD - Health Facilities v8.0. New York: GRID3. https://doi.org/10.7916/f1ft-y872 . Accessed .
+
+Terms of use:
+
+Users are free to use, copy, distribute, transmit, and adapt the work for commercial and non-commercial purposes, without restriction, as long as clear attribution of the source is provided.
+
+License: CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)
+
+© 2025. The Trustees of Columbia University in the City of New York.
+
+---
+
+### GRID3 COD - Settlement Names v8.0
+
+*The GRID3 COD - Settlement Names v8.0 dataset consists of settlement points with name and attributes for all the twenty-six provinces in the Democratic Republic of the Congo (COD).*
+
+*This operational dataset has not been fully validated by government officials or ministries.*
+
+Derived from "GRID3 COD - Settlement Names v8.0" https://doi.org/10.7916/qpnw-1c89. Accessed 10 March 2026.
+
+Geographic extent: Democratic Republic of the Congo (12.22° to 31.26° E, -13.38° to 5.14° N)
+
+Feature count: 127,942
+
+Technical specifications:
+- Tile Format: .mvt (Mapbox Vector Tiles)
+- Geometry type: point
+- Compression: gzip (internal & tile)
+- Zoom Levels: 0–8
+- Map layer(s): GRID3-COD-settlement-names-v8-0
+<!-- - Layer attributes: OBJECTID, airesante, antenne, as_uid, date, enclav, enclavdate, grid3id, iso3, lat, localite, localite_alt, localitetype, lon, pays, precision_, prov_uid, province, source_acronym, sourceid, zonesante, zs_uid -->
+
+Attribution:
+
+Center for Integrated Earth System Information (CIESIN), Columbia University, Ministère de la Santé Publique, Hygiène et Prévention, Democratic Republic of the Congo, and GRID3. 2025. GRID3 COD - Settlement Names v8.0. New York: GRID3. https://doi.org/10.7916/qpnw-1c89. Accessed .
+
+Terms of use:
+
+Users are free to use, copy, distribute, transmit, and adapt the work for commercial and non-commercial purposes, without restriction, as long as clear attribution of the source is provided.
+
+License: CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)
+
+© 2025. The Trustees of Columbia University in the City of New York.
+
+---
+
+### GRID3 COD - Health Areas v8.0
+
+*The GRID3 COD - Health Areas v8.0 dataset consists of health area polygons with health area name, health zone, and province attributes for all twenty-six provinces in the Democratic Republic of the Congo (COD). The dataset covers 517 health zones across 26 provinces.*
+
+Derived from "GRID3 COD - Health Areas v8.0" https://doi.org/10.7916/kcq9-7s03. Accessed 10 March 2026.
+
+Geographic extent: Democratic Republic of the Congo (12.20° to 31.28° E, -13.46° to 5.39° N)
+
+Feature count: 9,658
+
+Technical specifications:
+- Tile Format: .mvt (Mapbox Vector Tiles)
+- Geometry type: polygon
+- Compression: gzip (internal & tile)
+- Zoom Levels: 0–8
+- Map layer(s): GRID3-COD-health-areas-v8-0
+<!-- - Layer attributes: airesante, province, zonesante -->
+
+Attribution:
+
+Center for Integrated Earth System Information (CIESIN), Columbia University, Ministère de la Santé Publique, Hygiène et Prévention, Democratic Republic of the Congo, and GRID3. 2025. GRID3 COD - Health Areas v8.0. New York: GRID3. https://doi.org/10.7916/kcq9-7s03. Accessed .
+
+Terms of use:
+
+Users are free to use, copy, distribute, transmit, and adapt the work for commercial and non-commercial purposes, without restriction, as long as clear attribution of the source is provided.
+
+License: CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)
+
+© 2025. The Trustees of Columbia University in the City of New York.
+
+---
+
+### GRID3 COD - Health Zones v8.0
+
+*The GRID3 COD - Health Zones v8.0 dataset consists of health zone boundary polygons with health zone name and province attributes for all twenty-six provinces in the Democratic Republic of the Congo (COD).*
+
+Derived from "GRID3 COD - Health Zones v8.0" https://doi.org/10.7916/asa4-jc67. Accessed 10 March 2026.
+
+Geographic extent: Democratic Republic of the Congo (12.20° to 31.28° E, -13.46° to 5.39° N)
+
+Feature count: 519
+
+Technical specifications:
+- Tile Format: .mvt (Mapbox Vector Tiles)
+- Geometry type: polygon
+- Compression: gzip (internal & tile)
+- Zoom Levels: 0–8
+- Map layer(s): GRID3-COD-health-zones-v8-0
+<!-- - Layer attributes: province, zonesante -->
+
+Attribution:
+
+Center for Integrated Earth System Information (CIESIN), Columbia University, Ministère de la Santé Publique, Hygiène et Prévention, Democratic Republic of the Congo, and GRID3. 2025. GRID3 COD - Health Zones v8.0. New York: GRID3. https://doi.org/10.7916/asa4-jc67. Accessed .
+
+Terms of use:
+
+Users are free to use, copy, distribute, transmit, and adapt the work for commercial and non-commercial purposes, without restriction, as long as clear attribution of the source is provided.
+
+License: CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)
+
+© 2025. The Trustees of Columbia University in the City of New York.
+
+---
+
+### GRID3 COD - Settlement Extents v3.1
+
+*The GRID3 COD - Settlement Extents v3.1 consists of a geographic representation of settlements in the Democratic Republic of the Congo, in two forms: 1) settlement polygons, and 2) spatial points depicting the centroids of settled grid cells at 3-arc seconds (or ~100 meters) contained within settlement polygons.*
+
+Derived from "GRID3 COD - Settlement Extents v3.1" https://doi.org/10.7916/d6gy-yh28. Accessed 29 May 2026.
+
+Geographic extent: Democratic Republic of the Congo (12.20° to 31.28° E, -13.44° to 5.25° N)
+
+Feature count: 572,537
+
+Technical specifications:
+- Tile Format: .mvt (Mapbox Vector Tiles)
+- Geometry type: polygon
+- Compression: gzip (internal & tile)
+- Zoom Levels: 7–15
+- Map layer(s): GRID3-COD-settlement-extents-v3-1
+<!-- - Layer attributes: OBJECTID, Shape__Area, Shape__Length, building_area, building_count, country, date, iso3, mgrs_code, probability, source, type -->
+
+Attribution:
+
+Center for International Earth Science Information Network (CIESIN), Columbia University. 2024. GRID3 COD - Settlement Extents v3.1. New York: GRID3. https://doi.org/10.7916/d6gy-yh28. Accessed [DAY MONTH YEAR].
+
+Terms of use:
+
+Users are free to download, store, access, use, copy, adapt, transform, alter, arrange, build upon, distribute and transmit this work and any derivative works. Attribution of the source must be provided, and further distribution of this work or derived work must maintain the same terms of data use and license as set forth in this Terms of Use.
+
+License: CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)
+
+© 2024. The Trustees of Columbia University in the City of New York.
+
+---
+
+## Global
+
+### Protomaps Global Basemap
+
+Public URL: https://prod.ciesin.app/tiles/base.pmtiles
+
+*Global vector basemap derived from OpenStreetMap and Natural Earth data. Accessed from https://maps.protomaps.com/builds/ 28 April 2026. Protomaps basemap version 4.14.5*
+
+Source: © OpenStreetMap contributors (https://www.openstreetmap.org/©)
+Source: Natural Earth (https://www.naturalearthdata.com)
+Geographic extent: Global (-180° to 180°, -85.05° to 85.05°)
+
+Technical specifications:
+- Tile Format: .mvt (Mapbox Vector Tiles)
+- Geometry type: vector
+- Compression: gzip (internal & tile)
+- Zoom Levels: 0–15
+- Map layer(s):
+  - earth — Land polygons with multilingual names (z0–z15)
+  - landcover — Natural landcover (z0–z7)
+  - landuse — Anthropogenic landuse (z2–z15)
+  - places — Toponyms (z1–z15)
+  - pois — Points of interest (z5–z15)
+  - roads — Road network with multilingual names (z3–z15)
+  - water — Linear and polygonal water features (z0–z15)
+
+Attribution:
+
 © OpenStreetMap contributors
-```
-
-**HTML Format:**
-```html
-<a href="https://www.openstreetmap.org/copyright" target="_blank">© OpenStreetMap</a>
-```
-
-</div>
-
-### Layers <span class="badge badge-info">9 total</span>
-
-1. **boundaries** - Administrative boundaries (min z0, max z15)
-2. **buildings** - OSM building footprints (min z11, max z15)
-3. **earth** - Land polygons with multilingual names (min z0, max z15)
-4. **landcover** - Natural landcover features (min z0, max z7)
-5. **landuse** - Land use polygons (min z2, max z15)
-6. **places** - POI labels with population data (min z1, max z15)
-7. **pois** - Points of interest (min z5, max z15)
-8. **roads** - Road network with multilingual names (min z3, max z15)
-9. **water** - Water features (min z0, max z15)
-
-### Technical Details
-
-- **Total tiles:** 154,388,776 tile entries
-- **Unique tiles:** 133,718,570 tile contents
-- **Addressed tiles:** 1,431,655,765
-- **Clustered:** Yes
-- **Font Support:** Devanagari script (NotoSansDevanagari-Regular)
-
-</div>
+License: ODbL (Open Database License) (https://www.openstreetmap.org/copyright)
 
 ---
 
-<div class="source-card" id="overture">
+### Overture Buildings
 
-## 3. Overture Buildings <span class="badge badge-primary">buildings.pmtiles</span>
+Public URL: https://prod.ciesin.app/tiles/overture/buildings_composite.pmtiles
 
-### Archive Details
+*Global building footprints from the Overture Maps Foundation, incorporating OpenStreetMap data. Generated using Overture Maps Planetiler profile (https://github.com/OvertureMaps/overture-tiles). Build date: May 20, 2026. <Z14 are collapsed to building centroids.*
 
-<div class="technical-specs">
+Source: © Overture Maps Foundation (https://overturemaps.org)
+Source: © OpenStreetMap contributors (https://www.openstreetmap.org/copyright)
+Geographic extent: Global (-180° to 180°, -85.05° to 85.05°)
 
-**Type:** Vector tiles (MVT)  
-**Tile Format:** `.mvt` (Mapbox Vector Tiles)  
-**Compression:** gzip (internal & tile)  
-**Zoom Levels:** 0-14 (data available 5-14)  
-**PMTiles Spec Version:** 3  
-**Coverage:** Global (-180° to 180°, -85.05° to 85.05°)
+Technical specifications:
+- Tile Format: .mvt (Mapbox Vector Tiles)
+- Geometry type: vector
+- Compression: gzip (internal & tile)
+- Zoom Levels: 5–14
+- Map layer(s):
+  - building — Building footprints with height data; attributes: height, class, facade details, roof details, sources, version
+  - building_part — Building sub-parts (z14); attributes: height, building_id, facade details, roof details
+  
 
-</div>
+Attribution:
 
-### Data Sources & Attribution
-
-- **Primary Source:** [Overture Maps Foundation](https://overturemaps.org)
-- **Contributing Source:** [OpenStreetMap](https://www.openstreetmap.org) contributors
-- **Tile generator:** Planetiler v0.9.2
-- **Build Date:** September 20, 2025 (2025-09-20T10:08:13.852Z)
-- **Type:** Overlay
-
-<div class="attribution-box">
-
-**Attribution Text:**
-```
-© OpenStreetMap contributors
-© Overture Maps Foundation
-```
-
-**HTML Format:**
-```html
-<a href="https://www.openstreetmap.org/copyright" target="_blank">© OpenStreetMap</a>
-<a href="https://docs.overturemaps.org/attribution" target="_blank">© Overture Maps Foundation</a>
-```
-
-</div>
-
-### Layers <span class="badge badge-info">2 total</span>
-
-1. **building** - Building footprints with height data (min z5, max z14)
-   - Attributes: height, class, facade details, roof details, sources, version
-2. **building_part** - Building sub-parts (min z9, max z14)
-   - Attributes: height, building_id, facade details, roof details
-
-### Technical Details
-
-- **Total tiles:** 3,271,936 tile entries
-- **Unique tiles:** 3,271,936 tile contents
-- **Addressed tiles:** 3,271,936
-- **Clustered:** Yes
-
-</div>
+© Overture Maps Foundation, © OpenStreetMap contributors
+License: CDLA-Permissive-2.0 (https://docs.overturemaps.org/attribution)
 
 ---
-
-<div class="source-card" id="terrain">
-
-## 4. Mapterhorn 30m Terrain <span class="badge badge-primary">terrain.pmtiles</span>
-
-### Archive Details
-
-<div class="technical-specs">
-
-**Type:** Raster tiles (WebP)  
-**Tile Format:** `.webp` (raster DEM)  
-**Compression:** Internal gzip, tiles uncompressed  
-**Zoom Levels:** 0-12  
-**PMTiles Spec Version:** 3  
-**Coverage:** Africa region (-18.8° to 51.8° E, -35.4° to 37.5° N)  
-**Center:** 16.5° E, 1.05° N (zoom 6)  
-**Tile Size:** 256x256 pixels  
-**Encoding:** Terrarium (elevation encoding format)
-
-</div>
-
-### Data Sources & Attribution
-
-- **Provider:** [Mapterhorn](https://mapterhorn.com)
-- **Type:** Digital Elevation Model (DEM)
-- **Use:** Hillshade, contours, 3D terrain visualization
-
-<div class="attribution-box">
-
-**Attribution Text:**
-```
-© Mapterhorn
-```
-
-**HTML Format:**
-```html
-<a href="https://mapterhorn.com/attribution">© Mapterhorn</a>
-```
-
-</div>
-
-### Usage in Application
-
-#### DEM Source (for hillshade):
-
-- Encoding: Terrarium
-- Max zoom: 12
-- Used by: maplibre-contour library
-
-#### Contours Source (vector contours generated dynamically):
-
-- Generated from DEM tiles using maplibre-contour
-- **Contour intervals (zoom-dependent):**
-  - z10.5: 60m/300m (minor/major)
-  - z11.5: 50m/250m
-  - z12.5: 20m/100m
-  - z13.5: 10m/50m
-  - z14.5: 10m/50m
-  - z15.5: 5m/25m
-- Elevation units: meters
-- Min zoom: 10
-
-### Technical Details
-
-- **Total tiles:** 545,896 tile entries
-- **Unique tiles:** 541,263 tile contents
-- **Addressed tiles:** 756,971
-- **Clustered:** Yes
-
-</div>
-
----
-
-
-<div id="combined">
-
-## Combined Attribution Requirements
-
-When using all tile sources together, the complete attribution should be:
-
-<div class="attribution-box">
-
-### Full Attribution Text
-
-```
-Map data © OpenStreetMap contributors
-Buildings © Overture Maps Foundation  
-GRID3 COD Geospatial Base Layers ©2026. The Trustees of Columbia University in the City of New York
-Terrain © Mapterhorn & COPERNICUS GLO-30 ©2025
-```
-
-### Recommended HTML Format
-
-```html
-<a href="https://www.openstreetmap.org/copyright">© OpenStreetMap</a> |
-<a href="https://docs.overturemaps.org/attribution">© Overture Maps Foundation</a> | 
-<a href="https://data.grid3.org/search?q=COD&sort=Date%20Created%7Ccreated%7Cdesc&tags=latest">GRID3 COD Geospatial Base Layers ©2026. The Trustees of Columbia University in the City of New York</a> |
-<a href="https://mapterhorn.com/attribution">© Mapterhorn</a> |
-<a href="https://docs.sentinel-hub.com/api/latest/static/files/data/dem/resources/license/License-COPDEM-30.pdf">© COPERNICUS GLO-30 2025</a>
-```
-
-</div>
-
-</div>
-
----
-
-<div id="freshness">
-
-## Summary
-
-| Source | Build/Collection Date | Data Currency |
-|--------|----------------------|---------------|
-| Protomaps Global | May 6, 2025 | OSM data: Feb 2, 2026 |
-| Overture Buildings | September 20, 2025 | 2025 Overture release |
-| GRID3 COD Geospatial Base Layers | 2017-2026 | Multi-year compilation |
-| Mapterhorn Terrain | N/A | Static DEM product |
-
-</div>
-
----
-
-<div id="licenses">
-
-## License Information
-
-<div class="license-box">
-
-### OpenStreetMap (Protomaps basemap)
-
-- **License:** [ODbL (Open Database License)](https://www.openstreetmap.org/copyright)
-- **Attribution Required:** Yes
-- **Share-Alike:** Database must remain open
-
-</div>
-
-<div class="license-box">
-
-### Overture Maps
-
-- **License:** [CDLA-Permissive-2.0](https://docs.overturemaps.org/attribution)
-- **Attribution Required:** Yes
-- **Sources:** Includes OpenStreetMap + other contributors
-
-</div>
-
-<div class="license-box">
-
-### GRID3 COD Geospatial Base Layers
-
-- **License:** [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
-- **Attribution Required:** Yes (©2026. The Trustees of Columbia University in the City of New York)
-- **Usage:** Users are free to use, copy, distribute, transmit, and adapt the work for commercial and non-commercial purposes, without restriction, as long as clear attribution of the source is provided.
-
-</div>
-
-<div class="license-box">
 
 ### Mapterhorn 30m Terrain
 
-- **License:** [COPERNICUS GLO-30 ©2025](https://docs.sentinel-hub.com/api/latest/static/files/data/dem/resources/license/License-COPDEM-30.pdf)
-- **Attribution Required:** Yes
+Public URL: https://prod.ciesin.app/tiles/terrain.pmtiles
 
-</div>
+*30-meter resolution Digital Elevation Model (DEM) covering the Africa, provided by Mapterhorn. Used to render hillshade and dynamically generated vector contours in the application.*
 
-</div>
+Source: Mapterhorn (https://mapterhorn.com)
+Geographic extent: Africa (-18.8° to 51.8° E, -35.4° to 37.5° N)
 
----
+Technical specifications:
+- Tile Format: .webp (raster DEM, Terrarium elevation encoding)
+- Geometry type: raster
+- Compression: internal gzip; tiles uncompressed
+- Zoom Levels: 0–12
+- Tile size: 256×256 pixels
 
-## Technical Specifications
+Attribution:
 
-| Archive | Type | Size (tiles) | Zoom Range | Format | Compression |
-|---------|------|--------------|------------|--------|-------------|
-| global.pmtiles | Vector | 154M entries | 0-15 | MVT | gzip |
-| buildings.pmtiles | Vector | 3.3M entries | 5-14 | MVT | gzip |
-| grid3.pmtiles | Vector | 1.6M entries | 0-15 | MVT | gzip |
-| terrain.pmtiles | Raster | 546K entries | 0-12 | WebP | none |
-
----
-
-## Serverless Tile Architecture
-
-### Cloudflare Workers + R2 Storage
-
-All PMTiles archives are served through a Cloudflare Worker to [decode URLs into georeferenced tiles](https://docs.protomaps.com/deploy/) with ZXY coordinates using http range requests:
-
-**Development worker URL:** `https://pmtiles-cloudflare.mheaton-945.workers.dev`
-
-*note: CDN caching is not yet available with this development URL*
-
-#### Tile URL Patterns:
-
-- **GRID3:** `{worker-url}/grid3/{z}/{x}/{y}.mvt`
-- **Protomaps:** `{worker-url}/global/{z}/{x}/{y}.mvt`
-- **Overture:** `{worker-url}/buildings/{z}/{x}/{y}.mvt`
-- **Terrain:** `{worker-url}/terrain/{z}/{x}/{y}.webp`
+© Mapterhorn (https://mapterhorn.com/attribution)
+License: COPERNICUS full, free and open license
 
 ---
 
-## Links
+## Overview
 
-- [Source code](https://github.com/ciesin/GRID3_mapTiles)
-- [CIESIN](https://ciesin.columbia.edu/)
-- [GRID3 Data Hub](https://data.grid3.org/)
-- [PMTiles Specification](https://github.com/protomaps/PMTiles)
-- [Introduction to PMTiles](https://guide.cloudnativegeo.org/pmtiles/intro.html)
-- [Protomaps Basemap Builds](https://maps.protomaps.com/)
-- [Overture Maps](https://overturemaps.org)
-- [OpenStreetMap](https://www.openstreetmap.org)
-- [Mapterhorn](https://mapterhorn.com)
-- [Tippecanoe](https://github.com/felt/tippecanoe)
-- [Planetiler](https://github.com/onthegomap/planetiler)
+### Full Attribution
+
+© OpenStreetMap contributors, Overture Maps Foundation, CIESIN Columbia University, Mapterhorn & COPERNICUS GLO-30, 2026.
+
+### Terms of Use
+
+OpenStreetMap (Protomaps basemap)
+License: ODbL (Open Database License)
+Attribution Required: Yes
+
+Overture Maps
+License: CDLA-Permissive-2.0
+Attribution Required: Yes
+
+GRID3 COD Geospatial Base Layers
+License: CC BY 4.0
+Attribution Required: Yes
+
+GRID3 NGA Geospatial Base Layers
+License: CC BY 4.0
+Attribution Required: Yes
+
+Mapterhorn 30m Terrain
+License: COPERNICUS GLO-30 ©2025
+Attribution Required: Yes
 
 ---
 
 ## Contact
 
-For questions about this codebase, please contact: [mheaton@ciesin.columbia.edu](mailto:mheaton@ciesin.columbia.edu)
-<br>
-Attribution inquries: [mlukang@ciesin.columbia.edu](mailto:mlukang@ciesin.columbia.edu)
-<br>
-All other info: [info@ciesin.columbia.edu](mailto:info@ciesin.columbia.edu)
+Users who would like to provide feedback about this data product, or encounter apparent errors or misstatements, are encouraged to contact CIESIN Columbia University at info@ciesin.columbia.edu.

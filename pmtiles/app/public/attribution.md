@@ -7,9 +7,11 @@ Last updated: May 29, 2026
 
 ## Nigeria (NGA)
 
-### GRID3 NGA - Settlement Blocks v4.0
+Public URL: https://prod.ciesin.app/tiles/grid3/nga/GRID3_NGA.pmtiles
 
-Public URL: https://dev.ciesin.app/tiles/grid3/nga/GRID3_NGA_settlement_extents_v4_0.pmtiles
+**The GRID3 COD consolidated vector tiles include the following input layers:**
+
+### GRID3 NGA - Settlement Blocks v4.0
 
 *The GRID3 NGA - Settlement Blocks v4.0 dataset consists of settlement block polygons with building count, block area, building density, settlement classification, and related attributes for Nigeria (NGA).*
 
@@ -30,8 +32,6 @@ Technical specifications:
 ---
 
 ### GRID3 NGA - Settlement Extents v3.0
-
-Public URL: https://dev.ciesin.app/tiles/grid3/nga/GRID3_NGA_settlement_extents_v3_0.pmtiles
 
 *The GRID3 NGA - Settlement Extents v3.0 consists of a geographic representation of settlements in the Nigeria, in two forms: 1) settlement polygons, and 2) spatial points depicting the centroids of settled grid cells at 3-arc seconds (or ~100 meters) contained within settlement polygons. Both layers include attributes as described in the codebooks. Data inputs and methodology to derive the 2 layers is described in this document.*
 
@@ -65,8 +65,6 @@ License: CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)
 
 ### GRID3 NGA - Operational Wards v2.0
 
-Public URL: 
-
 *The GRID3 NGA - Settlement Extents v4.0 dataset consists of a geographic representation of settlements in Nigeria. Settlement extents are further delineated into settlement blocks nested within urban and small settlement areas, generated from integrated road, railway, river, settlement extent, building footprint, and remote-sensing inputs. Each block is enriched with morphological, environmental and building metrics.*
 
 Derived from "GRID3 NGA - Operational Wards v2.0" https://doi.org/10.7916/fr96-f546. Accessed 8 June 2026.
@@ -87,9 +85,11 @@ Technical specifications:
 
 ## Democratic Republic of the Congo (COD)
 
-### GRID3 COD - Health Facilities v8.0
+Public URL: https://prod.ciesin.app/tiles/grid3/cod/GRID3_COD.pmtiles
 
-Public URL: https://dev.ciesin.app/tiles/grid3/cod/GRID3_COD_health_facilities_v8_0.pmtiles
+**The GRID3 COD consolidated vector tiles include the following input layers:**
+
+### GRID3 COD - Health Facilities v8.0
 
 *The GRID3 COD - Health Facilities v8.0 dataset consists of health facility points with name, location, health zone, and health area, among other attributes, for all the twenty-six provinces in the Democratic Republic of the Congo (COD).*
 
@@ -125,8 +125,6 @@ License: CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)
 
 ### GRID3 COD - Settlement Names v8.0
 
-Public URL: https://dev.ciesin.app/tiles/grid3/cod/GRID3_COD_settlement_names_v8_0.pmtiles
-
 *The GRID3 COD - Settlement Names v8.0 dataset consists of settlement points with name and attributes for all the twenty-six provinces in the Democratic Republic of the Congo (COD).*
 
 *This operational dataset has not been fully validated by government officials or ministries.*
@@ -161,8 +159,6 @@ License: CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)
 
 ### GRID3 COD - Health Areas v8.0
 
-Public URL: https://dev.ciesin.app/tiles/grid3/cod/GRID3_COD_health_areas_v8_0.pmtiles
-
 *The GRID3 COD - Health Areas v8.0 dataset consists of health area polygons with health area name, health zone, and province attributes for all twenty-six provinces in the Democratic Republic of the Congo (COD). The dataset covers 517 health zones across 26 provinces.*
 
 Derived from "GRID3 COD - Health Areas v8.0" https://doi.org/10.7916/kcq9-7s03. Accessed 10 March 2026.
@@ -195,8 +191,6 @@ License: CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)
 
 ### GRID3 COD - Health Zones v8.0
 
-Public URL: https://dev.ciesin.app/tiles/grid3/cod/GRID3_COD_health_zones_v8_0.pmtiles
-
 *The GRID3 COD - Health Zones v8.0 dataset consists of health zone boundary polygons with health zone name and province attributes for all twenty-six provinces in the Democratic Republic of the Congo (COD).*
 
 Derived from "GRID3 COD - Health Zones v8.0" https://doi.org/10.7916/asa4-jc67. Accessed 10 March 2026.
@@ -228,8 +222,6 @@ License: CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)
 ---
 
 ### GRID3 COD - Settlement Extents v3.1
-
-Public URL: https://dev.ciesin.app/tiles/grid3/cod/GRID3_COD_settlement_extents_v3_1.pmtiles
 
 *The GRID3 COD - Settlement Extents v3.1 consists of a geographic representation of settlements in the Democratic Republic of the Congo, in two forms: 1) settlement polygons, and 2) spatial points depicting the centroids of settled grid cells at 3-arc seconds (or ~100 meters) contained within settlement polygons.*
 
@@ -265,7 +257,7 @@ License: CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0)
 
 ### Protomaps Global Basemap
 
-Public URL: https://dev.ciesin.app/tiles/base.pmtiles
+Public URL: https://prod.ciesin.app/tiles/base.pmtiles
 
 *Global vector basemap derived from OpenStreetMap and Natural Earth data. Accessed from https://maps.protomaps.com/builds/ 28 April 2026. Protomaps basemap version 4.14.5*
 
@@ -296,9 +288,9 @@ License: ODbL (Open Database License) (https://www.openstreetmap.org/copyright)
 
 ### Overture Buildings
 
-Public URL: https://dev.ciesin.app/tiles/overture/buildings.pmtiles
+Public URL: https://prod.ciesin.app/tiles/overture/buildings_composite.pmtiles
 
-*Global building footprints from the Overture Maps Foundation, incorporating OpenStreetMap data. Generated using Overture Maps Planetiler profile (https://github.com/OvertureMaps/overture-tiles). Build date: May 20, 2026.*
+*Global building footprints from the Overture Maps Foundation, incorporating OpenStreetMap data. Generated using Overture Maps Planetiler profile (https://github.com/OvertureMaps/overture-tiles). Build date: May 20, 2026. <Z14 are collapsed to building centroids.*
 
 Source: © Overture Maps Foundation (https://overturemaps.org)
 Source: © OpenStreetMap contributors (https://www.openstreetmap.org/copyright)
@@ -310,8 +302,9 @@ Technical specifications:
 - Compression: gzip (internal & tile)
 - Zoom Levels: 5–14
 - Map layer(s):
-  - building — Building footprints with height data (z5–z14); attributes: height, class, facade details, roof details, sources, version
-  - building_part — Building sub-parts (z9–z14); attributes: height, building_id, facade details, roof details
+  - building — Building footprints with height data; attributes: height, class, facade details, roof details, sources, version
+  - building_part — Building sub-parts (z14); attributes: height, building_id, facade details, roof details
+  
 
 Attribution:
 
@@ -322,7 +315,7 @@ License: CDLA-Permissive-2.0 (https://docs.overturemaps.org/attribution)
 
 ### Mapterhorn 30m Terrain
 
-Public URL: https://dev.ciesin.app/tiles/terrain.pmtiles
+Public URL: https://prod.ciesin.app/tiles/terrain.pmtiles
 
 *30-meter resolution Digital Elevation Model (DEM) covering the Africa, provided by Mapterhorn. Used to render hillshade and dynamically generated vector contours in the application.*
 
