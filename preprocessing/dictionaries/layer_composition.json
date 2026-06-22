@@ -75,7 +75,12 @@
     "GRID3_NGA_POIs": {
       "theme": "POI",
       "layer_order": []
-    }
+    },
+
+    "GRID3_africa_settlement_extents": { "theme": "settlement_extents" },
+    "GRID3_africa_roads":              { "theme": "roads" },
+    "GRID3_africa_boundaries":         { "theme": "boundaries" },
+    "GRID3_africa_POIs":               { "theme": "POI" }
 
   }
 }

@@ -124,24 +124,29 @@ def process_file_group(group_name, file_path_map, extent=None, output_dir=None):
     if missing:
         return {"success": False, "message": f"Missing polygon layer for group '{group_name}': {missing}"}
 
+    line_tuples, missing = _resolve_layers("line_layers")
+    if missing:
+        return {"success": False, "message": f"Missing line layer for group '{group_name}': {missing}"}
+
     point_tuples, missing = _resolve_layers("point_layers")
     if missing:
         return {"success": False, "message": f"Missing point layer for group '{group_name}': {missing}"}
 
     final_path = tile_dir / f"{output_stem}.pmtiles"
-    # Intermediate polygon/point archives go to the ISO3 scratch _temp/ dir so
+    # Intermediate archives go to the ISO3 scratch _temp/ dir so
     # the output tile dir stays clean during processing.
     iso3 = _extract_iso3(group_name).lower()
     tmp_dir = SCRATCH_GRID3_DIR / iso3 / "_temp"
     tmp_dir.mkdir(parents=True, exist_ok=True)
     tmp_polygon = tmp_dir / f"_tmp_{output_stem}_polygons.pmtiles"
+    tmp_lines   = tmp_dir / f"_tmp_{output_stem}_lines.pmtiles"
     tmp_points  = tmp_dir / f"_tmp_{output_stem}_points.pmtiles"
 
     def _run(cmd):
         subprocess.run(cmd, check=True)
 
     try:
-        # ── Step 1: polygon layers (skipped for point-only groups like POI) ─
+        # ── Step 1: polygon layers (skipped for line/point-only groups) ─────
         if polygon_tuples:
             cmd = build_tippecanoe_group_command(
                 group_name, polygon_tuples, str(tmp_polygon),
@@ -149,7 +154,15 @@ def process_file_group(group_name, file_path_map, extent=None, output_dir=None):
             )
             _run(cmd)
 
-        # ── Step 2: point layers (skipped for polygon-only groups) ─────────
+        # ── Step 2: line layers (roads and other linear features) ────────────
+        if line_tuples:
+            cmd = build_tippecanoe_group_command(
+                group_name, line_tuples, str(tmp_lines),
+                layer_kind="line", extent=extent,
+            )
+            _run(cmd)
+
+        # ── Step 3: point layers ─────────────────────────────────────────────
         if point_tuples:
             cmd = build_tippecanoe_group_command(
                 group_name, point_tuples, str(tmp_points),
@@ -157,9 +170,10 @@ def process_file_group(group_name, file_path_map, extent=None, output_dir=None):
             )
             _run(cmd)
 
-        # ── Step 3: merge or promote single archive ─────────────────────────
+        # ── Step 4: merge or promote single archive ──────────────────────────
         merge_inputs = (
             ([str(tmp_polygon)] if polygon_tuples else []) +
+            ([str(tmp_lines)]   if line_tuples   else []) +
             ([str(tmp_points)]  if point_tuples  else [])
         )
 
@@ -167,8 +181,6 @@ def process_file_group(group_name, file_path_map, extent=None, output_dir=None):
             join_cmd = ["tile-join", "-fo", str(final_path), "--no-tile-size-limit"]
             if group.get("name"):
                 join_cmd.extend(["-n", group["name"]])
-            if group.get("description"):
-                join_cmd.extend(["-N", group["description"]])
             if group.get("attribution"):
                 join_cmd.extend(["-A", group["attribution"]])
             join_cmd += merge_inputs
@@ -178,12 +190,17 @@ def process_file_group(group_name, file_path_map, extent=None, output_dir=None):
             import shutil as _shutil
             _shutil.move(merge_inputs[0], str(final_path))
 
+        layer_count = (
+            (len(polygon_tuples) if polygon_tuples else 0)
+            + (len(line_tuples)  if line_tuples  else 0)
+            + (len(point_tuples) if point_tuples else 0)
+        )
         return {
             "success": True,
             "message": f"Group tiles generated: {final_path.name}",
             "output_file": final_path,
             "group_name": group_name,
-            "layer_count": (len(polygon_tuples) if polygon_tuples else 0) + (len(point_tuples) if point_tuples else 0),
+            "layer_count": layer_count,
         }
 
     except subprocess.CalledProcessError as e:
@@ -197,7 +214,7 @@ def process_file_group(group_name, file_path_map, extent=None, output_dir=None):
             "message": f"Error: {str(e)}",
         }
     finally:
-        for tmp in (tmp_polygon, tmp_points):
+        for tmp in (tmp_polygon, tmp_lines, tmp_points):
             if tmp.exists():
                 tmp.unlink()
 
@@ -296,6 +313,7 @@ def process_to_tiles(extent=None, input_dirs=None, filter_pattern=None,
     for gname, gconfig in LAYER_GROUPS.items():
         all_members = (
             [fn for fn, *_ in gconfig.get("polygon_layers", [])]
+            + [fn for fn, *_ in gconfig.get("line_layers", [])]
             + [fn for fn, *_ in gconfig.get("point_layers", [])]
         )
         if all(fn in file_path_map for fn in all_members):
@@ -304,7 +322,7 @@ def process_to_tiles(extent=None, input_dirs=None, filter_pattern=None,
     group_member_names = {
         fn
         for gname in groups_to_process
-        for key in ("polygon_layers", "point_layers")
+        for key in ("polygon_layers", "line_layers", "point_layers")
         for fn, *_ in LAYER_GROUPS[gname].get(key, [])
     }
 

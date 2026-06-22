@@ -1,319 +1,233 @@
 """
 Tippecanoe configuration for layer groups.
 
-PROFILES: named flag sets (boundaries, POI, settlement_extents).
-LAYER_GROUPS: files processed together in one tippecanoe call.
-  - polygon_layers / point_layers run in separate invocations then merged by tile-join.
-  - modifiers: per-file zoom_filter_windows only (attribute filtering is done upstream
-    by filter_fgb.py before tiling).
+PROFILES: named flag sets (boundaries, POI, settlement_extents, roads).
+LAYER_GROUPS: loaded lazily from per-ISO3 YAML files in preprocessing/profiles/{iso3}/layers.yaml.
+  - polygon_layers / line_layers / point_layers run in separate tippecanoe invocations
+    then merged by tile-join in runCreateTiles.py.
+  - modifiers: per-file zoom_filter_windows (from tile_layer_steps.json via filter_key).
 
 Shared Boundary Handling:
     --no-polygon-splitting + --no-simplification-of-shared-nodes ensure adjacent
     admin polygons share identical boundary coordinates across tile edges.
+
+Filter notes:
+    Zoom-windowed filters are embedded in the -L JSON spec's "filter" key, using
+    legacy Mapbox GL filter syntax (["in","class","val"]).  This is tippecanoe's
+    native per-layer filter mechanism and is distinct from -j (global feature filter).
+    The "*" key in tile_layer_steps.json is a MapLibre GL style expression for
+    style-sheet use only — it is NOT passed to tippecanoe.
 """
 
+from pathlib import Path
+import json as _json
+import datetime as _dt
+
 # ---------------------------------------------------------------------------
-# Profiles: named collections of tippecanoe settings for each thematic layer type.
-# LAYER_GROUPS reference profiles via "profile" key; get_layer_settings() uses
-# SOURCE_DIR_PROFILES to fall back to a profile when no filename match exists.
+# Profiles: named collections of tippecanoe settings for each thematic type.
+# These are code, not data — edit here when flag semantics change.
 # ---------------------------------------------------------------------------
 PROFILES = {
     "boundaries": {
         "description": "Administrative and operational boundary polygons",
         "polygon_settings": [
             "--hilbert",
-            "--no-simplification-of-shared-nodes",  # required: preserves shared borders across all levels in one invocation
-            # "--simplify-only-low-zooms",
+            "--no-simplification-of-shared-nodes",
             "--simplification=3",
             "--no-tiny-polygon-reduction",
             "--no-feature-limit",
-            # "--coalesce-densest-as-needed",
             "--no-polygon-splitting",
-            "--no-tile-size-limit",  # admin boundaries must be geometrically complete — never truncate
+            "--no-tile-size-limit",
         ],
         "point_settings": [
             "--cluster-densest-as-needed",
-            # "--no-feature-limit",
             "--cluster-maxzoom=12",
-            "--preserve-point-density-threshold=32"
+            "--preserve-point-density-threshold=32",
         ],
     },
     "POI": {
-        "description": "Point features (health facilities, settlement names, and other toponyms)",
+        "description": "Point features (health facilities, settlement names, other toponyms)",
         "settings": [
             "--cluster-densest-as-needed",
-            # "--no-feature-limit",
             "--cluster-maxzoom=12",
-            "--preserve-point-density-threshold=32"],
+            "--preserve-point-density-threshold=32",
+        ],
     },
     "settlement_extents": {
         "description": "Settlement extent polygons",
         "auto_zoom": True,
         "settings": [
             "--hilbert",
-            "--simplification=3",            # raster-derived polygons — simplify aggressively
+            "--simplification=3",
             "--drop-densest-as-needed",
-            # "--drop-smallest-as-needed",     # overflow: drop smallest (rural) extents, keep dense (urban) ones
-            "--coalesce-smallest-as-needed", # merge tiny adjacent polygons at low zoom rather than discard
-            "--maximum-tile-bytes=2097152",  # 2 MB tile cap
-            # "--calculate-feature-density",   # adds tippecanoe_feature_density for style-side density expressions
-            # "--single-precision",            # halves coordinate storage → meaningful size reduction for dense datasets
+            "--coalesce-smallest-as-needed",
+            "--maximum-tile-bytes=2097152",
             "--include=extent_type",
             "--include=type",
             "--include=building_count",
             "--include=building_count_density_quantile_rank",
             "--include=iso3",
-            "--include=mgrs_code", 
-            "--calculate-feature-index"
-            
+            "--include=mgrs_code",
+            "--calculate-feature-index",
         ],
     },
-        "roads": {
-        "description": "Roads sourced by",
-        "auto_zoom": True,
-        "settings": [
+    "roads": {
+        "description": "Linear road features",
+        "auto_zoom": False,
+        "line_settings": [
             "--hilbert",
-            "--simplification=3",            # raster-derived polygons — simplify aggressively
-            "--drop-densest-as-needed",
-            # "--drop-smallest-as-needed",     # overflow: drop smallest (rural) extents, keep dense (urban) ones
-            "--coalesce-smallest-as-needed", # merge tiny adjacent polygons at low zoom rather than discard
-            "--maximum-tile-bytes=2097152",  # 2 MB tile cap
-            # "--calculate-feature-density",   # adds tippecanoe_feature_density for style-side density expressions
-            # "--single-precision",            # halves coordinate storage → meaningful size reduction for dense datasets
-            "--include=extent_type",
-            "--include=type",
-            "--include=building_count",
-            "--include=building_count_density_quantile_rank",
-            "--include=iso3",
-            "--include=mgrs_code", 
-            "--calculate-feature-index"
-            
-        ],
-    },
-
-}
-
-# ---------------------------------------------------------------------------
-# Layer groups: files processed together in one tippecanoe call so that
-# --no-simplification-of-shared-nodes can detect shared boundary nodes
-# across layers (e.g. provinces and health_zones sharing border coordinates).
-#
-# polygon_layers / point_layers are processed in separate tippecanoe
-# invocations (different tile-size strategies) then merged with tile-join.
-# ---------------------------------------------------------------------------
-LAYER_GROUPS = {
-    # ── Boundaries COD: all DRC admin levels in one multi-layer pmtile ──
-    # Single invocation so --no-simplification-of-shared-nodes sees all levels.
-    "GRID3_COD_boundaries": {
-        "output_stem": "GRID3_COD_boundaries",
-        "profile": "boundaries",
-        "name": "GRID3 DRC Administrative Boundaries v8.0",
-        "description": "Province, antenna, health zone, and health area operational boundaries for the Democratic Republic of the Congo.",
-        "attribution": "© GRID3, CIESIN Columbia University. CC BY-SA 4.0. https://doi.org/10.7916/asa4-jc67",
-
-        # Allow simplification at all zooms — --simplify-only-low-zooms causes tippecanoe
-        # to embed full-resolution IT polygon geometry at z8-15, ballooning tile sizes.
-        # With --simplification=2, the effect at z8+ is imperceptible.
-        # "profile_exclude": ["--simplify-only-low-zooms"],
-
-
-        # (filename, layer-name-in-tile, minzoom, maxzoom)
-        # IT (Ituri) data is pre-merged into v8_0 files by merge_fgb.py (Step 3c).
-        "polygon_layers": [
-            ("GRID3_COD_province_v8_0.fgb",  "GRID3-COD-province-v8-0",  3, 14),
-            ("GRID3_COD_antenne_v8_0.fgb",   "GRID3-COD-antenne-v8-0",   3, 14),
-            ("GRID3_COD_zonesante_v8_0.fgb", "GRID3-COD-zonesante-v8-0", 5, 14),
-            ("GRID3_COD_airesante_v8_0.fgb", "GRID3-COD-airesante-v8-0", 7, 14),
-        ],
-        "point_layers": [
-            ("GRID3_COD_province_v8_0_centroids.fgb",  "GRID3-COD-province-v8-0-centroids",  3, 14),
-            ("GRID3_COD_antenne_v8_0_centroids.fgb",   "GRID3-COD-antenne-v8-0-centroids",   3, 14),
-            ("GRID3_COD_zonesante_v8_0_centroids.fgb", "GRID3-COD-zonesante-v8-0-centroids", 5, 14),
-            ("GRID3_COD_airesante_v8_0_centroids.fgb", "GRID3-COD-airesante-v8-0-centroids", 7, 14),
-        ],
-    },
-
-    # ── Boundaries NGA: all Nigeria operational admin levels ──
-    "GRID3_NGA_boundaries": {
-        "output_stem": "GRID3_NGA_boundaries",
-        "profile": "boundaries",
-        "name": "GRID3 Nigeria Operational Boundaries v2.0",
-        "description": "Operational administrative boundaries (adm0-adm3) for Nigeria.",
-        "attribution": "© The Trustees of Columbia University in the City of New York. CC BY 4.0. https://doi.org/10.7916/gpv6-dq34",
-
-        "polygon_layers": [
-            ("GRID3_NGA_national_boundary_unpublished_20260429.fgb", "GRID3-NGA-unpublished-adm0", 0, 15),
-            # ("GRID3_NGA_operational_states_v2_0.fgb", "GRID3-NGA-operational-states-v2-0", 4, 15),
-            # ("GRID3_NGA_operational_LGAs_v2_0.fgb",   "GRID3-NGA-operational-LGAs-v2-0",   5, 15),
-            # ("GRID3_NGA_operational_wards_v2_0.fgb",  "GRID3-NGA-operational-wards-v2-0",  7, 15),
-        ],
-        "point_layers": [
-            ("GRID3_NGA_national_boundary_unpublished_20260429_centroids.fgb", "GRID3-NGA-unpublished-adm0-centroids", 0, 15)           
-            # ("GRID3_NGA_operational_LGAs_v2_0_centroids.fgb",   "GRID3-NGA-operational-LGAs-v2-0-centroids",   5, 15),
-            # ("GRID3_NGA_operational_wards_v2_0_centroids.fgb",  "GRID3-NGA-operational-wards-v2-0-centroids",  7, 15),
-            ],
-    },
-
-    # ── Settlement extents COD ──
-    "GRID3_COD_settlement_extents": {
-        "output_stem": "GRID3_COD_settlement_extents",
-        "profile": "settlement_extents",
-        "name": "GRID3 DRC Settlement Extents v3.1",
-        "description": "Settlement extent polygons for the Democratic Republic of the Congo",
-        "attribution": "© The Trustees of Columbia University in the City of New York. CC BY-SA 4.0. https://doi.org/10.7916/d6gy-yh28",
-
-        "modifiers": {
-            "GRID3_COD_settlement_extents_v3_1.fgb": {
-                "filter_key": "settlement_extents_type",
-            },
-        },
-
-
-        "polygon_layers": [
-            ("GRID3_COD_settlement_extents_v3_1.fgb", "GRID3-COD-settlement-extents-v3-1", 7, 14),
-        ],
-        "point_layers": [],
-    },
-
-    # ── Settlement extents NGA: both versions as separate layers ──
-    # v4.0 = settlement blocks (very dense, z13+); v3.0 = classic extents (z7+)
-    "GRID3_NGA_settlement_extents": {
-        "output_stem": "GRID3_NGA_settlement_extents",
-        "profile": "settlement_extents",
-        "name": "GRID3 Nigeria Settlement Extents v4.0",
-        "description": "Settlement extents and blocks for Nigeria",
-        "attribution": "© The Trustees of Columbia University in the City of New York. CC BY-SA 4.0. https://doi.org/10.7916/tbgr-4j86",
-
-        # Adjacent blocks share exact borders within MGRS grid cells; synchronize
-        # simplification across those shared nodes so seams don't appear at high zoom.
-        "polygon_settings": [
-            "--no-simplification-of-shared-nodes",
-        ],
-
-        # Dissolve (z7–13): introduce each settlement type only at the zoom level where
-        # the style first renders it, preventing density-based dropout at low zooms and
-        # eliminating the popping caused by tippecanoe dropping same-tier features unevenly.
-        # Field name: extent_type (v4.0 dissolve schema). Blocks (z13–16): no filter needed.
-        "modifiers": {
-            "GRID3_NGA_settlement_extents_dissolve_v4_0.fgb": {
-                "filter_key": "settlement_extents_extent_type",
-            },
-        },
-
-        "polygon_layers": [
-            ("GRID3_NGA_settlement_extents_dissolve_v4_0.fgb", "GRID3-NGA-settlement-extents-v4-0", 7, 13),
-            ("GRID3_NGA_settlement_extents_v4_0.fgb", "GRID3-NGA-settlement-blocks-v4-0", 13, 16),
-        ],
-        "point_layers": [],
-    },
-
-    # ── POIs COD: health facilities + settlement names ──
-    "GRID3_COD_POIs": {
-        "output_stem": "GRID3_COD_POIs",
-        "profile": "POI",
-        "name": "GRID3 DRC Points of Interest v8.0",
-        "description": "Health facilities and settlement names for the Democratic Republic of the Congo",
-        "attribution": "© The Trustees of Columbia University in the City of New York. CC BY-SA 4.0. https://doi.org/10.7916/f1ft-y872",
-
-
-        "polygon_layers": [],
-        # IT (Ituri) data is pre-merged into v8_0 files by merge_fgb.py (Step 3c).
-        "point_layers": [
-            ("GRID3_COD_health_facilities_v8_0.fgb", "GRID3-COD-health-facilities-v8-0", 5, 16),
-            ("GRID3_COD_settlement_names_v8_0.fgb",  "GRID3-COD-settlement-names-v8-0",  5, 16),
-        ],
-    },
-
-    # ── POIs NGA: add filenames as data is acquired ──
-    "GRID3_NGA_POIs": {
-        "output_stem": "GRID3_NGA_POIs",
-        "profile": "POI",
-        "name": "GRID3 Nigeria Points of Interest",
-        "description": "Health facilities and settlement names for Nigeria",
-        "attribution": "© The Trustees of Columbia University in the City of New York. CC BY 4.0.",
-
-        "polygon_layers": [],
-        "point_layers": [
-            # ("GRID3_NGA_settlement_names_v8_0.fgb", "GRID3-NGA-settlement-names-v8-0", 5, 16),
+            "--simplification=6",
+            "--simplify-only-low-zooms",
+            "--maximum-tile-bytes=2097152",
+            "--no-feature-limit",
         ],
     },
 }
 
 
+# ---------------------------------------------------------------------------
+# YAML loader: replaces the old hardcoded LAYER_GROUPS dict.
+# Reads preprocessing/profiles/{iso3}/layers.yaml for every ISO3 that has one.
+# "africa" uses assembly.yaml (tile-join rules) and is skipped here.
+# ---------------------------------------------------------------------------
+
+_PROFILES_DIR = Path(__file__).resolve().parent.parent / "profiles"
+
+
+def _load_layer_groups() -> dict:
+    """
+    Load LAYER_GROUPS from per-ISO3 YAML files.
+
+    YAML layers are list-of-dicts; this normalises them to the tuple format
+    expected by build_tippecanoe_group_command:
+        (filename, layer_name, minzoom, maxzoom)
+
+    A layer entry with a `modifier` field is also registered in the group's
+    `modifiers` dict so build_tippecanoe_group_command can find it.
+    """
+    try:
+        import yaml as _yaml
+    except ImportError:
+        raise RuntimeError(
+            "PyYAML is required for loading layer group config. "
+            "Install it with: pip install pyyaml"
+        )
+
+    groups: dict = {}
+    for yml in sorted(_PROFILES_DIR.glob("*/layers.yaml")):
+        iso3 = yml.parent.name
+        if iso3 == "africa":
+            continue
+        data = _yaml.safe_load(yml.read_text())
+        for gname, gconf in (data.get("groups") or {}).items():
+            modifiers: dict = {}
+            for key in ("polygon_layers", "point_layers", "line_layers"):
+                tuples = []
+                for e in gconf.get(key) or []:
+                    tuples.append((e["file"], e["layer"], e["minzoom"], e["maxzoom"]))
+                    if "modifier" in e:
+                        modifiers[e["file"]] = {"filter_key": e["modifier"]}
+                gconf[key] = tuples
+
+            # Group-level polygon_settings override (e.g. NGA settlement extents)
+            if "polygon_settings" in gconf and isinstance(gconf["polygon_settings"], list):
+                pass  # already a list — pass through as-is
+
+            if modifiers:
+                gconf.setdefault("modifiers", modifiers)
+
+            groups[gname] = gconf
+
+    return groups
+
+
+LAYER_GROUPS: dict = _load_layer_groups()
+
 
 # ---------------------------------------------------------------------------
-# Layer metadata: loaded lazily from layer_metadata.json (same directory).
-# Maps layer name → {title, doi, license, source, ...}.
+# Dictionary accessors (lazy, cached).
 # ---------------------------------------------------------------------------
+
 _LAYER_METADATA_CACHE = None
 
-def _get_layer_metadata():
-    """Return the layer_metadata.json dict, loading it once on first call."""
+
+def _get_layer_metadata() -> dict:
     global _LAYER_METADATA_CACHE
     if _LAYER_METADATA_CACHE is None:
-        import json as _json
-        from pathlib import Path as _Path
-        p = _Path(__file__).parent.parent / "dictionaries" / "layer_metadata.json"
+        p = Path(__file__).parent.parent / "dictionaries" / "layer_metadata.json"
         _LAYER_METADATA_CACHE = _json.load(open(p)) if p.exists() else {}
     return _LAYER_METADATA_CACHE
 
 
 _TILE_LAYER_STEPS_CACHE = None
 
-def _get_tile_layer_steps():
-    """Return tile_layer_steps.json, loading it once on first call."""
+
+def _get_tile_layer_steps() -> dict:
     global _TILE_LAYER_STEPS_CACHE
     if _TILE_LAYER_STEPS_CACHE is None:
-        import json as _json
-        from pathlib import Path as _Path
-        p = _Path(__file__).parent.parent / "dictionaries" / "tile_layer_steps.json"
+        p = Path(__file__).parent.parent / "dictionaries" / "tile_layer_steps.json"
         _TILE_LAYER_STEPS_CACHE = _json.load(open(p)) if p.exists() else {}
     return _TILE_LAYER_STEPS_CACHE
 
 
 _LAYER_COMPOSITION_CACHE = None
 
-def _get_layer_composition():
-    """Return layer_composition.json, loading it once on first call."""
+
+def _get_layer_composition() -> dict:
     global _LAYER_COMPOSITION_CACHE
     if _LAYER_COMPOSITION_CACHE is None:
-        import json as _json
-        from pathlib import Path as _Path
-        p = _Path(__file__).parent.parent / "dictionaries" / "layer_composition.json"
+        p = Path(__file__).parent.parent / "dictionaries" / "layer_composition.json"
         _LAYER_COMPOSITION_CACHE = _json.load(open(p)) if p.exists() else {}
     return _LAYER_COMPOSITION_CACHE
 
 
-def sort_archives_by_theme(archives):
-    """Return archives sorted by their group's theme position in layer_composition.json.
+# ---------------------------------------------------------------------------
+# Archive sort helper.
+# ---------------------------------------------------------------------------
 
-    Archives whose group/theme is not found in the composition fall to the end,
-    preserving relative order among unknowns.
-
-    Args:
-        archives: iterable of Path or str pointing to .pmtiles archives named
-                  with the LAYER_GROUPS output_stem pattern (e.g. GRID3_COD_boundaries).
-
-    Returns:
-        list[Path]: sorted copy, bottom-to-top theme order.
+def sort_archives_by_theme(archives) -> list:
     """
-    from pathlib import Path as _Path
+    Return archives sorted by their group's theme position in layer_composition.json.
+
+    Archives whose group/theme is absent fall to the end, preserving relative order.
+    """
     comp = _get_layer_composition()
     themes = comp.get("themes", [])
     groups = comp.get("groups", {})
-
     theme_rank = {t: i for i, t in enumerate(themes)}
 
     def _rank(archive_path):
-        stem = _Path(archive_path).stem          # e.g. "GRID3_COD_boundaries"
+        stem = Path(archive_path).stem
         theme = groups.get(stem, {}).get("theme")
         return theme_rank.get(theme, len(themes))
 
     return sorted(archives, key=_rank)
 
 
-def build_tippecanoe_group_command(group_name, layer_tuples, output_file,
-                                   layer_kind="polygon", extent=None):
+# ---------------------------------------------------------------------------
+# Version metadata helper.
+# ---------------------------------------------------------------------------
+
+def _build_description(group: dict) -> str:
+    """
+    Combine the human-readable description with a compact JSON version block.
+
+    The JSON block is appended so `pmtiles show` output is machine-parseable
+    for STAC Item generation, while remaining readable as a plain string.
+    """
+    meta = {k: group[k] for k in ("version", "published", "doi") if group.get(k)}
+    meta["tile_generated"] = _dt.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+    base = (group.get("description") or "").strip()
+    return f"{base} {_json.dumps(meta, separators=(',', ':'))}".strip()
+
+
+# ---------------------------------------------------------------------------
+# Command builder.
+# ---------------------------------------------------------------------------
+
+def build_tippecanoe_group_command(group_name: str, layer_tuples: list,
+                                   output_file: str, layer_kind: str = "polygon",
+                                   extent=None) -> list:
     """
     Build a tippecanoe command for a group of named layers using the -L JSON syntax.
 
@@ -321,31 +235,20 @@ def build_tippecanoe_group_command(group_name, layer_tuples, output_file,
     control so each admin level only appears in the tiles where it is needed.
 
     Args:
-        group_name (str):       Key in LAYER_GROUPS (used to fetch settings).
-        layer_tuples (list):    [(filename, layer_name, minzoom, maxzoom, abs_path), ...]
-                                abs_path is the resolved on-disk path to pass to tippecanoe.
-        output_file (str):      Path to output PMTiles.
-        layer_kind (str):       "polygon" or "point" — selects settings from LAYER_GROUPS.
-        extent (tuple|None):    Optional (xmin, ymin, xmax, ymax) clipping box.
+        group_name:   Key in LAYER_GROUPS.
+        layer_tuples: [(filename, layer_name, minzoom, maxzoom, abs_path), ...]
+        output_file:  Path to output PMTiles.
+        layer_kind:   "polygon", "point", or "line" — selects settings from PROFILES.
+        extent:       Optional (xmin, ymin, xmax, ymax) clipping box.
 
     Returns:
-        list: Complete argv list for subprocess.
+        list: Complete argv for subprocess.
     """
-    import json as _json
-
     group = LAYER_GROUPS[group_name]
-    settings_key = f"{layer_kind}_settings"
 
-    # Derive tileset zoom range from the layer tuples.
-    # z_min anchors the base so tippecanoe doesn't pack features into tiles
-    # below the range where any layer is visible (avoids tile-too-large
-    # failures with --drop-rate=0 at z0).
-    # auto_zoom: non-boundary profiles (POI, settlement_extents) let tippecanoe
-    # guess maxzoom from data density (-zg) so empty high-zoom tiles are skipped.
-    # Boundary groups keep explicit values since they carry design intent
-    # (provinces at z3, health areas at z5, etc.) and span multiple admin levels.
+    # ── Zoom range ────────────────────────────────────────────────────────────
     profile_name = group.get("profile")
-    profile_obj = PROFILES.get(profile_name, {}) if profile_name else {}
+    profile_obj  = PROFILES.get(profile_name, {}) if profile_name else {}
     use_auto_zoom = profile_obj.get("auto_zoom", False) or group.get("auto_zoom", False)
     z_min = min((mz for _, _, mz, _, _ in layer_tuples), default=0)
     if use_auto_zoom:
@@ -354,25 +257,33 @@ def build_tippecanoe_group_command(group_name, layer_tuples, output_file,
         z_max = max((mz for _, _, _, mz, _ in layer_tuples), default=16)
         zoom_flags = [f"-Z{z_min}", f"-z{z_max}"]
 
-    # Resolve settings: profile defaults -> group-level overrides (concatenated;
-    # tippecanoe uses last occurrence so group values win on duplicates).
-    profile_settings = []
+    # ── Settings resolution ───────────────────────────────────────────────────
+    # Priority: profile defaults → group-level overrides (later args win in tippecanoe).
+    settings_key = f"{layer_kind}_settings"
+    profile_settings: list = []
     if profile_name and profile_name in PROFILES:
         profile = PROFILES[profile_name]
-        # polygon_kind -> polygon_settings; centroid_kind -> centroid_settings;
-        # fall back to generic "settings" key (used by point-only profiles).
         profile_settings = list(profile.get(settings_key, profile.get("settings", [])))
 
     group_override = group.get(settings_key, [])
     exclude = set(group.get("profile_exclude", []))
     resolved_settings = [s for s in (profile_settings + group_override) if s not in exclude]
 
-    cmd = ["tippecanoe", "-fo", output_file, "-U", "1"] + zoom_flags
+    # ── Base command ──────────────────────────────────────────────────────────
+    cmd = ["tippecanoe", "-fo", output_file] + zoom_flags
     cmd.extend(resolved_settings)
-    cmd.append("-P")
+    cmd.append("-P")    # --read-parallel: speed up multi-layer invocations
 
-    # Sort layer_tuples by the canonical draw order from layer_composition.json.
-    # Layers absent from the list fall to the end, preserving their relative order.
+    # ── Tileset-level metadata (name, description with version JSON, attribution) ──
+    if group.get("name"):
+        cmd += ["-n", group["name"]]
+    desc = _build_description(group)
+    if desc:
+        cmd += ["-N", desc]
+    if group.get("attribution"):
+        cmd += ["-A", group["attribution"]]
+
+    # ── Layer order from layer_composition.json ───────────────────────────────
     comp_group = _get_layer_composition().get("groups", {}).get(group_name, {})
     layer_order = comp_group.get("layer_order", [])
     if layer_order:
@@ -382,7 +293,8 @@ def build_tippecanoe_group_command(group_name, layer_tuples, output_file,
             key=lambda t: order_rank.get(t[1], len(layer_order)),
         )
 
-    modifiers = group.get("modifiers", {})
+    # ── Per-layer -L specs ────────────────────────────────────────────────────
+    modifiers  = group.get("modifiers", {})
     layer_meta = _get_layer_metadata()
 
     for _, layer_name, minzoom, maxzoom, abs_path in layer_tuples:
@@ -395,18 +307,16 @@ def build_tippecanoe_group_command(group_name, layer_tuples, output_file,
         m = layer_meta.get(layer_name)
         if m:
             spec["description"] = _json.dumps(
-                {k: v for k, v in m.items() if v and not k.startswith('_')},
-                separators=(',', ':')
+                {k: v for k, v in m.items() if v and not k.startswith("_")},
+                separators=(",", ":"),
             )
         mod = modifiers.get(abs_path.name)
         windows = mod.get("zoom_filter_windows") if mod else None
         if windows is None and mod and "filter_key" in mod:
             entry = _get_tile_layer_steps().get(mod["filter_key"], {})
             raw = entry.get("zoom_filter_windows", [])
-            # Fill in maxzoom from the layer spec wherever the JSON omits it.
             windows = [{**w, "maxzoom": w.get("maxzoom", maxzoom)} for w in raw]
         if windows:
-            # Emit one -L spec per window; tippecanoe merges same-name layers correctly.
             for w in windows:
                 wspec = {**spec, "minzoom": w["minzoom"], "maxzoom": w["maxzoom"]}
                 if "filter" in w:

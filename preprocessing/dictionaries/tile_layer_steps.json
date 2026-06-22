@@ -1,5 +1,5 @@
 {
-  "comment": "Dual-purpose zoom filter lookup. '*' = Mapbox GL style expression (used by style generators). Named keys = tippecanoe zoom_filter_windows (used by tippecanoe.py modifiers via filter_key). Maxzoom is omitted from named entries; the layer's own maxzoom is filled in at build time.",
+  "comment": "zoom filter lookup table. '*' = Mapbox GL style expression (used by style generators). Named keys = tippecanoe zoom_filter_windows (used by tippecanoe.py modifiers via filter_key). Maxzoom is omitted from named entries; the layer's own maxzoom is filled in at build time.",
 
   "*": [ "any",
     [ "all", [ "in", "class", "motorway", "trunk" ], [ ">=", "$zoom", 5 ] ],
