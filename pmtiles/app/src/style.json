@@ -145,51 +145,7 @@
 				]
 			}
 		},
-		{
-			"id": "landcover",
-			"type": "fill",
-			"source": "protomaps_base",
-			"source-layer": "landcover",
-			"layout": {
-				"visibility": "visible"
-			},
-			"paint": {
-				"fill-color": [
-					"match",
-					[
-						"get",
-						"kind"
-					],
-					"grassland",
-					"#dcf1d0",
-					"barren",
-					"rgba(255, 243, 215, 1)",
-					"urban_area",
-					"rgba(230, 230, 230, 1)",
-					"farmland",
-					"rgba(216, 239, 210, 1)",
-					"glacier",
-					"rgba(255, 255, 255, 1)",
-					"scrub",
-					"#e9f4d7",
-					"#c8e5bd"
-				],
-				"fill-opacity": [
-					"interpolate",
-					[
-						"linear"
-					],
-					[
-						"zoom"
-					],
-					5,
-					1,
-					7,
-					0
-				]
-			}
-		},
-		{
+				{
 			"id": "landuse_park",
 			"type": "fill",
 			"source": "protomaps_base",
@@ -320,6 +276,53 @@
 					],
 					"#c6dcdc",
 					"#e2dfda"
+				]
+			}
+		},
+		{
+			"id": "landcover",
+			"type": "fill",
+			"source": "overture_base",
+			"source-layer": "land_cover",
+			"maxzoom": 10,
+			"layout": {
+				"visibility": "visible"
+			},
+			"paint": {
+				"fill-color": [
+					"match",
+					[
+						"get",
+						"subtype"
+					],
+					"grass",
+					"#dcf1d0",
+					"barren",
+					"rgba(255, 243, 215, 1)",
+					"urban_area",
+					"rgba(230, 230, 230, 1)",
+					"crop",
+					"rgba(216, 239, 210, 1)",
+					"glacier",
+					"rgba(255, 255, 255, 1)",
+					"shrub",
+					"#e9f4d7",
+					"#c8e5bd"
+				],
+				"fill-antialias": false,
+				"fill-opacity": [
+					"interpolate",
+					[
+						"exponential",
+						1.8
+					],
+					[
+						"zoom"
+					],
+					5,
+					1,
+					10,
+					0
 				]
 			}
 		},
@@ -1332,6 +1335,37 @@
 					16,
 					4
 				]
+			}
+		},
+				{
+			"id": "water-overture",
+			"type": "fill",
+			"maxzoom": 6,
+			"filter": [
+				"==",
+				"$type",
+				"Polygon"
+			],
+			"source": "overture_base",
+			"source-layer": "water",
+			"paint": {
+				"fill-color": "#A4DBE8",
+				"fill-opacity": [
+					"interpolate",
+					[
+						"linear"
+					],
+					[
+						"zoom"
+					],
+					4,
+					0,
+					4.25,
+					1
+				]
+			},
+			"layout": {
+				"visibility": "visible"
 			}
 		},
 		{
@@ -14487,6 +14521,8 @@
 					"Noto Sans Medium"
 				],
 				"text-optional": true,
+				"text-allow-overlap": false,
+				"text-ignore-placement": false,
 				"text-size": [
 					"interpolate",
 					[
@@ -14533,7 +14569,6 @@
 					16,
 					8
 				],
-				"text-ignore-placement": false,
 				"text-variable-anchor-offset": [
 					"top",
 					[
@@ -14557,7 +14592,32 @@
 					]
 				],
 				"text-justify": "auto",
-				"icon-image": "maki:hospital",
+				"icon-image": [
+					"match",
+					[
+						"get",
+						"esstype"
+					],
+					"Bureau Central de la Zone de Santé",
+						"maki:star",
+					"Clinique",
+						"maki:defibrillator",
+					[
+						"Poste de Santé",
+						"Site Soin Communautaire"
+					],
+					"maki:hospital",
+					[
+						"Centre de Santé",
+						"Hôpital Général de Référence",
+						"Centre Hopitalier",
+						"Hôpital",
+						"Centre Médical",
+						"Centre de Santé de Référence"
+					],
+					"maki:hospital",
+					"maki:hospital"
+				],
 				"icon-size": [
 					"interpolate",
 					[
@@ -14601,11 +14661,12 @@
 							"Hôpital Général de Référence",
 							"Centre Hopitalier",
 							"Hôpital",
-							"Centre Médical"
+							"Centre Médical",
+							"Centre de Santé de Référence"
 						],
 						"#B44769",
-						"Centre de Santé de Référence",
-						"#ffff00",
+						"Bureau Central de la Zone de Santé",
+						"#FDD086",
 						"#646464"
 					]
 				],
@@ -14615,15 +14676,15 @@
 						"zoom"
 					],
 					"#d6d6d6",
-					14,
+					11,
 					[
 						"match",
 						[
 							"get",
 							"esstype"
 						],
-						"Centre de Santé de Référence",
-						"#53565A",
+						"Bureau Central de la Zone de Santé",
+						"#646464",
 						"#d6d6d6"
 					]
 				],
@@ -14632,7 +14693,7 @@
 					[
 						"zoom"
 					],
-					1,
+					0.75,
 					14,
 					1,
 					18,
@@ -14658,8 +14719,8 @@
 						"Centre Médical"
 					],
 					"#B44769",
-					"Centre de Santé de Référence",
-					"#ffff00",
+					"Bureau Central de la Zone de Santé",
+					"#FDD086",
 					"#646464"
 				],
 				"icon-halo-color": [
@@ -14668,8 +14729,8 @@
 						"get",
 						"esstype"
 					],
-					"Centre de Santé de Référence",
-					"#53565A",
+					"Bureau Central de la Zone de Santé",
+					"#646464",
 					"#d6d6d6"
 				],
 				"icon-halo-width": [

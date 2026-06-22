@@ -45,7 +45,7 @@ export const SOURCES = {
   overture_base: {
     archive: "tiles/overture/base",
     attribution: '<a href="https://overturemaps.org">Overture Maps Foundation</a>',
-    maxzoom: 13,
+    maxzoom: 11,
     ext: "mvt",
   },
 
