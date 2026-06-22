@@ -1,0 +1,81 @@
+{
+  "comment": "Layer composition and draw order. Listed bottom-to-top (first = rendered first = furthest back). Controls: (1) tile-join archive input order when merging per-theme archives into per-country archives; (2) tippecanoe -L spec sequence within each group command. True render order lives in the MapLibre style — this dictionary is the source of truth that should inform it.",
+
+  "themes": [
+    "settlement_extents",
+    "roads",
+    "boundaries",
+    "POI"
+  ],
+
+  "groups": {
+
+    "GRID3_COD_settlement_extents": {
+      "theme": "settlement_extents",
+      "layer_order": [
+        "GRID3-COD-settlement-extents-v3-1"
+      ]
+    },
+
+    "GRID3_NGA_settlement_extents": {
+      "theme": "settlement_extents",
+      "layer_order": [
+        "GRID3-NGA-settlement-extents-v4-0",
+        "GRID3-NGA-settlement-blocks-v4-0"
+      ]
+    },
+
+
+    "GRID3_COD_boundaries": {
+      "theme": "boundaries",
+      "layer_order": [
+        "GRID3-COD-province-v8-0",
+        "GRID3-COD-antenne-v8-0",
+        "GRID3-COD-zonesante-v8-0",
+        "GRID3-COD-airesante-v8-0",
+        "GRID3-COD-province-v8-0-centroids",
+        "GRID3-COD-antenne-v8-0-centroids",
+        "GRID3-COD-zonesante-v8-0-centroids",
+        "GRID3-COD-airesante-v8-0-centroids"
+      ]
+    },
+
+    "GRID3_NGA_boundaries": {
+      "theme": "boundaries",
+      "layer_order": [
+        "GRID3-NGA-unpublished-adm0",
+        "GRID3-NGA-unpublished-adm0-centroids"
+      ]
+    },
+
+    "GRID3_COD_roads": {
+      "theme": "roads",
+      "layer_order": [
+        "GRID3-COD-roads-v1-0"
+      ]
+    },
+
+
+    "GRID3_NGA_roads": {
+      "theme": "roads",
+      "layer_order": [
+        "GRID3-NGA-roads-v1-0"
+      ]
+    },
+
+
+    "GRID3_COD_POIs": {
+      "theme": "POI",
+      "layer_order": [
+        "GRID3-COD-health-facilities-v8-0",
+        "GRID3-COD-settlement-names-v8-0"
+      ]
+    },
+
+    "GRID3_NGA_POIs": {
+      "theme": "POI",
+      "layer_order": []
+    }
+
+  }
+}

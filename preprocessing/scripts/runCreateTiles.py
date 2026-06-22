@@ -35,7 +35,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Allow DATA_DISK to be injected via environment variable (same logic as config.py)
 def _resolve_data_disk():
-    val = os.environ.get("DATA_DISK", "/mnt/pool/gis/mapTiles")
+    val = os.environ.get("DATA_DISK", "/tmp/grid3_tiles")
     if val.startswith(('.', '..')):
         return (Path(__file__).resolve().parent.parent.parent / val).resolve()
     return Path(val)
@@ -50,24 +50,26 @@ def _import_tippecanoe_template():
         return (
             getattr(tippecanoe_mod, 'LAYER_GROUPS', {}),
             getattr(tippecanoe_mod, 'build_tippecanoe_group_command', None),
+            getattr(tippecanoe_mod, 'sort_archives_by_theme', None),
         )
     except Exception:
-        return {}, None
+        return {}, None, None
 
-LAYER_GROUPS, build_tippecanoe_group_command = _import_tippecanoe_template()
+LAYER_GROUPS, build_tippecanoe_group_command, sort_archives_by_theme = _import_tippecanoe_template()
 
 # Set up project paths - aligned with config.py
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_DISK = _resolve_data_disk()
-DATA_DIR = DATA_DISK / "data"
-INPUT_DIR = DATA_DIR / "1-input"
-OVERTURE_DATA_DIR = INPUT_DIR / "overture"
-CUSTOM_DATA_DIR = INPUT_DIR / "grid3"
-GRID3_DATA_DIR = CUSTOM_DATA_DIR  # Alias for compatibility
-SCRATCH_DIR = DATA_DIR / "2-scratch"
-OUTPUT_DIR = DATA_DIR / "3-pmtiles"
-TILE_DIR = OUTPUT_DIR
-PUBLIC_TILES_DIR = PROJECT_ROOT.parent / "2-viewer" / "public" / "tiles"
+PROJECT_ROOT       = Path(__file__).resolve().parent.parent
+DATA_DISK          = _resolve_data_disk()
+DATA_DIR           = DATA_DISK / "data"
+INPUT_DIR          = DATA_DIR  / "1-input"
+GRID3_INPUT_DIR    = INPUT_DIR / "grid3"
+OVERTURE_INPUT_DIR = INPUT_DIR / "overture"
+SCRATCH_DIR        = DATA_DIR  / "2-scratch"
+SCRATCH_GRID3_DIR  = SCRATCH_DIR / "grid3"
+OUTPUT_DIR         = DATA_DIR  / "3-pmtiles"
+OUTPUT_GRID3_DIR   = OUTPUT_DIR / "grid3"
+TILE_DIR           = OUTPUT_GRID3_DIR  # primary tile output
+PUBLIC_TILES_DIR   = PROJECT_ROOT.parent / "2-viewer" / "public" / "tiles"
 
 
 def _extract_iso3(group_name: str) -> str:
@@ -93,9 +95,9 @@ def process_file_group(group_name, file_path_map, extent=None, output_dir=None):
     Returns:
         dict: {"success": bool, "message": str, "output_file": Path, ...}
     """
-    global LAYER_GROUPS, build_tippecanoe_group_command
+    global LAYER_GROUPS, build_tippecanoe_group_command, sort_archives_by_theme
     if not LAYER_GROUPS or build_tippecanoe_group_command is None:
-        LAYER_GROUPS, build_tippecanoe_group_command = _import_tippecanoe_template()
+        LAYER_GROUPS, build_tippecanoe_group_command, sort_archives_by_theme = _import_tippecanoe_template()
     if build_tippecanoe_group_command is None:
         return {"success": False, "message": "Could not import build_tippecanoe_group_command from tippecanoe.py"}
 
@@ -127,8 +129,13 @@ def process_file_group(group_name, file_path_map, extent=None, output_dir=None):
         return {"success": False, "message": f"Missing point layer for group '{group_name}': {missing}"}
 
     final_path = tile_dir / f"{output_stem}.pmtiles"
-    tmp_polygon = tile_dir / f"_tmp_{output_stem}_polygons.pmtiles"
-    tmp_points  = tile_dir / f"_tmp_{output_stem}_points.pmtiles"
+    # Intermediate polygon/point archives go to the ISO3 scratch _temp/ dir so
+    # the output tile dir stays clean during processing.
+    iso3 = _extract_iso3(group_name).lower()
+    tmp_dir = SCRATCH_GRID3_DIR / iso3 / "_temp"
+    tmp_dir.mkdir(parents=True, exist_ok=True)
+    tmp_polygon = tmp_dir / f"_tmp_{output_stem}_polygons.pmtiles"
+    tmp_points  = tmp_dir / f"_tmp_{output_stem}_points.pmtiles"
 
     def _run(cmd):
         subprocess.run(cmd, check=True)
@@ -229,7 +236,7 @@ def process_to_tiles(extent=None, input_dirs=None, filter_pattern=None,
     
     # Default input directories - aligned with notebook CONFIG
     if input_dirs is None:
-        input_dirs = [CUSTOM_DATA_DIR, OVERTURE_DATA_DIR]
+        input_dirs = [SCRATCH_GRID3_DIR]
     else:
         input_dirs = [Path(d) for d in input_dirs]
     
@@ -253,7 +260,7 @@ def process_to_tiles(extent=None, input_dirs=None, filter_pattern=None,
             for pattern in ['*.fgb', '*.geojsonseq', '*.geojson']:
                 geospatial_files.extend(
                     f for f in data_dir.rglob(pattern)
-                    if "_filtered" not in f.parts
+                    if "_filtered" not in f.parts and "_temp" not in f.parts
                 )
     
     # Apply filter if provided
@@ -319,14 +326,21 @@ def process_to_tiles(extent=None, input_dirs=None, filter_pattern=None,
             print(f"  → group '{gname}': {LAYER_GROUPS[gname]['output_stem']}.pmtiles")
 
     # ── Determine where individual group archives land ────────────────────────
-    # iso3_theme: write directly to the final output dir (existing behaviour).
-    # iso3 / all: write to a temp subdir first, then tile-join into merged files.
+    # iso3_theme: write to 3-pmtiles/grid3/{iso3}/ (one subdir per country).
+    # iso3 / all: write per-theme archives to 2-scratch/grid3/{iso3}/_temp/,
+    #             then tile-join into merged files in the final tile dir.
     final_tile_dir = Path(output_dir) if output_dir else TILE_DIR
-    if tiling_profile == "iso3_theme":
-        group_output_dir = final_tile_dir
-    else:
-        group_output_dir = final_tile_dir / "_tmp_groups"
-        group_output_dir.mkdir(parents=True, exist_ok=True)
+    final_tile_dir.mkdir(parents=True, exist_ok=True)
+
+    def _group_output_dir(gname: str) -> Path:
+        """Resolve the per-group output directory based on the tiling profile."""
+        iso3 = _extract_iso3(gname).lower()
+        if tiling_profile == "iso3_theme":
+            d = final_tile_dir / iso3
+        else:
+            d = SCRATCH_GRID3_DIR / iso3 / "_temp"
+        d.mkdir(parents=True, exist_ok=True)
+        return d
 
     results = {
         "success": True,
@@ -358,7 +372,8 @@ def process_to_tiles(extent=None, input_dirs=None, filter_pattern=None,
         with ThreadPoolExecutor(max_workers=workers) as executor:
             futures = {
                 executor.submit(
-                    process_file_group, gname, file_path_map, extent, str(group_output_dir)
+                    process_file_group, gname, file_path_map, extent,
+                    str(_group_output_dir(gname))
                 ): gname
                 for gname in groups_to_process
             }
@@ -371,7 +386,8 @@ def process_to_tiles(extent=None, input_dirs=None, filter_pattern=None,
                 print(f"\nProcessing group '{gname}'...")
             _handle_group_result(
                 gname,
-                process_file_group(gname, file_path_map, extent, str(group_output_dir)),
+                process_file_group(gname, file_path_map, extent,
+                                   str(_group_output_dir(gname))),
             )
 
     # ── Post-process merge for iso3 / all profiles ────────────────────────────
@@ -392,12 +408,20 @@ def process_to_tiles(extent=None, input_dirs=None, filter_pattern=None,
             except Exception:
                 return None
 
-        def _tile_join(output_path, inputs):
+        def _tile_join(output_path, inputs, name=None, description=None, attribution=None):
             # Probe maxzoom of each input so tile-join doesn't warn about mismatches.
             zooms = [z for z in (_pmtiles_maxzoom(p) for p in inputs) if z is not None]
             cmd = ["tile-join", "-fo", str(output_path), "--no-tile-size-limit"]
             if zooms:
                 cmd += [f"-z{max(zooms)}"]
+            # Set archive-level metadata explicitly so tile-join doesn't concatenate
+            # input names/paths into the output name/description fields.
+            if name:
+                cmd += ["-n", name]
+            if description:
+                cmd += ["-N", description]
+            if attribution:
+                cmd += ["-A", attribution]
             cmd += [str(p) for p in inputs]
             try:
                 subprocess.run(cmd, check=True)
@@ -406,8 +430,15 @@ def process_to_tiles(extent=None, input_dirs=None, filter_pattern=None,
                 results["errors"].append({"file": str(output_path), "error": f"tile-join exit {e.returncode}"})
                 return False
 
+        # Resolve sort_archives_by_theme in case it wasn't imported at module load.
+        _sort_fn = sort_archives_by_theme
+        if _sort_fn is None:
+            _, __, _sort_fn = _import_tippecanoe_template()
+        if _sort_fn is None:
+            _sort_fn = lambda x: list(x)   # fallback: identity
+
         if tiling_profile == "iso3":
-            # Group theme archives by ISO3 prefix and merge each set.
+            # Group theme archives by ISO3 prefix and merge each set in draw order.
             from collections import defaultdict as _defaultdict
             by_iso3 = _defaultdict(list)
             for p in theme_paths:
@@ -418,27 +449,47 @@ def process_to_tiles(extent=None, input_dirs=None, filter_pattern=None,
                 print(f"\nMerging {len(theme_paths)} theme archive(s) into {len(by_iso3)} country file(s)...")
 
             for iso3, inputs in sorted(by_iso3.items()):
+                inputs = _sort_fn(inputs)   # settlement_extents → roads → boundaries → POI
                 merged = final_tile_dir / f"GRID3_{iso3}.pmtiles"
-                if _tile_join(merged, inputs):
+                if _tile_join(
+                    merged, inputs,
+                    name=f"GRID3 {iso3}",
+                    description=f"GRID3 boundaries, settlement extents, and points of interest for {iso3}",
+                    attribution="© GRID3, CIESIN Columbia University. See individual layer descriptions for DOIs and licenses.",
+                ):
                     results["merged_files"].append(merged)
                     if verbose:
                         print(f"  ✓ GRID3_{iso3}.pmtiles ← {[Path(p).name for p in inputs]}")
 
         elif tiling_profile == "all":
+            theme_paths = _sort_fn(theme_paths)
             if verbose:
                 print(f"\nMerging {len(theme_paths)} theme archive(s) into GRID3.pmtiles...")
             merged = final_tile_dir / "GRID3.pmtiles"
-            if _tile_join(merged, theme_paths):
+            if _tile_join(
+                merged, theme_paths,
+                name="GRID3",
+                description="GRID3 boundaries, settlement extents, and points of interest",
+                attribution="© GRID3, CIESIN Columbia University. See individual layer descriptions for DOIs and licenses.",
+            ):
                 results["merged_files"].append(merged)
                 if verbose:
                     print(f"  ✓ GRID3.pmtiles")
 
-        # Clean up temp group archives unless the caller wants to keep them.
+        # Clean up per-ISO3 _temp dirs unless the caller wants to keep intermediates.
         if not keep_theme_files:
             import shutil as _shutil
-            _shutil.rmtree(group_output_dir, ignore_errors=True)
-            if verbose:
-                print(f"  Removed intermediate group archives ({group_output_dir.name}/)")
+            cleaned = set()
+            for entry in results["processed_files"]:
+                out = entry.get("output_file")
+                if out:
+                    tmp = Path(out).parent
+                    if tmp.name == "_temp" and tmp not in cleaned:
+                        _shutil.rmtree(tmp, ignore_errors=True)
+                        cleaned.add(tmp)
+            if verbose and cleaned:
+                for d in sorted(cleaned):
+                    print(f"  Removed intermediate dir: {d}")
 
     # Set overall success status
     if results["errors"]:

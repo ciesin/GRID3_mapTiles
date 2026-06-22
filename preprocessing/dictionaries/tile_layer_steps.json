@@ -1,0 +1,43 @@
+{
+  "comment": "Dual-purpose zoom filter lookup. '*' = Mapbox GL style expression (used by style generators). Named keys = tippecanoe zoom_filter_windows (used by tippecanoe.py modifiers via filter_key). Maxzoom is omitted from named entries; the layer's own maxzoom is filled in at build time.",
+
+  "*": [ "any",
+    [ "all", [ "in", "class", "motorway", "trunk" ], [ ">=", "$zoom", 5 ] ],
+    [ "all", [ "==", "class", "primary" ],            [ ">=", "$zoom", 6 ] ],
+    [ "all", [ "==", "class", "secondary" ],          [ ">=", "$zoom", 7 ] ],
+    [ "all", [ "==", "class", "tertiary" ],           [ ">=", "$zoom", 8 ] ],
+    [ "all", [ "==", "class", "unclassified" ],       [ ">=", "$zoom", 9 ] ],
+    [ "all", [ "in", "class", "track", "unknown" ],   [ ">=", "$zoom", 9 ] ],
+    [ "all", [ "==", "class", "residential" ],        [ ">=", "$zoom", 9 ] ],
+    [ "all", [ "in", "class", "path", "footway", "bridleway", "cycleway", "pedestrian", "living_street", "water track" ], [ ">=", "$zoom", 12 ] ],
+    [ "all", [ "in", "class", "service", "steps" ],   [ ">=", "$zoom", 13 ] ]
+  ],
+
+  "roads": {
+    "zoom_filter_windows": [
+      { "minzoom":  5, "filter": [ "in", "class", "motorway", "trunk" ] },
+      { "minzoom":  6, "filter": [ "==", "class", "primary" ] },
+      { "minzoom":  7, "filter": [ "==", "class", "secondary" ] },
+      { "minzoom":  8, "filter": [ "==", "class", "tertiary" ] },
+      { "minzoom":  9, "filter": [ "in", "class", "unclassified", "track", "unknown", "residential" ] },
+      { "minzoom": 12, "filter": [ "in", "class", "path", "footway", "bridleway", "cycleway", "pedestrian", "living_street", "water track" ] },
+      { "minzoom": 13, "filter": [ "in", "class", "service", "steps" ] }
+    ]
+  },
+
+  "settlement_extents_type": {
+    "zoom_filter_windows": [
+      { "minzoom":  7, "filter": [ "==", "type", "Built-up Area" ] },
+      { "minzoom": 10, "filter": [ "==", "type", "Small Settlement Area" ] },
+      { "minzoom": 12, "filter": [ "==", "type", "Hamlet" ] }
+    ]
+  },
+
+  "settlement_extents_extent_type": {
+    "zoom_filter_windows": [
+      { "minzoom":  7, "filter": [ "==", "extent_type", "Built-up Area" ] },
+      { "minzoom": 10, "filter": [ "==", "extent_type", "Small Settlement Area" ] },
+      { "minzoom": 12, "filter": [ "==", "extent_type", "Hamlet" ] }
+    ]
+  }
+}

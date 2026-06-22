@@ -53,6 +53,9 @@ input/
 # Docker volumes
 /volumes/
 
+# Martin local tile cache (synced from R2, not committed)
+martin/data/
+
 # Logs
 *.log
 

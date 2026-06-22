@@ -1,0 +1,145 @@
+{
+  "_comment": "Per-layer metadata for GRID3 PMTiles archives. Keys match layer names in LAYER_GROUPS (tippecanoe.py). Embedded into each -L JSON spec's 'description' field by build_tippecanoe_group_command(), which surfaces as vector_layers[].description in the output tileset. Centroid layers inherit their parent polygon's DOI/license.",
+
+  "GRID3-COD-province-v8-0": {
+    "title":   "GRID3 COD Provinces v8.0",
+    "doi":     "https://doi.org/10.7916/asa4-jc67",
+    "license": "CC BY 4.0",
+    "source":  "GRID3, CIESIN Columbia University"
+  },
+  "GRID3-COD-province-v8-0-centroids": {
+    "title":   "GRID3 COD Provinces v8.0 (label centroids)",
+    "doi":     "https://doi.org/10.7916/asa4-jc67",
+    "license": "CC BY 4.0",
+    "source":  "GRID3, CIESIN Columbia University"
+  },
+
+  "GRID3-COD-antenne-v8-0": {
+    "title":   "GRID3 COD Antennes v8.0",
+    "doi":     "https://doi.org/10.7916/asa4-jc67",
+    "license": "CC BY 4.0",
+    "source":  "GRID3, CIESIN Columbia University"
+  },
+  "GRID3-COD-antenne-v8-0-centroids": {
+    "title":   "GRID3 COD Antennes v8.0 (label centroids)",
+    "doi":     "https://doi.org/10.7916/asa4-jc67",
+    "license": "CC BY 4.0",
+    "source":  "GRID3, CIESIN Columbia University"
+  },
+
+  "GRID3-COD-zonesante-v8-0": {
+    "title":   "GRID3 COD Health Zones v8.0",
+    "doi":     "https://doi.org/10.7916/asa4-jc67",
+    "license": "CC BY-SA 4.0",
+    "source":  "GRID3, CIESIN Columbia University"
+  },
+  "GRID3-COD-zonesante-v8-0-centroids": {
+    "title":   "GRID3 COD Health Zones v8.0 (label centroids)",
+    "doi":     "https://doi.org/10.7916/asa4-jc67",
+    "license": "CC BY-SA 4.0",
+    "source":  "GRID3, CIESIN Columbia University"
+  },
+
+  "GRID3-COD-airesante-v8-0": {
+    "title":   "GRID3 COD Health Areas v8.0",
+    "doi":     "https://doi.org/10.7916/kcq9-7s03",
+    "license": "CC BY-SA 4.0",
+    "source":  "GRID3, CIESIN Columbia University"
+  },
+  "GRID3-COD-airesante-v8-0-centroids": {
+    "title":   "GRID3 COD Health Areas v8.0 (label centroids)",
+    "doi":     "https://doi.org/10.7916/kcq9-7s03",
+    "license": "CC BY-SA 4.0",
+    "source":  "GRID3, CIESIN Columbia University"
+  },
+
+  "GRID3-NGA-unpublished-adm0": {
+    "title":   "GRID3 NGA National Boundary (unpublished)",
+    "doi":     "https://doi.org/10.7916/gpv6-dq34",
+    "license": "CC BY 4.0",
+    "source":  "GRID3, CIESIN Columbia University"
+  },
+  "GRID3-NGA-unpublished-adm0-centroids": {
+    "title":   "GRID3 NGA National Boundary (unpublished, label centroid)",
+    "doi":     "https://doi.org/10.7916/gpv6-dq34",
+    "license": "CC BY 4.0",
+    "source":  "GRID3, CIESIN Columbia University"
+  },
+
+  "GRID3-NGA-operational-states-v2-0": {
+    "title":   "GRID3 NGA Operational States v2.0",
+    "doi":     "https://doi.org/10.7916/gpv6-dq34",
+    "license": "CC BY 4.0",
+    "source":  "GRID3, CIESIN Columbia University"
+  },
+  "GRID3-NGA-operational-states-v2-0-centroids": {
+    "title":   "GRID3 NGA Operational States v2.0 (label centroids)",
+    "doi":     "https://doi.org/10.7916/gpv6-dq34",
+    "license": "CC BY 4.0",
+    "source":  "GRID3, CIESIN Columbia University"
+  },
+  "GRID3-NGA-operational-LGAs-v2-0": {
+    "title":   "GRID3 NGA Operational LGAs v2.0",
+    "doi":     "https://doi.org/10.7916/gpv6-dq34",
+    "license": "CC BY 4.0",
+    "source":  "GRID3, CIESIN Columbia University"
+  },
+  "GRID3-NGA-operational-LGAs-v2-0-centroids": {
+    "title":   "GRID3 NGA Operational LGAs v2.0 (label centroids)",
+    "doi":     "https://doi.org/10.7916/gpv6-dq34",
+    "license": "CC BY 4.0",
+    "source":  "GRID3, CIESIN Columbia University"
+  },
+  "GRID3-NGA-operational-wards-v2-0": {
+    "title":   "GRID3 NGA Operational Wards v2.0",
+    "doi":     "https://doi.org/10.7916/gpv6-dq34",
+    "license": "CC BY 4.0",
+    "source":  "GRID3, CIESIN Columbia University"
+  },
+  "GRID3-NGA-operational-wards-v2-0-centroids": {
+    "title":   "GRID3 NGA Operational Wards v2.0 (label centroids)",
+    "doi":     "https://doi.org/10.7916/gpv6-dq34",
+    "license": "CC BY 4.0",
+    "source":  "GRID3, CIESIN Columbia University"
+  },
+
+  "GRID3-COD-settlement-extents-v3-1": {
+    "title":   "GRID3 COD Settlement Extents v3.1",
+    "doi":     "https://doi.org/10.7916/d6gy-yh28",
+    "license": "CC BY-SA 4.0",
+    "source":  "GRID3, CIESIN Columbia University"
+  },
+
+  "GRID3-NGA-settlement-extents-v3-0": {
+    "title":   "GRID3 NGA Settlement Extents v3.0",
+    "doi":     "https://doi.org/10.7916/tbgr-4j86",
+    "license": "CC BY-SA 4.0",
+    "source":  "GRID3, CIESIN Columbia University"
+  },
+  "GRID3-NGA-settlement-extents-v4-0": {
+    "title":   "GRID3 NGA Settlement Extents v4.0",
+    "doi":     "https://doi.org/10.7916/tbgr-4j86",
+    "license": "CC BY-SA 4.0",
+    "source":  "GRID3, CIESIN Columbia University"
+  },
+  "GRID3-NGA-settlement-blocks-v4-0": {
+    "title":   "GRID3 NGA Settlement Blocks v4.0",
+    "doi":     "https://doi.org/10.7916/tbgr-4j86",
+    "license": "CC BY-SA 4.0",
+    "source":  "GRID3, CIESIN Columbia University"
+  },
+
+  "GRID3-COD-health-facilities-v8-0": {
+    "title":   "GRID3 COD Health Facilities v8.0",
+    "doi":     "https://doi.org/10.7916/f1ft-y872",
+    "license": "CC BY-SA 4.0",
+    "source":  "GRID3, CIESIN Columbia University"
+  },
+
+  "GRID3-COD-settlement-names-v8-0": {
+    "title":   "GRID3 COD Settlement Names v8.0",
+    "doi":     "https://doi.org/10.7916/qpnw-1c89",
+    "license": "CC BY-SA 4.0",
+    "source":  "GRID3, CIESIN Columbia University"
+  }
+}

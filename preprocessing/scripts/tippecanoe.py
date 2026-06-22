@@ -68,6 +68,29 @@ PROFILES = {
             
         ],
     },
+        "roads": {
+        "description": "Roads sourced by",
+        "auto_zoom": True,
+        "settings": [
+            "--hilbert",
+            "--simplification=3",            # raster-derived polygons — simplify aggressively
+            "--drop-densest-as-needed",
+            # "--drop-smallest-as-needed",     # overflow: drop smallest (rural) extents, keep dense (urban) ones
+            "--coalesce-smallest-as-needed", # merge tiny adjacent polygons at low zoom rather than discard
+            "--maximum-tile-bytes=2097152",  # 2 MB tile cap
+            # "--calculate-feature-density",   # adds tippecanoe_feature_density for style-side density expressions
+            # "--single-precision",            # halves coordinate storage → meaningful size reduction for dense datasets
+            "--include=extent_type",
+            "--include=type",
+            "--include=building_count",
+            "--include=building_count_density_quantile_rank",
+            "--include=iso3",
+            "--include=mgrs_code", 
+            "--calculate-feature-index"
+            
+        ],
+    },
+
 }
 
 # ---------------------------------------------------------------------------
@@ -116,7 +139,7 @@ LAYER_GROUPS = {
         "profile": "boundaries",
         "name": "GRID3 Nigeria Operational Boundaries v2.0",
         "description": "Operational administrative boundaries (adm0-adm3) for Nigeria.",
-        "attribution": "© GRID3, CIESIN Columbia University. CC BY 4.0. https://doi.org/10.7916/gpv6-dq34",
+        "attribution": "© The Trustees of Columbia University in the City of New York. CC BY 4.0. https://doi.org/10.7916/gpv6-dq34",
 
         "polygon_layers": [
             ("GRID3_NGA_national_boundary_unpublished_20260429.fgb", "GRID3-NGA-unpublished-adm0", 0, 15),
@@ -137,15 +160,11 @@ LAYER_GROUPS = {
         "profile": "settlement_extents",
         "name": "GRID3 DRC Settlement Extents v3.1",
         "description": "Settlement extent polygons for the Democratic Republic of the Congo",
-        "attribution": "© GRID3, CIESIN Columbia University. CC BY-SA 4.0. https://doi.org/10.7916/d6gy-yh28",
+        "attribution": "© The Trustees of Columbia University in the City of New York. CC BY-SA 4.0. https://doi.org/10.7916/d6gy-yh28",
 
         "modifiers": {
             "GRID3_COD_settlement_extents_v3_1.fgb": {
-                "zoom_filter_windows": [
-                    {"minzoom":  7, "maxzoom": 14, "filter": ["==", "type", "Built-up Area"]},
-                    {"minzoom": 10, "maxzoom": 14, "filter": ["==", "type", "Small Settlement Area"]},
-                    {"minzoom": 12, "maxzoom": 14, "filter": ["==", "type", "Hamlet"]},
-                ],
+                "filter_key": "settlement_extents_type",
             },
         },
 
@@ -163,7 +182,7 @@ LAYER_GROUPS = {
         "profile": "settlement_extents",
         "name": "GRID3 Nigeria Settlement Extents v4.0",
         "description": "Settlement extents and blocks for Nigeria",
-        "attribution": "© GRID3, CIESIN Columbia University. CC BY-SA 4.0. https://doi.org/10.7916/tbgr-4j86",
+        "attribution": "© The Trustees of Columbia University in the City of New York. CC BY-SA 4.0. https://doi.org/10.7916/tbgr-4j86",
 
         # Adjacent blocks share exact borders within MGRS grid cells; synchronize
         # simplification across those shared nodes so seams don't appear at high zoom.
@@ -177,11 +196,7 @@ LAYER_GROUPS = {
         # Field name: extent_type (v4.0 dissolve schema). Blocks (z13–16): no filter needed.
         "modifiers": {
             "GRID3_NGA_settlement_extents_dissolve_v4_0.fgb": {
-                "zoom_filter_windows": [
-                    {"minzoom":  7, "maxzoom": 13, "filter": ["==", "extent_type", "Built-up Area"]},
-                    {"minzoom": 10, "maxzoom": 13, "filter": ["==", "extent_type", "Small Settlement Area"]},
-                    {"minzoom": 12, "maxzoom": 13, "filter": ["==", "extent_type", "Hamlet"]},
-                ],
+                "filter_key": "settlement_extents_extent_type",
             },
         },
 
@@ -198,7 +213,7 @@ LAYER_GROUPS = {
         "profile": "POI",
         "name": "GRID3 DRC Points of Interest v8.0",
         "description": "Health facilities and settlement names for the Democratic Republic of the Congo",
-        "attribution": "© GRID3, CIESIN Columbia University. CC BY-SA 4.0. https://doi.org/10.7916/f1ft-y872",
+        "attribution": "© The Trustees of Columbia University in the City of New York. CC BY-SA 4.0. https://doi.org/10.7916/f1ft-y872",
 
 
         "polygon_layers": [],
@@ -215,7 +230,7 @@ LAYER_GROUPS = {
         "profile": "POI",
         "name": "GRID3 Nigeria Points of Interest",
         "description": "Health facilities and settlement names for Nigeria",
-        "attribution": "© GRID3, CIESIN Columbia University. CC BY 4.0.",
+        "attribution": "© The Trustees of Columbia University in the City of New York. CC BY 4.0.",
 
         "polygon_layers": [],
         "point_layers": [
@@ -238,9 +253,63 @@ def _get_layer_metadata():
     if _LAYER_METADATA_CACHE is None:
         import json as _json
         from pathlib import Path as _Path
-        p = _Path(__file__).with_name('layer_metadata.json')
+        p = _Path(__file__).parent.parent / "dictionaries" / "layer_metadata.json"
         _LAYER_METADATA_CACHE = _json.load(open(p)) if p.exists() else {}
     return _LAYER_METADATA_CACHE
+
+
+_TILE_LAYER_STEPS_CACHE = None
+
+def _get_tile_layer_steps():
+    """Return tile_layer_steps.json, loading it once on first call."""
+    global _TILE_LAYER_STEPS_CACHE
+    if _TILE_LAYER_STEPS_CACHE is None:
+        import json as _json
+        from pathlib import Path as _Path
+        p = _Path(__file__).parent.parent / "dictionaries" / "tile_layer_steps.json"
+        _TILE_LAYER_STEPS_CACHE = _json.load(open(p)) if p.exists() else {}
+    return _TILE_LAYER_STEPS_CACHE
+
+
+_LAYER_COMPOSITION_CACHE = None
+
+def _get_layer_composition():
+    """Return layer_composition.json, loading it once on first call."""
+    global _LAYER_COMPOSITION_CACHE
+    if _LAYER_COMPOSITION_CACHE is None:
+        import json as _json
+        from pathlib import Path as _Path
+        p = _Path(__file__).parent.parent / "dictionaries" / "layer_composition.json"
+        _LAYER_COMPOSITION_CACHE = _json.load(open(p)) if p.exists() else {}
+    return _LAYER_COMPOSITION_CACHE
+
+
+def sort_archives_by_theme(archives):
+    """Return archives sorted by their group's theme position in layer_composition.json.
+
+    Archives whose group/theme is not found in the composition fall to the end,
+    preserving relative order among unknowns.
+
+    Args:
+        archives: iterable of Path or str pointing to .pmtiles archives named
+                  with the LAYER_GROUPS output_stem pattern (e.g. GRID3_COD_boundaries).
+
+    Returns:
+        list[Path]: sorted copy, bottom-to-top theme order.
+    """
+    from pathlib import Path as _Path
+    comp = _get_layer_composition()
+    themes = comp.get("themes", [])
+    groups = comp.get("groups", {})
+
+    theme_rank = {t: i for i, t in enumerate(themes)}
+
+    def _rank(archive_path):
+        stem = _Path(archive_path).stem          # e.g. "GRID3_COD_boundaries"
+        theme = groups.get(stem, {}).get("theme")
+        return theme_rank.get(theme, len(themes))
+
+    return sorted(archives, key=_rank)
 
 
 def build_tippecanoe_group_command(group_name, layer_tuples, output_file,
@@ -302,6 +371,17 @@ def build_tippecanoe_group_command(group_name, layer_tuples, output_file,
     cmd.extend(resolved_settings)
     cmd.append("-P")
 
+    # Sort layer_tuples by the canonical draw order from layer_composition.json.
+    # Layers absent from the list fall to the end, preserving their relative order.
+    comp_group = _get_layer_composition().get("groups", {}).get(group_name, {})
+    layer_order = comp_group.get("layer_order", [])
+    if layer_order:
+        order_rank = {name: i for i, name in enumerate(layer_order)}
+        layer_tuples = sorted(
+            layer_tuples,
+            key=lambda t: order_rank.get(t[1], len(layer_order)),
+        )
+
     modifiers = group.get("modifiers", {})
     layer_meta = _get_layer_metadata()
 
@@ -320,6 +400,11 @@ def build_tippecanoe_group_command(group_name, layer_tuples, output_file,
             )
         mod = modifiers.get(abs_path.name)
         windows = mod.get("zoom_filter_windows") if mod else None
+        if windows is None and mod and "filter_key" in mod:
+            entry = _get_tile_layer_steps().get(mod["filter_key"], {})
+            raw = entry.get("zoom_filter_windows", [])
+            # Fill in maxzoom from the layer spec wherever the JSON omits it.
+            windows = [{**w, "maxzoom": w.get("maxzoom", maxzoom)} for w in raw]
         if windows:
             # Emit one -L spec per window; tippecanoe merges same-name layers correctly.
             for w in windows:

@@ -1,16 +1,23 @@
 """
-Configuration module for the geospatial data processing pipeline.
+Path configuration for the geospatial data processing pipeline.
 
-This module centralizes all path configuration and project settings,
-making it easy to import and use across notebooks and scripts.
+Data is organized by source (grid3, overture, mapterhorn) and, within grid3,
+by ISO3 country code (cod, nga, africa). Use the grid3_* helpers to get
+country-specific paths rather than building strings by hand.
+
+Environment variables (set in .env):
+  DATA_DISK          — root data directory (default: /tmp/grid3_tiles)
+  MIGRATION_TARGET   — persistent mirror of 3-pmtiles (default: /mnt/d/...)
+  EXTENT_WEST/SOUTH/EAST/NORTH  — required bounding box
+  EXTENT_BUFFER      — optional buffer in degrees (default: 0.0)
 """
 
 from pathlib import Path
 import os
 
-# Load .env from this directory (preprocessing)
+
 def load_environment():
-    """Load .env file from the same directory as this config file."""
+    """Load .env from the same directory as this config file."""
     try:
         from dotenv import load_dotenv
         env_file = Path(__file__).resolve().parent / '.env'
@@ -18,207 +25,264 @@ def load_environment():
             load_dotenv(env_file)
             return True
     except ImportError:
-        # python-dotenv not installed, continue with system env vars
         pass
     return False
 
-# Load environment before defining paths
+
 load_environment()
 
-# Detect project root - works both from notebooks and scripts
-def get_project_root():
-    """
-    Dynamically find the project root (preprocessing directory).
-    Works from notebooks, scripts, or any subdirectory.
-    """
-    current = Path(__file__).resolve().parent
-    # This file is in preprocessing/config.py
-    return current
+
+def get_project_root() -> Path:
+    """Return the preprocessing/ directory (location of this file)."""
+    return Path(__file__).resolve().parent
 
 
-# Initialize paths
 PROJECT_ROOT = get_project_root()
 
-# Data disk - check environment variable first, then fall back to default
-# If DATA_DISK is relative (like '.'), resolve it relative to the repository root
-data_disk_env = os.environ.get("DATA_DISK", "/tmp/grid3_tiles")
-if data_disk_env.startswith(('.', '..')):
-    # Relative path - resolve from repository root (parent of PROJECT_ROOT)
-    repo_root = PROJECT_ROOT.parent
-    DATA_DISK = (repo_root / data_disk_env).resolve()
+# ── Data disk root ────────────────────────────────────────────────────────────
+_data_disk_env = os.environ.get("DATA_DISK", "/tmp/grid3_tiles")
+if _data_disk_env.startswith(('.', '..')):
+    DATA_DISK = (PROJECT_ROOT.parent / _data_disk_env).resolve()
 else:
-    # Absolute path
-    DATA_DISK = Path(data_disk_env)
+    DATA_DISK = Path(_data_disk_env)
 
-SCRIPTS_DIR = PROJECT_ROOT / "scripts"
+# ── Code directories ──────────────────────────────────────────────────────────
+SCRIPTS_DIR   = PROJECT_ROOT / "scripts"
 NOTEBOOKS_DIR = PROJECT_ROOT / "notebooks"
 UTILITIES_DIR = PROJECT_ROOT / "utilities"
 
-# Data directories on disk - simpler structure without preprocessing subfolder
-DATA_DIR = DATA_DISK / "data"
-INPUT_DIR = DATA_DIR / "1-input"
-OVERTURE_DATA_DIR = INPUT_DIR / "overture"
-GRID3_DATA_DIR = INPUT_DIR / "grid3"
-SCRATCH_DIR = DATA_DIR / "2-scratch"
-DUCKDB_TEMP_DIR = SCRATCH_DIR / ".duckdb_tmp"
-# Source subdirectories — one per thematic group, matched by SOURCE_DIR_PROFILES in tippecanoe.py
-SCRATCH_BOUNDARIES_DIR          = SCRATCH_DIR / "GRID3_boundaries"
-SCRATCH_POIS_DIR                = SCRATCH_DIR / "GRID3_POIs"
-SCRATCH_EXTENTS_DIR             = SCRATCH_DIR / "GRID3_settlementExtents"
-SCRATCH_BOUNDARIES_FILTERED_DIR = SCRATCH_BOUNDARIES_DIR / "_filtered"
-SCRATCH_POIS_FILTERED_DIR       = SCRATCH_POIS_DIR / "_filtered"
+# ── Data layout ───────────────────────────────────────────────────────────────
+DATA_DIR  = DATA_DISK / "data"
+BAK_DIR   = DATA_DIR  / "0-bak"
+INPUT_DIR = DATA_DIR  / "1-input"
 
-OUTPUT_DIR = DATA_DIR / "3-pmtiles"
-TILE_DIR = OUTPUT_DIR  # Alias for consistency with scripts
+# Input: per-source
+GRID3_INPUT_DIR      = INPUT_DIR / "grid3"
+OVERTURE_INPUT_DIR   = INPUT_DIR / "overture"
+MAPTERHORN_INPUT_DIR = INPUT_DIR / "mapterhorn"
 
-# Template paths
+# Scratch: per-source
+SCRATCH_DIR            = DATA_DIR / "2-scratch"
+SCRATCH_GRID3_DIR      = SCRATCH_DIR / "grid3"
+SCRATCH_OVERTURE_DIR   = SCRATCH_DIR / "overture"
+SCRATCH_MAPTERHORN_DIR = SCRATCH_DIR / "mapterhorn"
+DUCKDB_TEMP_DIR        = SCRATCH_DIR / ".duckdb_tmp"
+
+# Output: per-source
+OUTPUT_DIR            = DATA_DIR / "3-pmtiles"
+OUTPUT_GRID3_DIR      = OUTPUT_DIR / "grid3"
+OUTPUT_OVERTURE_DIR   = OUTPUT_DIR / "overture"
+OUTPUT_MAPTERHORN_DIR = OUTPUT_DIR / "mapterhorn"
+OUTPUT_PROTOMAPS_DIR  = OUTPUT_DIR / "protomaps"
+
+# TILE_DIR: alias kept for callers that haven't migrated yet
+TILE_DIR = OUTPUT_DIR
+
+# ── ISO3 registry ─────────────────────────────────────────────────────────────
+# Add new country codes here; ensure_directories() creates all subdirs automatically.
+# "africa" is reserved for merged/continent-level outputs — not an input to tippecanoe.
+GRID3_ISO3_CODES: list[str] = ["cod", "nga", "africa"]
+
+
+# ── Per-country path helpers ──────────────────────────────────────────────────
+
+def grid3_input(iso3: str) -> Path:
+    """1-input/grid3/{iso3}/"""
+    return GRID3_INPUT_DIR / iso3.lower()
+
+
+def grid3_scratch(iso3: str) -> Path:
+    """2-scratch/grid3/{iso3}/  — processed FGB files ready for tiling."""
+    return SCRATCH_GRID3_DIR / iso3.lower()
+
+
+def grid3_scratch_filtered(iso3: str) -> Path:
+    """2-scratch/grid3/{iso3}/_filtered/  — v8_0 files with superseded regions stripped."""
+    return SCRATCH_GRID3_DIR / iso3.lower() / "_filtered"
+
+
+def grid3_scratch_temp(iso3: str) -> Path:
+    """2-scratch/grid3/{iso3}/_temp/  — intermediate PMTiles during tile-join operations."""
+    return SCRATCH_GRID3_DIR / iso3.lower() / "_temp"
+
+
+def grid3_output(iso3: str) -> Path:
+    """3-pmtiles/grid3/{iso3}/  — per-theme PMTiles outputs."""
+    return OUTPUT_GRID3_DIR / iso3.lower()
+
+
+# ── Migration target (persistent storage mirror) ──────────────────────────────
+# OUTPUT_DIR lives in /tmp and is wiped on reboot. After a processing run,
+# rsync the 3-pmtiles tree here to persist it across reboots.
+MIGRATION_TARGET_DIR = Path(
+    os.environ.get("MIGRATION_TARGET", "/mnt/d/mheaton/grid3_tiles/data/3-pmtiles")
+)
+
+# ── Template paths ────────────────────────────────────────────────────────────
 TILE_QUERIES_TEMPLATE = SCRIPTS_DIR / "tilequeries.sql"
-TIPPECANOE_TEMPLATE = SCRIPTS_DIR / "tippecanoe.py"
+TIPPECANOE_TEMPLATE   = SCRIPTS_DIR / "tippecanoe.py"
 
 
-# Default processing configuration
-def _get_env_required(name):
+# ── Processing extent (required) ──────────────────────────────────────────────
+
+def _get_env_float(name: str) -> float:
     val = os.environ.get(name)
     if val is None:
         raise RuntimeError(
-            "Required environment variable(s) not set. "
-            "Please set EXTENT_WEST, EXTENT_SOUTH, EXTENT_EAST, EXTENT_NORTH in your .env or environment."
+            f"Required environment variable '{name}' is not set. "
+            "Set EXTENT_WEST, EXTENT_SOUTH, EXTENT_EAST, EXTENT_NORTH in your .env."
         )
     try:
         return float(val)
     except ValueError:
         raise RuntimeError(f"Environment variable '{name}' must be a valid number, got: {val!r}")
 
-# Read required extent values (error out if any are missing or invalid)
-_west = _get_env_required("EXTENT_WEST")
-_south = _get_env_required("EXTENT_SOUTH")
-_east = _get_env_required("EXTENT_EAST")
-_north = _get_env_required("EXTENT_NORTH")
 
-# Basic sanity checks
+_west  = _get_env_float("EXTENT_WEST")
+_south = _get_env_float("EXTENT_SOUTH")
+_east  = _get_env_float("EXTENT_EAST")
+_north = _get_env_float("EXTENT_NORTH")
+
 if not (_west < _east and _south < _north):
     raise RuntimeError(
-        "Invalid extent coordinates: ensure EXTENT_WEST < EXTENT_EAST and EXTENT_SOUTH < EXTENT_NORTH."
+        "Invalid extent: ensure EXTENT_WEST < EXTENT_EAST and EXTENT_SOUTH < EXTENT_NORTH."
     )
 
-# Optional buffer (defaults to 0.0 if not set)
 _buffer_degrees = float(os.environ.get("EXTENT_BUFFER", "0.0"))
 
-DEFAULT_CONFIG = {
-    "paths": {
-        "project_root": PROJECT_ROOT,
-        "scripts_dir": SCRIPTS_DIR,
-        "notebooks_dir": NOTEBOOKS_DIR,
-        "utilities_dir": UTILITIES_DIR,
-        "data_dir": DATA_DIR,
-        "input_dir": INPUT_DIR,
-        "overture_data_dir": OVERTURE_DATA_DIR,
-        "grid3_data_dir": GRID3_DATA_DIR,
-        "scratch_dir": SCRATCH_DIR,
-        "duckdb_temp_dir": DUCKDB_TEMP_DIR,
-        "output_dir": OUTPUT_DIR,
-        "tile_dir": TILE_DIR,
-        "template_path": TILE_QUERIES_TEMPLATE,
-        "tippecanoe_template": TIPPECANOE_TEMPLATE,
-    },
-    "extent": {
-        # Now required: will raise if not provided
-        "coordinates": (_west, _south, _east, _north),
-        "buffer_degrees": _buffer_degrees
-    },
-    "download": {
-        "verbose": True,
-        "output_formats": ["*.parquet", "*.geojson", "*.geojsonseq"]
-    },
-    "fgb_conversion": {
-        "enabled": True,
-        "input_pattern": "*.parquet",
-        "overwrite": False,  # Don't re-convert existing FGB files
-        "verbose": True,
-        "output_suffix": ".fgb",
-        "cleanup_source": False  # if true, rm source .parquet files after successful conversion to save disk space
-    },
-    "conversion": {
-        "input_patterns": ["*.parquet", "*.shp", "*.gpkg", "*.gdb", "*.sqlite", "*.db", "*.geojson", "*.json"],
-        "output_suffix": ".geojsonseq",
-        "reproject_crs": "EPSG:4326",
-        "overwrite": True,
-        "verbose": True
-    },
-    "tiling": {
-        "input_dirs": [SCRATCH_BOUNDARIES_DIR, SCRATCH_POIS_DIR, SCRATCH_EXTENTS_DIR],
-        "output_dir": OUTPUT_DIR,
-        "parallel": False,
-        "overwrite": True,
-        "verbose": True,
-        "create_tilejson": True,
-        "filter_pattern": "*.fgb"  # Prioritize FlatGeobuf files for optimal performance
-    }
-}
+EXTENT_COORDS = (_west, _south, _east, _north)
 
 
-def ensure_directories():
-    """Create all necessary directories if they don't exist."""
-    directories = [
-        DATA_DIR,
-        INPUT_DIR,
-        OVERTURE_DATA_DIR,
-        GRID3_DATA_DIR,
-        SCRATCH_DIR,
-        SCRATCH_BOUNDARIES_DIR,
-        SCRATCH_POIS_DIR,
-        SCRATCH_EXTENTS_DIR,
-        SCRATCH_BOUNDARIES_FILTERED_DIR,
-        SCRATCH_POIS_FILTERED_DIR,
-        OUTPUT_DIR,
+# ── Directory initialisation ──────────────────────────────────────────────────
+
+def ensure_directories() -> bool:
+    """Create all pipeline directories. Safe to call multiple times."""
+    static_dirs = [
+        BAK_DIR,
+        INPUT_DIR, GRID3_INPUT_DIR, OVERTURE_INPUT_DIR, MAPTERHORN_INPUT_DIR,
+        SCRATCH_DIR, SCRATCH_OVERTURE_DIR, SCRATCH_MAPTERHORN_DIR, DUCKDB_TEMP_DIR,
+        OUTPUT_DIR, OUTPUT_GRID3_DIR, OUTPUT_OVERTURE_DIR, OUTPUT_MAPTERHORN_DIR,
+        OUTPUT_PROTOMAPS_DIR,
     ]
-    
-    for directory in directories:
-        directory.mkdir(parents=True, exist_ok=True)
-    
+    iso3_dirs = []
+    for iso3 in GRID3_ISO3_CODES:
+        iso3_dirs += [
+            grid3_input(iso3),
+            grid3_scratch(iso3),
+            grid3_scratch_filtered(iso3),
+            grid3_scratch_temp(iso3),
+            grid3_output(iso3),
+        ]
+    for d in static_dirs + iso3_dirs:
+        d.mkdir(parents=True, exist_ok=True)
     return True
 
 
-def get_config():
-    """
-    Get a copy of the default configuration.
-    Modifying the returned dict won't affect the default.
-    """
+# ── Config dict (for notebook / script consumption) ───────────────────────────
+# Processing parameters live in config_processing.py to keep this file focused
+# on paths. Import get_config() from there for a full merged config.
+
+_tiling_input_dirs = [
+    SCRATCH_GRID3_DIR / iso3
+    for iso3 in GRID3_ISO3_CODES
+    if iso3 != "africa"
+]
+
+DEFAULT_CONFIG = {
+    "paths": {
+        "project_root":       PROJECT_ROOT,
+        "scripts_dir":        SCRIPTS_DIR,
+        "notebooks_dir":      NOTEBOOKS_DIR,
+        "utilities_dir":      UTILITIES_DIR,
+        "data_dir":           DATA_DIR,
+        "input_dir":          INPUT_DIR,
+        "grid3_input_dir":    GRID3_INPUT_DIR,
+        "overture_input_dir": OVERTURE_INPUT_DIR,
+        "scratch_dir":        SCRATCH_DIR,
+        "scratch_grid3_dir":  SCRATCH_GRID3_DIR,
+        "duckdb_temp_dir":    DUCKDB_TEMP_DIR,
+        "output_dir":         OUTPUT_DIR,
+        "output_grid3_dir":   OUTPUT_GRID3_DIR,
+        "tile_dir":           OUTPUT_GRID3_DIR,   # primary tile output root
+        "template_path":      TILE_QUERIES_TEMPLATE,
+        "tippecanoe_template": TIPPECANOE_TEMPLATE,
+    },
+    "extent": {
+        "coordinates":    EXTENT_COORDS,
+        "buffer_degrees": _buffer_degrees,
+    },
+    "download": {
+        "verbose": True,
+        "output_formats": ["*.parquet", "*.geojson", "*.geojsonseq"],
+    },
+    "fgb_conversion": {
+        "enabled":         True,
+        "input_pattern":   "*.parquet",
+        "overwrite":       False,
+        "verbose":         True,
+        "output_suffix":   ".fgb",
+        "cleanup_source":  False,
+    },
+    "conversion": {
+        "input_patterns":  ["*.parquet", "*.shp", "*.gpkg", "*.gdb", "*.sqlite",
+                            "*.db", "*.geojson", "*.json"],
+        "output_suffix":   ".geojsonseq",
+        "reproject_crs":   "EPSG:4326",
+        "overwrite":       True,
+        "verbose":         True,
+    },
+    "tiling": {
+        "input_dirs":       _tiling_input_dirs,
+        "output_dir":       OUTPUT_GRID3_DIR,
+        "parallel":         False,
+        "overwrite":        True,
+        "verbose":          True,
+        "create_tilejson":  True,
+        "filter_pattern":   "*.fgb",
+    },
+    "migration": {
+        "source_dir": OUTPUT_DIR,
+        "target_dir": MIGRATION_TARGET_DIR,
+    },
+}
+
+
+def get_config() -> dict:
+    """Return a deep copy of DEFAULT_CONFIG (modifications won't affect the default)."""
     import copy
     return copy.deepcopy(DEFAULT_CONFIG)
 
 
-def print_config_summary(config=None):
-    """Print a summary of the current configuration."""
+def print_config_summary(config: dict | None = None) -> None:
+    """Print a human-readable summary of the current configuration."""
     if config is None:
         config = DEFAULT_CONFIG
-    
+
     print("PROJECT CONFIGURATION")
     print("=" * 60)
-    print(f"Project root:        {config['paths']['project_root']}")
-    print(f"Scripts directory:   {config['paths']['scripts_dir']}")
-    print(f"Notebooks directory: {config['paths']['notebooks_dir']}")
-    print(f"Data directory:      {config['paths']['data_dir']}")
-    print(f"Scratch directory:   {config['paths']['scratch_dir']}")
-    print(f"Output directory:    {config['paths']['output_dir']}")
-    print(f"Overture data:       {config['paths']['overture_data_dir']}")
-    print(f"GRID3 data:         {config['paths']['grid3_data_dir']}")
+    print(f"Project root:         {config['paths']['project_root']}")
+    print(f"Data disk:            {DATA_DISK}")
+    print(f"Input (grid3):        {config['paths']['grid3_input_dir']}")
+    print(f"Input (overture):     {config['paths']['overture_input_dir']}")
+    print(f"Scratch (grid3):      {config['paths']['scratch_grid3_dir']}")
+    print(f"Output (grid3):       {config['paths']['output_grid3_dir']}")
+    print(f"Migration target:     {MIGRATION_TARGET_DIR}")
     print()
-    print(f"Processing extent:   {config['extent']['coordinates']}")
-    print(f"Buffer degrees:      {config['extent']['buffer_degrees']}")
-    
+    print(f"ISO3 codes:           {GRID3_ISO3_CODES}")
+    print(f"Processing extent:    {config['extent']['coordinates']}")
+    print(f"Buffer degrees:       {config['extent']['buffer_degrees']}")
+
     extent = config['extent']['coordinates']
     area_deg2 = (extent[2] - extent[0]) * (extent[3] - extent[1])
-    area_km2 = area_deg2 * 111 * 111  # Rough conversion
-    print(f"Area:                {area_deg2:.4f} degree² (~{area_km2:.0f} km²)")
+    area_km2  = area_deg2 * 111 * 111
+    print(f"Area:                 {area_deg2:.4f} deg² (~{area_km2:.0f} km²)")
     print("=" * 60)
 
 
 if __name__ == "__main__":
-    # When run directly, print configuration and create directories
     ensure_directories()
     print_config_summary()
     print("\n✓ All directories created")
-    print(f"\nTo use in your code:")
-    print("  from config import get_config, SCRIPTS_DIR, OUTPUT_DIR")
+    print("\nUsage:")
+    print("  from config import get_config, grid3_scratch, grid3_output, OUTPUT_GRID3_DIR")
     print("  config = get_config()")
