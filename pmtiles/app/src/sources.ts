@@ -143,6 +143,14 @@ export const SOURCES = {
     ext: "mvt",
   },
 
+    grid3_nga_roads: {
+    archive: "tiles/grid3/nga/GRID3_NGA_roads",
+    attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
+    maxzoom: 14,
+    ext: "mvt",
+  },
+
+
   grid3_nga_boundaries: {
     archive: "tiles/grid3/nga/GRID3_NGA_boundaries",
     attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
