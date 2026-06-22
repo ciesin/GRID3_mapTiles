@@ -42,7 +42,6 @@ export const SOURCES = {
     ext: "mvt",
   },
 
-
   overture_base: {
     archive: "tiles/overture/base",
     attribution: '<a href="https://overturemaps.org">Overture Maps Foundation</a>',
@@ -51,17 +50,30 @@ export const SOURCES = {
   },
 
   overture_buildings: {
-    archive: "tiles/overture/buildings",
+    archive: "tiles/overture/buildings_composite",
     attribution: '<a href="https://overturemaps.org">Overture Maps Foundation</a>',
     maxzoom: 14,
     ext: "mvt",
   },
+
 
   terrain: {
     archive: "tiles/terrain",
     attribution: '<a href="https://mapterhorn.com/attribution">© Mapterhorn</a>',
     maxzoom: 12,
     ext: "webp",
+  },
+
+
+  // ---------------------------------------------------------------------------
+  // GRID3 composite
+  // ---------------------------------------------------------------------------
+
+    grid3: {
+    archive: "tiles/grid3/africa/GRID3_africa",
+    attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
+    maxzoom: 14,
+    ext: "mvt",
   },
 
 
@@ -89,10 +101,11 @@ export const SOURCES = {
   // GRID3 — COD (Democratic Republic of Congo)
   // ---------------------------------------------------------------------------
 
-  grid3: {
-    archive: "tiles/grid3",
+
+    grid3_cod_roads: {
+    archive: "tiles/grid3/cod/GRID3_COD_roads",
     attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
-    maxzoom: 15,
+    maxzoom: 14,
     ext: "mvt",
   },
 

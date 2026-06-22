@@ -41,6 +41,11 @@
 			"attribution": "",
 			"tiles": []
 		},
+		"grid3_cod_roads": {
+			"type": "vector",
+			"attribution": "",
+			"tiles": []
+		},
 		"grid3_cod_boundaries": {
 			"type": "vector",
 			"attribution": "",
@@ -76,7 +81,7 @@
 			"id": "background",
 			"type": "background",
 			"paint": {
-				"background-color": "#e1e1e1"
+				"background-color": "#d6d6d6"
 			}
 		},
 		{
@@ -93,7 +98,51 @@
 				"visibility": "none"
 			},
 			"paint": {
-				"fill-color": "#e1e1e1"
+				"fill-color": "#d6d6d6"
+			}
+		},
+		{
+			"id": "landcover-bg",
+			"type": "fill",
+			"source": "protomaps_bg",
+			"source-layer": "landcover",
+			"layout": {
+				"visibility": "visible"
+			},
+			"paint": {
+				"fill-color": [
+					"match",
+					[
+						"get",
+						"kind"
+					],
+					"grassland",
+					"#dcf1d0",
+					"barren",
+					"rgba(255, 243, 215, 1)",
+					"urban_area",
+					"rgba(230, 230, 230, 1)",
+					"farmland",
+					"rgba(216, 239, 210, 1)",
+					"glacier",
+					"rgba(255, 255, 255, 1)",
+					"scrub",
+					"#e9f4d7",
+					"#c8e5bd"
+				],
+				"fill-opacity": [
+					"interpolate",
+					[
+						"linear"
+					],
+					[
+						"zoom"
+					],
+					5,
+					1,
+					7,
+					0
+				]
 			}
 		},
 		{
@@ -332,6 +381,21 @@
 					[
 						"zoom"
 					],
+					7,
+					[
+						"match",
+						[
+							"get",
+							"type"
+						],
+						"Built-up Area",
+						0,
+						"Hamlet",
+						0,
+						"Small Settlement Area",
+						0,
+						0
+					],
 					8,
 					[
 						"match",
@@ -340,14 +404,14 @@
 							"type"
 						],
 						"Built-up Area",
-						0,
+						0.85,
 						"Hamlet",
 						0,
 						"Small Settlement Area",
 						0,
 						0
 					],
-					8.5,
+					9,
 					[
 						"match",
 						[
@@ -359,25 +423,10 @@
 						"Hamlet",
 						0,
 						"Small Settlement Area",
-						0,
+						0.85,
 						0
 					],
 					11,
-					[
-						"match",
-						[
-							"get",
-							"type"
-						],
-						"Built-up Area",
-						0.85,
-						"Hamlet",
-						0,
-						"Small Settlement Area",
-						0.85,
-						0
-					],
-					13,
 					[
 						"match",
 						[
@@ -416,7 +465,7 @@
 			"source": "grid3_nga",
 			"source-layer": "GRID3-NGA-settlement-extents-v4-0",
 			"minzoom": 7,
-			"maxzoom": 12,
+			"maxzoom": 15,
 			"layout": {
 				"visibility": "visible"
 			},
@@ -538,7 +587,6 @@
 			"source": "grid3_nga",
 			"source-layer": "GRID3-NGA-settlement-blocks-v4-0",
 			"minzoom": 11,
-			"maxzoom": 20,
 			"layout": {
 				"visibility": "visible"
 			},
@@ -578,11 +626,12 @@
 					],
 					11,
 					0,
-					12,
+					14,
 					0.5,
-					16,
+					18,
 					0.75
-				]
+				],
+				"fill-outline-color": "transparent"
 			}
 		},
 		{
@@ -772,7 +821,7 @@
 				"aerodrome"
 			],
 			"paint": {
-				"fill-color": "#D0D0CE",
+				"fill-color": "#D1E0D7",
 				"fill-opacity": 1
 			}
 		},
@@ -860,6 +909,7 @@
 			"id": "hillshade",
 			"type": "hillshade",
 			"source": "dem",
+			"maxzoom": 14,
 			"layout": {
 				"visibility": "visible"
 			},
@@ -875,9 +925,9 @@
 					],
 					5,
 					0.35,
-					8,
-					0.2,
-					13,
+					10,
+					0.125,
+					14,
 					0
 				],
 				"hillshade-shadow-color": [
@@ -892,7 +942,7 @@
 					"rgba(0,0,0,0.25)",
 					8,
 					"rgba(0,0,0,0.075)",
-					12,
+					13,
 					"rgba(123, 123, 123, 0)"
 				],
 				"hillshade-highlight-color": [
@@ -907,7 +957,7 @@
 					"#F5E1A490",
 					8,
 					"#F5E1A450",
-					12,
+					13,
 					"#F5E1A410"
 				]
 			}
@@ -942,9 +992,9 @@
 					9,
 					0,
 					12,
-					0.6,
+					0.5,
 					16,
-					0.8
+					0.7
 				],
 				"line-width": [
 					"interpolate",
@@ -975,17 +1025,6 @@
 						1,
 						0.4,
 						0.3
-					],
-					16,
-					[
-						"match",
-						[
-							"get",
-							"level"
-						],
-						1,
-						0.6,
-						0.5
 					]
 				]
 			},
@@ -1011,7 +1050,7 @@
 			],
 			"paint": {
 				"text-color": "#9d8b7a",
-				"text-halo-color": "#e1e1e1",
+				"text-halo-color": "#d6d6d6",
 				"text-halo-width": 1.5,
 				"text-halo-blur": 2,
 				"text-opacity": [
@@ -1312,7 +1351,7 @@
 				"visibility": "visible"
 			}
 		},
-				{
+		{
 			"id": "water-bg",
 			"type": "fill",
 			"filter": [
@@ -1424,7 +1463,7 @@
 					],
 					11,
 					0,
-					12,
+					11.5,
 					0.5,
 					15,
 					2,
@@ -1440,9 +1479,9 @@
 					[
 						"zoom"
 					],
-					12,
+					11,
 					0,
-					12.5,
+					11.5,
 					1
 				]
 			}
@@ -1844,12 +1883,12 @@
 			}
 		},
 		{
-			"id": "roads_other_casing_late",
+			"id": "roads_other_casing",
 			"type": "line",
 			"source": "protomaps_base",
 			"source-layer": "roads",
 			"layout": {
-				"visibility": "none"
+				"visibility": "visible"
 			},
 			"filter": [
 				"all",
@@ -1874,38 +1913,45 @@
 				]
 			],
 			"paint": {
-				"line-color": "#FAFAFA",
-				"line-gap-width": [
+				"line-color": [
 					"interpolate",
 					[
 						"exponential",
-						1.2
+						1.6
 					],
 					[
 						"zoom"
 					],
-					12,
-					0.75,
-					12.25,
-					1,
 					18,
-					4
+					"#BABBB1"
+				],
+				"line-gap-width": [
+					"interpolate",
+					[
+						"exponential",
+						1.6
+					],
+					[
+						"zoom"
+					],
+					10,
+					0.5,
+					18,
+					6
 				],
 				"line-width": [
 					"interpolate",
 					[
 						"exponential",
-						1.2
+						1.6
 					],
 					[
 						"zoom"
 					],
-					12,
+					10,
 					0,
-					12.25,
-					0.75,
 					18,
-					3
+					1.3
 				]
 			}
 		},
@@ -1914,6 +1960,9 @@
 			"type": "line",
 			"source": "protomaps_base",
 			"source-layer": "roads",
+			"layout": {
+				"visibility": "visible"
+			},
 			"filter": [
 				"all",
 				[
@@ -1946,72 +1995,31 @@
 					[
 						"zoom"
 					],
-					11,
-					"#9E9E9E",
-					14,
-					"#919D9D"
+					15,
+					"#fff",
+					16,
+					"#ebebeb"
 				],
 				"line-dasharray": [
-					2,
-					2,
-					1,
-					2
-				],
-				"line-width": [
-					"interpolate",
-					[
-						"exponential",
-						1.2
-					],
+					"step",
 					[
 						"zoom"
 					],
-					12,
-					0.75,
-					12.25,
-					1,
-					18,
-					1.5
-				],
-				"line-opacity": [
-					"interpolate",
 					[
-						"exponential",
-						1.2
+						"literal",
+						[
+							1,
+							1
+						]
 					],
-					[
-						"zoom"
-					],
-					12,
-					0,
-					12.25,
-					1
-				]
-			}
-		},
-		{
-			"id": "roads_pier",
-			"type": "line",
-			"source": "protomaps_base",
-			"source-layer": "roads",
-			"filter": [
-				"==",
-				"kind_detail",
-				"pier"
-			],
-			"paint": {
-				"line-color": [
-					"interpolate",
-					[
-						"linear"
-					],
-					[
-						"zoom"
-					],
-					14,
-					"#000",
 					16,
-					"#e0e0e0"
+					[
+						"literal",
+						[
+							1,
+							0
+						]
+					]
 				],
 				"line-width": [
 					"interpolate",
@@ -2022,12 +2030,128 @@
 					[
 						"zoom"
 					],
-					12,
-					0,
-					12.5,
+					10,
+					0.85,
+					18,
+					5
+				]
+			}
+		},
+		{
+			"id": "grid3-cod-tracks-casing",
+			"type": "line",
+			"source": "grid3_cod_roads",
+			"source-layer": "roads",
+			"layout": {
+				"visibility": "visible"
+			},
+			"filter": [
+					"in",
+					"class",
+					"track"
+			],
+			"paint": {
+				"line-color": [
+					"interpolate",
+					[
+						"exponential",
+						1.6
+					],
+					[
+						"zoom"
+					],
+					18,
+					"#BABBB1"
+				],
+				"line-gap-width": [
+					"interpolate",
+					[
+						"exponential",
+						1.6
+					],
+					[
+						"zoom"
+					],
+					10,
 					0.5,
-					20,
-					16
+					18,
+					6
+				],
+				"line-width": [
+					"interpolate",
+					[
+						"exponential",
+						1.6
+					],
+					[
+						"zoom"
+					],
+					10,
+					0,
+					18,
+					1
+				]
+			}
+		},
+		{
+			"id": "grid3-cod-tracks",
+			"type": "line",
+			"source": "grid3_cod_roads",
+			"source-layer": "roads",
+			"filter": [
+					"in",
+					"class",
+					"track"
+			],
+			"paint": {
+				"line-color": [
+					"interpolate",
+					[
+						"exponential",
+						1.6
+					],
+					[
+						"zoom"
+					],
+					15,
+					"#fff",
+					16,
+					"#ebebeb"
+				],
+				"line-dasharray": [
+					"step",
+					[
+						"zoom"
+					],
+					[
+						"literal",
+						[
+							1,
+							1
+						]
+					],
+					16,
+					[
+						"literal",
+						[
+							1,
+							0
+						]
+					]
+				],
+				"line-width": [
+					"interpolate",
+					[
+						"exponential",
+						1.6
+					],
+					[
+						"zoom"
+					],
+					10,
+					0.85,
+					18,
+					5
 				]
 			}
 		},
@@ -2133,8 +2257,6 @@
 					],
 					10,
 					0.5,
-					11.5,
-					0.75,
 					15,
 					1.75,
 					18,
@@ -2149,14 +2271,8 @@
 					[
 						"zoom"
 					],
-					11.5,
-					0.3,
-					12,
-					0.5,
-					14,
-					0.75,
-					16,
-					1.2,
+					13,
+					0,
 					18,
 					1.3
 				]
@@ -2209,14 +2325,11 @@
 			}
 		},
 		{
-			"id": "roads_major_casing_late",
+			"id": "roads_major_casing_early",
 			"type": "line",
 			"source": "protomaps_base",
 			"source-layer": "roads",
-			"minzoom": 13,
-			"layout": {
-				"visibility": "visible"
-			},
+			"maxzoom": 12,
 			"filter": [
 				"all",
 				[
@@ -2234,7 +2347,7 @@
 				]
 			],
 			"paint": {
-				"line-color": "#BABBB1",
+				"line-color": "#e0e0e0",
 				"line-gap-width": [
 					"interpolate",
 					[
@@ -2244,10 +2357,12 @@
 					[
 						"zoom"
 					],
-					12,
-					1,
+					7,
+					0,
+					7.5,
+					0.5,
 					18,
-					9
+					13
 				],
 				"line-width": [
 					"interpolate",
@@ -2258,10 +2373,68 @@
 					[
 						"zoom"
 					],
-					13,
+					9,
 					0,
+					9.5,
+					1
+				]
+			}
+		},
+		{
+			"id": "roads_major_casing_late",
+			"type": "line",
+			"source": "protomaps_base",
+			"source-layer": "roads",
+			"minzoom": 12,
+			"filter": [
+				"all",
+				[
+					"!has",
+					"is_tunnel"
+				],
+				[
+					"!has",
+					"is_bridge"
+				],
+				[
+					"==",
+					"kind",
+					"major_road"
+				]
+			],
+			"paint": {
+				"line-color": "#e0e0e0",
+				"line-gap-width": [
+					"interpolate",
+					[
+						"exponential",
+						1.6
+					],
+					[
+						"zoom"
+					],
+					6,
+					0,
+					12,
+					1.6,
+					15,
+					3,
 					18,
-					1.5
+					13
+				],
+				"line-width": [
+					"interpolate",
+					[
+						"exponential",
+						1.6
+					],
+					[
+						"zoom"
+					],
+					9,
+					0,
+					9.5,
+					1
 				]
 			}
 		},
@@ -2404,6 +2577,53 @@
 				]
 			}
 		},
+				{
+			"id": "grid3-cod-roads-minor",
+			"type": "line",
+			"source": "grid3_cod_roads",
+			"source-layer": "roads",
+			"maxzoom": 13,
+			"filter": [
+					"in",
+					"class",
+					"unclassified",
+					"residential"
+			],
+			"paint": {
+				"line-color": [
+					"interpolate",
+					[
+						"exponential",
+						1.6
+					],
+					[
+						"zoom"
+					],
+					10,
+					"#ffffff",
+					15,
+					"#ffffff"
+				],
+				"line-width": [
+					"interpolate",
+					[
+						"exponential",
+						1.6
+					],
+					[
+						"zoom"
+					],
+					11,
+					0,
+					11.5,
+					0.75,
+					12,
+					0.75,
+					13,
+					0
+				]
+			}
+		},
 		{
 			"id": "roads_minor",
 			"type": "line",
@@ -2455,81 +2675,13 @@
 						"zoom"
 					],
 					10,
-					0.5,
-					15,
+					0,
+					10.5,
+					1,
+					13,
 					1,
 					18,
 					11
-				]
-			}
-		},
-		{
-			"id": "roads_major_casing_early",
-			"type": "line",
-			"source": "protomaps_base",
-			"source-layer": "roads",
-			"layout": {
-				"visibility": "visible"
-			},
-			"maxzoom": 12,
-			"filter": [
-				"all",
-				[
-					"!has",
-					"is_tunnel"
-				],
-				[
-					"!has",
-					"is_bridge"
-				],
-				[
-					"==",
-					"kind",
-					"major_road"
-				]
-			],
-			"paint": {
-				"line-color": [
-					"interpolate",
-					[
-						"linear"
-					],
-					[
-						"zoom"
-					],
-					3,
-					"#fff",
-					12,
-					"#FAFAFA"
-				],
-				"line-gap-width": [
-					"interpolate",
-					[
-						"linear"
-					],
-					[
-						"zoom"
-					],
-					6,
-					0.25,
-					11.5,
-					0
-				],
-				"line-width": [
-					"interpolate",
-					[
-						"exponential",
-						1.6
-					],
-					[
-						"zoom"
-					],
-					3,
-					0.5,
-					9.5,
-					1,
-					12,
-					0
 				]
 			}
 		},
@@ -2563,7 +2715,7 @@
 					"interpolate",
 					[
 						"exponential",
-						1.6
+						1.5
 					],
 					[
 						"zoom"
@@ -2573,7 +2725,7 @@
 					6.5,
 					0.33,
 					11,
-					0.75,
+					1.5,
 					18,
 					9
 				]
@@ -2606,7 +2758,7 @@
 				]
 			],
 			"paint": {
-				"line-color": "#BABBB1",
+				"line-color": "#e0e0e0",
 				"line-gap-width": [
 					"interpolate",
 					[
@@ -2618,12 +2770,8 @@
 					],
 					3,
 					0,
-					6,
-					0.75,
-					12,
-					1.2,
-					15,
-					5,
+					3.5,
+					0.5,
 					18,
 					15
 				],
@@ -2636,9 +2784,9 @@
 					[
 						"zoom"
 					],
-					5,
+					7,
 					0,
-					5.5,
+					7.5,
 					1
 				]
 			}
@@ -2862,7 +3010,7 @@
 			"type": "fill-extrusion",
 			"source": "overture_buildings",
 			"source-layer": "building",
-			"minzoom": 14,
+			"minzoom": 15,
 			"layout": {
 				"visibility": "none"
 			},
@@ -2876,10 +3024,10 @@
 					[
 						"zoom"
 					],
-					14,
-					"#A2ACAB",
 					15,
-					"#919D9D"
+					"#A2ACAB",
+					16,
+					"#fff"
 				],
 				"fill-extrusion-height": [
 					"coalesce",
@@ -2907,6 +3055,48 @@
 			}
 		},
 		{
+			"id": "buildings-overview",
+			"type": "circle",
+			"source": "overture_buildings",
+			"source-layer": "buildings",
+			"minzoom": 11,
+			"maxzoom": 15,
+			"layout": {
+				"visibility": "visible"
+			},
+			"paint": {
+				"circle-color": [
+					"interpolate",
+					[
+						"exponential",
+						1.6
+					],
+					[
+						"zoom"
+					],
+					11,
+					"#83786F",
+					15,
+					"#BABBB1"
+				],
+				"circle-radius": [
+					"interpolate",
+					[
+						"exponential",
+						1.2
+					],
+					[
+						"zoom"
+					],
+					12,
+					0.75,
+					15,
+					1.75
+				],
+				"circle-opacity": 1
+			}
+		},
+		{
 			"id": "buildings-flat",
 			"type": "fill",
 			"source": "overture_buildings",
@@ -2916,7 +3106,20 @@
 				"visibility": "visible"
 			},
 			"paint": {
-				"fill-color": "#BBBCBC",
+				"fill-color": [
+					"interpolate",
+					[
+						"exponential",
+						1.6
+					],
+					[
+						"zoom"
+					],
+					14,
+					"#BABBB1",
+					16,
+					"#C4BFB6"
+				],
 				"fill-opacity": [
 					"interpolate",
 					[
@@ -2928,7 +3131,7 @@
 					],
 					14,
 					0,
-					15,
+					14.5,
 					1
 				]
 			}
@@ -2995,7 +3198,6 @@
 			"type": "line",
 			"source": "protomaps_base",
 			"source-layer": "roads",
-			"visibility": "none",
 			"minzoom": 12,
 			"filter": [
 				"all",
@@ -3011,19 +3213,7 @@
 				]
 			],
 			"paint": {
-				"line-color": [
-					"interpolate",
-					[
-						"linear"
-					],
-					[
-						"zoom"
-					],
-					14,
-					"#000",
-					16,
-					"#e0e0e0"
-				],
+				"line-color": "#e0e0e0",
 				"line-gap-width": [
 					"interpolate",
 					[
@@ -3125,19 +3315,7 @@
 				]
 			],
 			"paint": {
-				"line-color": [
-					"interpolate",
-					[
-						"linear"
-					],
-					[
-						"zoom"
-					],
-					11,
-					"#000",
-					16,
-					"#e0e0e0"
-				],
+				"line-color": "#e0e0e0",
 				"line-gap-width": [
 					"interpolate",
 					[
@@ -3168,7 +3346,7 @@
 					13,
 					0,
 					13.5,
-					0.5
+					0.8
 				]
 			}
 		},
@@ -3750,7 +3928,7 @@
 			},
 			"paint": {
 				"text-color": "#91888b",
-				"text-halo-color": "#e1e1e1",
+				"text-halo-color": "#d6d6d6",
 				"text-halo-width": 1
 			}
 		},
@@ -7463,7 +7641,7 @@
 			},
 			"paint": {
 				"text-color": "#938a8d",
-				"text-halo-color": "#e1e1e1",
+				"text-halo-color": "#d6d6d6",
 				"text-halo-width": 1
 			}
 		},
@@ -9280,7 +9458,7 @@
 			},
 			"paint": {
 				"text-color": "#91888b",
-				"text-halo-color": "#e1e1e1",
+				"text-halo-color": "#d6d6d6",
 				"text-halo-width": 1
 			}
 		},
@@ -10575,7 +10753,7 @@
 			"source-layer": "GRID3-COD-airesante-v8-0",
 			"minzoom": 11,
 			"paint": {
-				"line-color": "#e1e1e1",
+				"line-color": "#d6d6d6",
 				"line-width": [
 					"interpolate",
 					[
@@ -10585,11 +10763,11 @@
 						"zoom"
 					],
 					11.5,
-					5,
+					4,
 					14,
-					6,
-					18,
-					9
+					4,
+					22,
+					8
 				],
 				"line-opacity": [
 					"step",
@@ -10666,6 +10844,14 @@
 							1,
 							2
 						]
+					],
+					16,
+					[
+						"literal",
+						[
+							2,
+							2
+						]
 					]
 				],
 				"line-opacity": [
@@ -10701,7 +10887,7 @@
 						"zoom"
 					],
 					5,
-					0.5,
+					0.65,
 					12,
 					1,
 					16,
@@ -10711,7 +10897,7 @@
 					"interpolate",
 					[
 						"exponential",
-						1.2
+						1.4
 					],
 					[
 						"zoom"
@@ -12613,129 +12799,6 @@
 			}
 		},
 		{
-			"id": "cod-antenne-boundary-label",
-			"type": "symbol",
-			"source": "grid3_cod",
-			"source-layer": "GRID3-COD-antenne-v8-0",
-			"minzoom": 8.5,
-			"layout": {
-				"text-field": [
-					"step",
-					[
-						"zoom"
-					],
-					[
-						"concat",
-						"",
-						[
-							"get",
-							"antenne"
-						]
-					],
-					11,
-					[
-						"concat",
-						"Ant ",
-						[
-							"get",
-							"antenne"
-						]
-					],
-					13,
-					[
-						"concat",
-						"Antenne ",
-						[
-							"get",
-							"antenne"
-						]
-					]
-				],
-				"symbol-placement": "line",
-				"text-ignore-placement": false,
-				"text-font": [
-					"Noto Sans Medium"
-				],
-				"text-size": [
-					"interpolate",
-					[
-						"exponential",
-						1.2
-					],
-					[
-						"zoom"
-					],
-					7,
-					6,
-					20,
-					18
-				],
-				"text-padding": 1,
-				"text-letter-spacing": 0.1,
-				"text-transform": "uppercase",
-				"text-offset": [
-					"step",
-					[
-						"zoom"
-					],
-					[
-						"literal",
-						[
-							0,
-							1
-						]
-					],
-					7,
-					[
-						"literal",
-						[
-							0,
-							1
-						]
-					],
-					13,
-					[
-						"literal",
-						[
-							0,
-							1.25
-						]
-					]
-				],
-				"symbol-spacing": [
-					"interpolate",
-					[
-						"linear"
-					],
-					[
-						"zoom"
-					],
-					7,
-					250,
-					18,
-					500
-				]
-			},
-			"paint": {
-				"text-color": "#424242",
-				"text-halo-color": "#f5f5fa",
-				"text-halo-width": 1,
-				"text-opacity": [
-					"interpolate",
-					[
-						"linear"
-					],
-					[
-						"zoom"
-					],
-					7,
-					0,
-					9,
-					1
-				]
-			}
-		},
-		{
 			"id": "cod-health-areas-boundary-label",
 			"type": "symbol",
 			"source": "grid3_cod",
@@ -12807,14 +12870,6 @@
 							1
 						]
 					],
-					7,
-					[
-						"literal",
-						[
-							0,
-							1
-						]
-					],
 					13,
 					[
 						"literal",
@@ -12832,17 +12887,17 @@
 					[
 						"zoom"
 					],
-					7,
-					250,
+					11,
+					150,
 					14,
-					500,
+					260,
 					18,
-					1000
+					500
 				]
 			},
 			"paint": {
 				"text-color": "#424242",
-				"text-halo-color": "#f5f5fa",
+				"text-halo-color": "#d6d6d6",
 				"text-halo-width": 1
 			}
 		},
@@ -12918,7 +12973,103 @@
 							1
 						]
 					],
+					13,
+					[
+						"literal",
+						[
+							0,
+							1.25
+						]
+					]
+				],
+				"symbol-spacing": [
+					"interpolate",
+					[
+						"linear"
+					],
+					[
+						"zoom"
+					],
+					8,
+					250,
+					14,
+					425,
+					18,
+					700
+				]
+			},
+			"paint": {
+				"text-color": "#424242",
+				"text-halo-color": "#d6d6d6",
+				"text-halo-width": 1
+			}
+		},
+		{
+			"id": "cod-antenne-boundary-label",
+			"type": "symbol",
+			"source": "grid3_cod",
+			"source-layer": "GRID3-COD-antenne-v8-0",
+			"minzoom": 8.5,
+			"layout": {
+				"text-field": [
+					"step",
+					[
+						"zoom"
+					],
+					[
+						"concat",
+						"",
+						[
+							"get",
+							"antenne"
+						]
+					],
+					11,
+					[
+						"concat",
+						"Ant ",
+						[
+							"get",
+							"antenne"
+						]
+					],
+					13,
+					[
+						"concat",
+						"Antenne ",
+						[
+							"get",
+							"antenne"
+						]
+					]
+				],
+				"symbol-placement": "line",
+				"text-ignore-placement": false,
+				"text-font": [
+					"Noto Sans Medium"
+				],
+				"text-size": [
+					"interpolate",
+					[
+						"exponential",
+						1.2
+					],
+					[
+						"zoom"
+					],
 					7,
+					6,
+					20,
+					18
+				],
+				"text-padding": 1,
+				"text-letter-spacing": 0.1,
+				"text-transform": "uppercase",
+				"text-offset": [
+					"step",
+					[
+						"zoom"
+					],
 					[
 						"literal",
 						[
@@ -12943,18 +13094,145 @@
 					[
 						"zoom"
 					],
-					7,
-					250,
+					8.5,
+					350,
 					14,
-					500,
+					600,
 					18,
-					1000
+					950
 				]
 			},
 			"paint": {
 				"text-color": "#424242",
-				"text-halo-color": "#f5f5fa",
-				"text-halo-width": 1
+				"text-halo-color": "#d6d6d6",
+				"text-halo-width": 1,
+				"text-opacity": [
+					"interpolate",
+					[
+						"linear"
+					],
+					[
+						"zoom"
+					],
+					7,
+					0,
+					9,
+					1
+				]
+			}
+		},
+		{
+			"id": "cod-province-boundary-label",
+			"type": "symbol",
+			"source": "grid3_cod",
+			"source-layer": "GRID3-COD-province-v8-0",
+			"minzoom": 8.5,
+			"layout": {
+				"text-field": [
+					"step",
+					[
+						"zoom"
+					],
+					[
+						"concat",
+						"",
+						[
+							"get",
+							"province"
+						]
+					],
+					13,
+					[
+						"concat",
+						"Province ",
+						[
+							"get",
+							"province"
+						]
+					]
+				],
+				"symbol-placement": "line",
+				"text-ignore-placement": false,
+				"text-font": [
+					"Noto Sans Medium"
+				],
+				"text-size": [
+					"interpolate",
+					[
+						"exponential",
+						1.2
+					],
+					[
+						"zoom"
+					],
+					7,
+					6,
+					13,
+					12,
+					20,
+					18
+				],
+				"text-padding": 1,
+				"text-letter-spacing": 0.1,
+				"text-transform": "uppercase",
+				"text-offset": [
+					"interpolate",
+					[
+						"linear"
+					],
+					[
+						"zoom"
+					],
+					13,
+					[
+						"literal",
+						[
+							0,
+							1
+						]
+					],
+					18,
+					[
+						"literal",
+						[
+							0,
+							1.5
+						]
+					]
+				],
+				"symbol-spacing": [
+					"interpolate",
+					[
+						"linear"
+					],
+					[
+						"zoom"
+					],
+					8.5,
+					500,
+					14,
+					900,
+					18,
+					1400
+				]
+			},
+			"paint": {
+				"text-color": "#424242",
+				"text-halo-color": "#d6d6d6",
+				"text-halo-width": 1,
+				"text-opacity": [
+					"interpolate",
+					[
+						"linear"
+					],
+					[
+						"zoom"
+					],
+					7,
+					0,
+					9,
+					1
+				]
 			}
 		},
 		{
@@ -13015,7 +13293,7 @@
 					14,
 					"#263238"
 				],
-				"text-halo-color": "#e1e1e1",
+				"text-halo-color": "#d6d6d6",
 				"text-halo-width": 1.5
 			}
 		},
@@ -14176,7 +14454,7 @@
 					13,
 					"#263238"
 				],
-				"text-halo-color": "#e1e1e1",
+				"text-halo-color": "#d6d6d6",
 				"text-halo-width": 1.5
 			}
 		},
@@ -14203,10 +14481,10 @@
 					[
 						"zoom"
 					],
-					9.5,
+					8.5,
 					0,
-					10,
-					8,
+					9,
+					7.5,
 					14,
 					12,
 					18,
@@ -14246,21 +14524,21 @@
 					"top",
 					[
 						0,
-						0.5
+						0.35
 					],
 					"bottom",
 					[
 						0,
-						-0.5
+						-0.35
 					],
 					"left",
 					[
-						0.5,
+						0.35,
 						0
 					],
 					"right",
 					[
-						-0.5,
+						-0.35,
 						0
 					]
 				],
@@ -14276,9 +14554,11 @@
 						"zoom"
 					],
 					10,
-					0.4,
-					18,
-					1.2
+					0.5,
+					16,
+					1.2,
+					20,
+					2
 				],
 				"icon-optional": true
 			},
@@ -14339,6 +14619,8 @@
 					],
 					1,
 					14,
+					1,
+					18,
 					1.25
 				],
 				"icon-color": [
@@ -14363,6 +14645,31 @@
 					"Centre de Santé de Référence",
 					"#ffff00",
 					"#646464"
+				],
+				"icon-halo-color": [
+					"match",
+					[
+						"get",
+						"esstype"
+					],
+					"Centre de Santé de Référence",
+					"#53565A",
+					"#fff"
+				],
+				"icon-halo-width": [
+					"interpolate",
+					[
+						"linear"
+					],
+					[
+						"zoom"
+					],
+					11,
+					0.125,
+					14,
+					0.75,
+					18,
+					1.25
 				]
 			}
 		},
