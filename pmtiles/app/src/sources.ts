@@ -102,8 +102,8 @@ export const SOURCES = {
   // ---------------------------------------------------------------------------
 
 
-    grid3_cod_tracks: {
-    archive: "tiles/grid3/cod/GRID3_COD_tracks",
+    grid3_cod_roads: {
+    archive: "tiles/grid3/cod/GRID3_COD_roads",
     attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
     maxzoom: 14,
     ext: "mvt",

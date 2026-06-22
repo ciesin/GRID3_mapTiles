@@ -41,7 +41,7 @@
 			"attribution": "",
 			"tiles": []
 		},
-		"grid3_cod_tracks": {
+		"grid3_cod_roads": {
 			"type": "vector",
 			"attribution": "",
 			"tiles": []
@@ -821,7 +821,7 @@
 				"aerodrome"
 			],
 			"paint": {
-				"fill-color": "#D0D0CE",
+				"fill-color": "#D1E0D7",
 				"fill-opacity": 1
 			}
 		},
@@ -2040,11 +2040,16 @@
 		{
 			"id": "grid3-cod-tracks-casing",
 			"type": "line",
-			"source": "grid3_cod_tracks",
+			"source": "grid3_cod_roads",
 			"source-layer": "roads",
 			"layout": {
 				"visibility": "visible"
 			},
+			"filter": [
+					"in",
+					"class",
+					"track"
+			],
 			"paint": {
 				"line-color": [
 					"interpolate",
@@ -2091,9 +2096,13 @@
 		{
 			"id": "grid3-cod-tracks",
 			"type": "line",
-			"source": "grid3_cod_tracks",
+			"source": "grid3_cod_roads",
 			"source-layer": "roads",
-			"minzoom": 10,
+			"filter": [
+					"in",
+					"class",
+					"track"
+			],
 			"paint": {
 				"line-color": [
 					"interpolate",
@@ -2565,6 +2574,53 @@
 					0,
 					18,
 					8
+				]
+			}
+		},
+				{
+			"id": "grid3-cod-roads-minor",
+			"type": "line",
+			"source": "grid3_cod_roads",
+			"source-layer": "roads",
+			"maxzoom": 13,
+			"filter": [
+					"in",
+					"class",
+					"unclassified",
+					"residential"
+			],
+			"paint": {
+				"line-color": [
+					"interpolate",
+					[
+						"exponential",
+						1.6
+					],
+					[
+						"zoom"
+					],
+					10,
+					"#ffffff",
+					15,
+					"#ffffff"
+				],
+				"line-width": [
+					"interpolate",
+					[
+						"exponential",
+						1.6
+					],
+					[
+						"zoom"
+					],
+					11,
+					0,
+					11.5,
+					0.75,
+					12,
+					0.75,
+					13,
+					0
 				]
 			}
 		},
@@ -10709,7 +10765,7 @@
 					11.5,
 					4,
 					14,
-					6,
+					4,
 					22,
 					8
 				],
@@ -12841,7 +12897,7 @@
 			},
 			"paint": {
 				"text-color": "#424242",
-				"text-halo-color": "#f5f5fa",
+				"text-halo-color": "#d6d6d6",
 				"text-halo-width": 1
 			}
 		},
@@ -12944,7 +13000,7 @@
 			},
 			"paint": {
 				"text-color": "#424242",
-				"text-halo-color": "#f5f5fa",
+				"text-halo-color": "#d6d6d6",
 				"text-halo-width": 1
 			}
 		},
@@ -13048,7 +13104,7 @@
 			},
 			"paint": {
 				"text-color": "#424242",
-				"text-halo-color": "#f5f5fa",
+				"text-halo-color": "#d6d6d6",
 				"text-halo-width": 1,
 				"text-opacity": [
 					"interpolate",
@@ -13162,7 +13218,7 @@
 			},
 			"paint": {
 				"text-color": "#424242",
-				"text-halo-color": "#f5f5fa",
+				"text-halo-color": "#d6d6d6",
 				"text-halo-width": 1,
 				"text-opacity": [
 					"interpolate",
