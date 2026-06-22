@@ -14583,7 +14583,7 @@
 						"zoom"
 					],
 					"#717C7D",
-					14,
+					11,
 					[
 						"match",
 						[
@@ -14592,9 +14592,10 @@
 						],
 						[
 							"Poste de Santé",
-							"Clinique"
+							"Clinique",
+							"Site Soin Communautaire"
 						],
-						"#3A5DAE",
+						"#407EC9",
 						[
 							"Centre de Santé",
 							"Hôpital Général de Référence",
@@ -14613,7 +14614,7 @@
 					[
 						"zoom"
 					],
-					"#ffffff",
+					"#d6d6d6",
 					14,
 					[
 						"match",
@@ -14623,7 +14624,7 @@
 						],
 						"Centre de Santé de Référence",
 						"#53565A",
-						"#ffffff"
+						"#d6d6d6"
 					]
 				],
 				"text-halo-width": [
@@ -14645,9 +14646,10 @@
 					],
 					[
 						"Poste de Santé",
-						"Clinique"
+						"Clinique",
+						"Site Soin Communautaire"
 					],
-					"#3A5DAE",
+					"#407EC9",
 					[
 						"Centre de Santé",
 						"Hôpital Général de Référence",
@@ -14668,7 +14670,7 @@
 					],
 					"Centre de Santé de Référence",
 					"#53565A",
-					"#fff"
+					"#d6d6d6"
 				],
 				"icon-halo-width": [
 					"interpolate",

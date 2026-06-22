@@ -58,7 +58,7 @@ export const SOURCES = {
 
 
   terrain: {
-    archive: "tiles/terrain",
+    archive: "tiles/mapterhorn/terrain",
     attribution: '<a href="https://mapterhorn.com/attribution">© Mapterhorn</a>',
     maxzoom: 12,
     ext: "webp",
@@ -102,7 +102,7 @@ export const SOURCES = {
   // ---------------------------------------------------------------------------
 
 
-    grid3_cod_roads: {
+  grid3_cod_roads: {
     archive: "tiles/grid3/cod/GRID3_COD_roads",
     attribution: '<a href="https://ciesin.columbia.edu/">© CIESIN Columbia University</a>',
     maxzoom: 14,
