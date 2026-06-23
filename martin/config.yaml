@@ -26,7 +26,7 @@ convert_to_mlt: disabled
 styles:
   rendering: true
   sources:
-    ciesin_style: /styles/style.json
+    ciesin_qgis_style: /styles/style-qgis.json
 
 
 pmtiles:
