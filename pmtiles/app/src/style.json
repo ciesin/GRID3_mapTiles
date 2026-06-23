@@ -31,6 +31,11 @@
 			"attribution": "",
 			"tiles": []
 		},
+		"grid3_cod_roads": {
+			"type": "vector",
+			"attribution": "",
+			"tiles": []
+		},
 		"grid3_nga": {
 			"type": "vector",
 			"attribution": "",
