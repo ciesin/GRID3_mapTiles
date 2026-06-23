@@ -80,7 +80,7 @@ TILE_DIR = OUTPUT_DIR
 
 # ── ISO3 registry ─────────────────────────────────────────────────────────────
 # Add new country codes here; ensure_directories() creates all subdirs automatically.
-# "africa" is reserved for merged/continent-level outputs — not an input to tippecanoe.
+# "africa" is reserved for merged/continent-level outputs ... not an input to tippecanoe.
 GRID3_ISO3_CODES: list[str] = ["cod", "nga", "africa"]
 
 

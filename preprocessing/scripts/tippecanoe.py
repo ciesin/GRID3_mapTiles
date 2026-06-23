@@ -76,10 +76,11 @@ PROFILES = {
         "auto_zoom": False,
         "line_settings": [
             "--hilbert",
-            "--simplification=6",
+            "--simplification=8",
             # "--simplify-only-low-zooms",
-            "--maximum-tile-bytes=2097152",
-            "--no-feature-limit",
+            # "--maximum-tile-bytes=2097152",
+            "--drop-densest-as-needed"
+            # "--no-feature-limit",
         ],
     },
 }
