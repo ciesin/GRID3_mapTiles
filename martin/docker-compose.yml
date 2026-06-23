@@ -6,8 +6,9 @@ services:
       - "3000:3000"
     volumes:
       - ./config.yaml:/config.yaml:ro
+      - ./styles:/styles:ro
       - /mnt/d/mheaton/grid3_tiles/data/3-pmtiles:/data:ro
-    command: ["--config", "/config.yaml"]
+    command: ["--config", "/config.yaml", "--webui", "enable-for-all"]
     environment:
       RUST_LOG: "martin=info,actix_web=warn"
     healthcheck:

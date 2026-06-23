@@ -30,26 +30,6 @@
 			"type": "vector",
 			"url": "http://localhost:3000/grid3_nga",
 			"attribution": "<a href=\"https://ciesin.columbia.edu/\">© CIESIN Columbia University</a>"
-		},
-		"grid3_nga_settlement_extents": {
-			"type": "vector",
-			"url": "http://localhost:3000/grid3_nga_settlement_extents",
-			"attribution": "<a href=\"https://ciesin.columbia.edu/\">© CIESIN Columbia University</a>"
-		},
-		"grid3_cod_boundaries": {
-			"type": "vector",
-			"url": "http://localhost:3000/grid3_cod_boundaries",
-			"attribution": "<a href=\"https://ciesin.columbia.edu/\">© CIESIN Columbia University</a>"
-		},
-		"grid3_cod_pois": {
-			"type": "vector",
-			"url": "http://localhost:3000/grid3_cod_pois",
-			"attribution": "<a href=\"https://ciesin.columbia.edu/\">© CIESIN Columbia University</a>"
-		},
-		"grid3_cod_settlement_extents": {
-			"type": "vector",
-			"url": "http://localhost:3000/grid3_cod_settlement_extents",
-			"attribution": "<a href=\"https://ciesin.columbia.edu/\">© CIESIN Columbia University</a>"
 		}
 	},
 	"layers": [

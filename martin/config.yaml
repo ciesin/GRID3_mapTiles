@@ -1,48 +1,52 @@
 ---
-# Martin tileserver configuration
+# Martin tileserver configuration v1.11.0
 # Serves PMTiles archives synced locally from Cloudflare R2.
-# Source IDs match the keys in pmtiles/app/src/sources.ts so
-# martin/style.json works without any further edits.
+# Source IDs match the keys in pmtiles/app/src/sources.ts.
 #
 # Run:  make start   (from the martin/ directory)
 # Sync: make sync    (pull latest PMTiles from R2 first)
 
-listen_addresses:
-  - "0.0.0.0:3000"
+listen_addresses: "0.0.0.0:3000"
 
-# Tile cache size in MB
-cache_size: 256
+cache:
+  size_mb: 512
 
-# CORS — allow ArcGIS Pro and MapLibre viewers on the same machine
-cors: "*"
+# Allow all origins (ArcGIS Pro desktop + local MapLibre viewer)
+cors: true
+
+# Warn on missing files instead of aborting startup
+on_invalid: warn
+
+# gzip is universally supported by ArcGIS Pro; brotli is not
+preferred_encoding: gzip
+
+# ArcGIS Pro cannot consume MLT format
+convert_to_mlt: disabled
+
+styles:
+  rendering: true
+  sources:
+    ciesin_style: /styles/style.json
 
 
+pmtiles:
+  sources:
+    # ── Base layers ────────────────────────────────────────────────────────
+    protomaps_base: /data/protomaps/base.pmtiles
+    # protomaps_bg: file not yet synced — style layers earth/landcover-bg/water-bg will 404
 
-sources:
-  # ── Base layers ──────────────────────────────────────────────────────────
-  protomaps_base:
-    pmtiles: /data/tiles/protomaps/base.pmtiles
+    overture_base: /data/overture/base_clean.pmtiles
+    overture_buildings: /data/overture/buildings_composite.pmtiles
 
-  overture_base:
-    pmtiles: /data/tiles/overture/base.pmtiles
+    # ── Terrain ────────────────────────────────────────────────────────────
+    # Raster-DEM source for the hillshade layer.
+    # ArcGIS Pro will not render it as a DEM but tiles will serve correctly.
+    dem: /data/mapterhorn/terrain.pmtiles
+    # contours: file not yet synced — contours/contours-label layers will 404
 
-  overture_buildings:
-    pmtiles: /data/tiles/overture/buildings_composite.pmtiles
+    # ── GRID3 — COD (Democratic Republic of Congo) ────────────────────────
+    grid3_cod: /data/grid3/GRID3_COD.pmtiles
 
-  # ── GRID3 consolidated (Africa) ──────────────────────────────────────────
-  grid3:
-    pmtiles: /data/tiles/grid3.pmtiles
-
-  # ── GRID3 — COD (Democratic Republic of Congo) ───────────────────────────
-  grid3_cod:
-    pmtiles: /data/tiles/grid3/cod/GRID3_COD.pmtiles
-
-  # ── GRID3 — NGA (Nigeria) ────────────────────────────────────────────────
-  grid3_nga:
-    pmtiles: /data/tiles/grid3/nga/GRID3_NGA.pmtiles
-
-  # ── Terrain (raster webp) ─────────────────────────────────────────────────
-  # Included for completeness; ArcGIS Pro cannot use this as a hillshade DEM.
-  # Uncomment if you need to inspect terrain tiles via the catalog.
-  # terrain:
-  #   pmtiles: /data/tiles/mapterhorn/terrain.pmtiles
+    # ── GRID3 — NGA (Nigeria) ─────────────────────────────────────────────
+    grid3_nga: /data/grid3/GRID3_NGA.pmtiles
+    # grid3_nga_roads: file not yet synced — grid3-nga-roads-minor layer will 404
