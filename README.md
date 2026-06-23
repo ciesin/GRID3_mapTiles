@@ -1,5 +1,5 @@
 # CIESIN Vector Basemap Attribution
-https://tiles.ciesin.app
+https://tiles.ciesin.columbia.edu
 
 Last updated: May 29, 2026
 
