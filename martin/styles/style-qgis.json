@@ -187,26 +187,7 @@
 				"visibility": "visible"
 			},
 			"paint": {
-				"fill-color": [
-					"step",
-					[
-						"get",
-						"building_count_density_quantile_rank"
-					],
-					"#F3E5F5",
-					0.167,
-					"#E1BEE7",
-					0.333,
-					"#CE93D8",
-					0.5,
-					"#BA68C8",
-					0.667,
-					"#8031A7",
-					0.833,
-					"#2E008B",
-					1,
-					"#24135F"
-				],
+				"fill-color": "#BA68C8",
 				"fill-opacity": 0.75
 			}
 		},
@@ -2659,19 +2640,7 @@
 					"get",
 					"name"
 				],
-				"text-size": [
-					"interpolate",
-					[
-						"linear"
-					],
-					[
-						"zoom"
-					],
-					3,
-					10,
-					10,
-					12
-				],
+				"text-size": 12,
 				"text-letter-spacing": 0.1,
 				"text-max-width": 9,
 				"text-transform": "uppercase"
@@ -2729,21 +2698,7 @@
 					"get",
 					"name"
 				],
-				"text-size": [
-					"interpolate",
-					[
-						"linear"
-					],
-					[
-						"zoom"
-					],
-					3,
-					10,
-					6,
-					12,
-					10,
-					12
-				],
+				"text-size": 12,
 				"text-letter-spacing": 0.1,
 				"text-max-width": 9
 			},
@@ -2909,143 +2864,73 @@
 					"get",
 					"name"
 				],
-				"text-size": [
-					"interpolate",
-					[
-						"linear"
-					],
-					[
-						"zoom"
-					],
-					17,
-					10,
-					19,
-					16
-				],
+				"text-size": 16,
 				"text-max-width": 8,
 				"text-offset": [
 					1.1,
 					0
 				],
-				"text-variable-anchor": [
-					"center"
-				]
+				"text-anchor": "center"
 			},
 			"paint": {
 				"text-color": [
-					"case",
+					"match",
 					[
-						"in",
-						[
-							"get",
-							"kind"
-						],
-						[
-							"literal",
-							[
-								"beach",
-								"forest",
-								"marina",
-								"park",
-								"peak",
-								"zoo",
-								"garden",
-								"bench"
-							]
-						]
+						"get",
+						"kind"
+					],
+					[
+						"beach",
+						"forest",
+						"marina",
+						"park",
+						"peak",
+						"zoo",
+						"garden",
+						"bench"
 					],
 					"#20834D",
 					[
-						"in",
-						[
-							"get",
-							"kind"
-						],
-						[
-							"literal",
-							[
-								"aerodrome",
-								"station",
-								"bus_stop",
-								"ferry_terminal"
-							]
-						]
+						"aerodrome",
+						"station",
+						"bus_stop",
+						"ferry_terminal"
 					],
 					"#315BCF",
 					[
-						"in",
-						[
-							"get",
-							"kind"
-						],
-						[
-							"literal",
-							[
-								"stadium",
-								"university",
-								"library",
-								"school",
-								"animal",
-								"toilets",
-								"drinking_water",
-								"post_office",
-								"building",
-								"townhall"
-							]
-						]
+						"stadium",
+						"university",
+						"library",
+						"school",
+						"animal",
+						"toilets",
+						"drinking_water",
+						"post_office",
+						"building",
+						"townhall"
 					],
 					"#6A5B8F",
 					[
-						"in",
-						[
-							"get",
-							"kind"
-						],
-						[
-							"literal",
-							[
-								"supermarket",
-								"convenience",
-								"books",
-								"beauty",
-								"electronics",
-								"clothes"
-							]
-						]
+						"supermarket",
+						"convenience",
+						"books",
+						"beauty",
+						"electronics",
+						"clothes"
 					],
 					"#1A8CBD",
 					[
-						"in",
-						[
-							"get",
-							"kind"
-						],
-						[
-							"literal",
-							[
-								"restaurant",
-								"fast_food",
-								"cafe",
-								"bar"
-							]
-						]
+						"restaurant",
+						"fast_food",
+						"cafe",
+						"bar"
 					],
 					"#CB6704",
 					[
-						"in",
-						[
-							"get",
-							"kind"
-						],
-						[
-							"literal",
-							[
-								"attraction",
-								"museum",
-								"theatre",
-								"artwork"
-							]
-						]
+						"attraction",
+						"museum",
+						"theatre",
+						"artwork"
 					],
 					"#EF56BA",
 					"#e2dfda"
@@ -3075,39 +2960,8 @@
 				],
 				"text-max-width": 7,
 				"text-letter-spacing": 0.1,
-				"text-padding": [
-					"interpolate",
-					[
-						"linear"
-					],
-					[
-						"zoom"
-					],
-					5,
-					2,
-					8,
-					4,
-					12,
-					18,
-					15,
-					20
-				],
-				"text-size": [
-					"interpolate",
-					[
-						"exponential",
-						1.2
-					],
-					[
-						"zoom"
-					],
-					11,
-					8,
-					14,
-					14,
-					18,
-					24
-				],
+				"text-padding": 20,
+				"text-size": 24,
 				"text-transform": "uppercase"
 			},
 			"paint": {
@@ -3138,19 +2992,7 @@
 				"text-font": [
 					"Noto Sans Regular"
 				],
-				"text-size": [
-					"interpolate",
-					[
-						"linear"
-					],
-					[
-						"zoom"
-					],
-					3,
-					11,
-					7,
-					16
-				],
+				"text-size": 16,
 				"text-radial-offset": 0.2,
 				"text-anchor": "center",
 				"text-transform": "uppercase"
@@ -3180,25 +3022,7 @@
 					"Noto Sans Medium"
 				],
 				"text-size": 12,
-				"icon-padding": [
-					"interpolate",
-					[
-						"linear"
-					],
-					[
-						"zoom"
-					],
-					0,
-					2,
-					14,
-					2,
-					16,
-					20,
-					17,
-					2,
-					22,
-					2
-				],
+				"icon-padding": 2,
 				"text-transform": "uppercase"
 			},
 			"paint": {
@@ -3447,20 +3271,7 @@
 				"text-font": [
 					"Noto Sans Medium"
 				],
-				"text-size": [
-					"interpolate",
-					[
-						"exponential",
-						1.2
-					],
-					[
-						"zoom"
-					],
-					7,
-					6,
-					20,
-					18
-				],
+				"text-size": 18,
 				"text-padding": 1,
 				"text-letter-spacing": 0.1,
 				"text-transform": "uppercase",
@@ -3468,19 +3279,7 @@
 					0,
 					1
 				],
-				"symbol-spacing": [
-					"interpolate",
-					[
-						"linear"
-					],
-					[
-						"zoom"
-					],
-					7,
-					250,
-					18,
-					500
-				]
+				"symbol-spacing": 500
 			},
 			"paint": {
 				"text-color": "#424242",
@@ -3504,20 +3303,7 @@
 				"text-font": [
 					"Noto Sans Regular"
 				],
-				"text-size": [
-					"interpolate",
-					[
-						"exponential",
-						1.2
-					],
-					[
-						"zoom"
-					],
-					7,
-					6,
-					20,
-					18
-				],
+				"text-size": 18,
 				"text-padding": 1,
 				"text-letter-spacing": 0.1,
 				"text-transform": "uppercase",
@@ -3525,21 +3311,7 @@
 					0,
 					1
 				],
-				"symbol-spacing": [
-					"interpolate",
-					[
-						"linear"
-					],
-					[
-						"zoom"
-					],
-					7,
-					250,
-					14,
-					500,
-					18,
-					1000
-				]
+				"symbol-spacing": 1000
 			},
 			"paint": {
 				"text-color": "#424242",
@@ -3562,20 +3334,7 @@
 				"text-font": [
 					"Noto Sans Medium"
 				],
-				"text-size": [
-					"interpolate",
-					[
-						"exponential",
-						1.2
-					],
-					[
-						"zoom"
-					],
-					7,
-					6,
-					20,
-					18
-				],
+				"text-size": 18,
 				"text-padding": 1,
 				"text-letter-spacing": 0.15,
 				"text-transform": "uppercase",
@@ -3583,21 +3342,7 @@
 					0,
 					1
 				],
-				"symbol-spacing": [
-					"interpolate",
-					[
-						"linear"
-					],
-					[
-						"zoom"
-					],
-					7,
-					250,
-					14,
-					500,
-					18,
-					1000
-				]
+				"symbol-spacing": 1000
 			},
 			"paint": {
 				"text-color": "#424242",
@@ -3619,50 +3364,13 @@
 				"text-font": [
 					"Noto Sans Regular"
 				],
-				"text-size": [
-					"interpolate",
-					[
-						"exponential",
-						1.2
-					],
-					[
-						"zoom"
-					],
-					10,
-					6.5,
-					14,
-					12,
-					18,
-					14
-				],
-				"text-padding": [
-					"interpolate",
-					[
-						"linear"
-					],
-					[
-						"zoom"
-					],
-					10,
-					2,
-					14,
-					6,
-					18,
-					8
-				],
+				"text-size": 14,
+				"text-padding": 8,
 				"text-max-width": 8,
 				"text-anchor": "center"
 			},
 			"paint": {
-				"text-color": [
-					"step",
-					[
-						"zoom"
-					],
-					"#4B4F54",
-					14,
-					"#263238"
-				],
+				"text-color": "#263238",
 				"text-halo-color": "#ffffff",
 				"text-halo-width": 1.5
 			}
@@ -3682,60 +3390,16 @@
 					"get",
 					"name"
 				],
-				"text-font": [
-					"Noto Sans Regular"
-				],
-				"text-padding": [
-					"interpolate",
-					[
-						"linear"
-					],
-					[
-						"zoom"
-					],
-					5,
-					3,
-					8,
-					7,
-					12,
-					11
-				],
+				"text-font": null,
+				"text-padding": 11,
 				"text-size": 12,
-				"icon-padding": [
-					"interpolate",
-					[
-						"linear"
-					],
-					[
-						"zoom"
-					],
-					0,
-					0,
-					8,
-					4,
-					10,
-					8,
-					12,
-					6,
-					22,
-					2
-				],
+				"icon-padding": 2,
 				"text-justify": "auto",
-				"text-variable-anchor": [
-					"center"
-				],
-				"text-radial-offset": 0.3
+				"text-radial-offset": 0.3,
+				"text-anchor": "center"
 			},
 			"paint": {
-				"text-color": [
-					"step",
-					[
-						"zoom"
-					],
-					"#4B4F54",
-					13,
-					"#263238"
-				],
+				"text-color": "#263238",
 				"text-halo-color": "#ffffff",
 				"text-halo-width": 1.5
 			}
@@ -3755,50 +3419,9 @@
 				"text-font": [
 					"Noto Sans Bold"
 				],
-				"text-size": [
-					"interpolate",
-					[
-						"linear"
-					],
-					[
-						"zoom"
-					],
-					10,
-					8,
-					14,
-					10,
-					18,
-					18
-				],
-				"text-padding": [
-					"interpolate",
-					[
-						"linear"
-					],
-					[
-						"zoom"
-					],
-					10,
-					9,
-					14,
-					10,
-					18,
-					14
-				],
-				"text-max-width": [
-					"interpolate",
-					[
-						"exponential",
-						1.2
-					],
-					[
-						"zoom"
-					],
-					10,
-					3,
-					18,
-					8
-				],
+				"text-size": 18,
+				"text-padding": 14,
+				"text-max-width": 8,
 				"text-anchor": "bottom",
 				"text-offset": [
 					0,
@@ -3825,50 +3448,9 @@
 				"text-font": [
 					"Noto Sans Bold"
 				],
-				"text-size": [
-					"interpolate",
-					[
-						"linear"
-					],
-					[
-						"zoom"
-					],
-					10,
-					9,
-					14,
-					12,
-					18,
-					18
-				],
-				"text-padding": [
-					"interpolate",
-					[
-						"linear"
-					],
-					[
-						"zoom"
-					],
-					10,
-					7.5,
-					14,
-					8,
-					18,
-					7
-				],
-				"text-max-width": [
-					"interpolate",
-					[
-						"exponential",
-						1.2
-					],
-					[
-						"zoom"
-					],
-					10,
-					3,
-					16,
-					8
-				],
+				"text-size": 18,
+				"text-padding": 7,
+				"text-max-width": 8,
 				"text-ignore-placement": true,
 				"text-anchor": "bottom",
 				"text-offset": [
@@ -3920,9 +3502,6 @@
 			"source-layer": "GRID3-COD-airesante-v8-0-centroids",
 			"minzoom": 8.5,
 			"layout": {
-				"text-variable-anchor": [
-					"center"
-				],
 				"text-radial-offset": 1,
 				"text-justify": "auto",
 				"text-allow-overlap": false,
@@ -3935,46 +3514,14 @@
 					"Noto Sans Regular"
 				],
 				"text-size": 12,
-				"text-padding": [
-					"interpolate",
-					[
-						"linear"
-					],
-					[
-						"zoom"
-					],
-					9,
-					6,
-					12,
-					0
-				],
+				"text-padding": 0,
 				"text-max-width": 4,
-				"text-letter-spacing": [
-					"interpolate",
-					[
-						"exponential",
-						1.6
-					],
-					[
-						"zoom"
-					],
-					13,
-					0.05,
-					16,
-					0.3
-				],
-				"text-transform": "uppercase"
+				"text-letter-spacing": 0.3,
+				"text-transform": "uppercase",
+				"text-anchor": "center"
 			},
 			"paint": {
-				"text-color": [
-					"step",
-					[
-						"zoom"
-					],
-					"#505759",
-					11,
-					"#CF4520"
-				],
+				"text-color": "#CF4520",
 				"text-opacity": 1,
 				"text-halo-color": "#f5f5fa",
 				"text-halo-width": 1.2
@@ -3987,9 +3534,6 @@
 			"source-layer": "GRID3-COD-zonesante-v8-0-centroids",
 			"minzoom": 7,
 			"layout": {
-				"text-variable-anchor": [
-					"center"
-				],
 				"text-radial-offset": 2.5,
 				"text-justify": "auto",
 				"text-allow-overlap": true,
@@ -4002,48 +3546,14 @@
 					"Noto Sans Medium"
 				],
 				"text-size": 12,
-				"text-padding": [
-					"interpolate",
-					[
-						"linear"
-					],
-					[
-						"zoom"
-					],
-					7,
-					4,
-					12,
-					8,
-					16,
-					12
-				],
+				"text-padding": 12,
 				"text-max-width": 8,
-				"text-letter-spacing": [
-					"interpolate",
-					[
-						"exponential",
-						1.6
-					],
-					[
-						"zoom"
-					],
-					7,
-					0.25,
-					10,
-					0.15
-				],
-				"text-transform": "uppercase"
+				"text-letter-spacing": 0.15,
+				"text-transform": "uppercase",
+				"text-anchor": "center"
 			},
 			"paint": {
-				"text-color": [
-					"step",
-					[
-						"zoom"
-					],
-					"#7C878E",
-					12,
-					"#8246AF"
-				],
+				"text-color": "#8246AF",
 				"text-halo-color": "#e8e8f2",
 				"text-halo-width": 1.5
 			}
@@ -4056,9 +3566,6 @@
 			"minzoom": 5.5,
 			"maxzoom": 8.5,
 			"layout": {
-				"text-variable-anchor": [
-					"center"
-				],
 				"text-radial-offset": 2.5,
 				"text-justify": "auto",
 				"text-allow-overlap": true,
@@ -4070,62 +3577,12 @@
 				"text-font": [
 					"Noto Sans Medium"
 				],
-				"text-size": [
-					"interpolate",
-					[
-						"linear"
-					],
-					[
-						"zoom"
-					],
-					5.5,
-					12,
-					6,
-					14,
-					8,
-					16
-				],
-				"text-padding": [
-					"interpolate",
-					[
-						"linear"
-					],
-					[
-						"zoom"
-					],
-					5.5,
-					4,
-					10,
-					8
-				],
-				"text-max-width": [
-					"interpolate",
-					[
-						"linear"
-					],
-					[
-						"zoom"
-					],
-					5.5,
-					4,
-					8,
-					16
-				],
-				"text-letter-spacing": [
-					"interpolate",
-					[
-						"exponential",
-						1.6
-					],
-					[
-						"zoom"
-					],
-					5.5,
-					0.1,
-					8,
-					1
-				],
-				"text-transform": "uppercase"
+				"text-size": 16,
+				"text-padding": 8,
+				"text-max-width": 16,
+				"text-letter-spacing": 1,
+				"text-transform": "uppercase",
+				"text-anchor": "center"
 			},
 			"paint": {
 				"text-color": "#7C878E",
@@ -4163,28 +3620,7 @@
 				"text-halo-color": "#80deea",
 				"text-halo-width": 1
 			}
-		},
-		{
-			"id": "roads_oneway",
-			"type": "symbol",
-			"source": "protomaps_base",
-			"source-layer": "roads",
-			"minzoom": 16,
-			"filter": [
-				"==",
-				[
-					"get",
-					"oneway"
-				],
-				"yes"
-			],
-			"layout": {
-				"symbol-placement": "line",
-				"icon-rotate": 90,
-				"symbol-spacing": 100
-			}
 		}
 	],
-	"sprite": "https://protomaps.github.io/basemaps-assets/sprites/v4/light",
 	"glyphs": "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf"
 }
