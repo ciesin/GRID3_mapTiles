@@ -7,7 +7,13 @@ and processing geospatial data into PMTiles format.
 
 from .downloadOverture import download_overture_data, download_overture_buildings_cli
 from .convertCustomData import convert_file
-from .runCreateTiles import process_to_tiles, create_tilejson
+from .runCreateTiles import (
+    process_to_tiles,
+    process_group,
+    process_iso3,
+    process_theme,
+    create_tilejson,
+)
 from .convertToFlatGeobuf import (
     convert_parquet_to_fgb,
     batch_convert_directory,
@@ -40,6 +46,9 @@ __all__ = [
     'download_overture_buildings_cli',
     'convert_file',
     'process_to_tiles',
+    'process_group',
+    'process_iso3',
+    'process_theme',
     'create_tilejson',
     'convert_parquet_to_fgb',
     'batch_convert_directory',

@@ -1,26 +1,15 @@
 {
-  "comment": "zoom filter lookup table. '*' = Mapbox GL style expression (used by style generators). Named keys = tippecanoe zoom_filter_windows (used by tippecanoe.py modifiers via filter_key). Maxzoom is omitted from named entries; the layer's own maxzoom is filled in at build time.",
-
-  "*": [ "any",
-    [ "all", [ "in", "class", "motorway", "trunk" ], [ ">=", "$zoom", 5 ] ],
-    [ "all", [ "==", "class", "primary" ],            [ ">=", "$zoom", 6 ] ],
-    [ "all", [ "==", "class", "secondary" ],          [ ">=", "$zoom", 7 ] ],
-    [ "all", [ "==", "class", "tertiary" ],           [ ">=", "$zoom", 8 ] ],
-    [ "all", [ "==", "class", "unclassified" ],       [ ">=", "$zoom", 9 ] ],
-    [ "all", [ "in", "class", "track", "unknown" ],   [ ">=", "$zoom", 9 ] ],
-    [ "all", [ "==", "class", "residential" ],        [ ">=", "$zoom", 9 ] ],
-    [ "all", [ "in", "class", "path", "footway", "bridleway", "cycleway", "pedestrian", "living_street", "water track" ], [ ">=", "$zoom", 12 ] ],
-    [ "all", [ "in", "class", "service", "steps" ],   [ ">=", "$zoom", 13 ] ]
-  ],
-
+  "comment": "zoom filter lookup table. Named keys = tippecanoe zoom_filter_windows (used by tippecanoe.py modifiers via filter_key). Maxzoom is omitted from named entries; the layer's own maxzoom is filled in at build time.",
+  "comment2": "to add a new zoom-stepped filter for settlement names, add a key to tile_layer_steps.json, then reference it with modifier: <your_key> in the YAML layer entry",
+  
   "roads": {
     "zoom_filter_windows": [
       { "minzoom":  5, "filter": [ "in", "class", "motorway", "trunk" ] },
       { "minzoom":  6, "filter": [ "==", "class", "primary" ] },
       { "minzoom":  7, "filter": [ "==", "class", "secondary" ] },
-      { "minzoom":  8, "filter": [ "==", "class", "tertiary" ] },
-      { "minzoom":  9, "filter": [ "in", "class", "unclassified", "track", "unknown", "residential" ] },
-      { "minzoom": 12, "filter": [ "in", "class", "path", "footway", "bridleway", "cycleway", "pedestrian", "living_street", "water track" ] },
+      { "minzoom":  10, "filter": [ "==", "class", "tertiary" ] },
+      { "minzoom":  11, "filter": [ "in", "class", "unclassified", "track", "unknown", "residential" ] },
+      { "minzoom": 11, "filter": [ "in", "class", "path", "footway", "bridleway", "cycleway", "pedestrian", "living_street", "water track" ] },
       { "minzoom": 13, "filter": [ "in", "class", "service", "steps" ] }
     ]
   },
@@ -38,6 +27,15 @@
       { "minzoom":  7, "filter": [ "==", "extent_type", "Built-up Area" ] },
       { "minzoom": 10, "filter": [ "==", "extent_type", "Small Settlement Area" ] },
       { "minzoom": 12, "filter": [ "==", "extent_type", "Hamlet" ] }
+    ]
+  },
+
+  "health_facilities_esstype": {
+    "zoom_filter_windows": [
+      { "minzoom":  7, "filter": [ "in", "esstype", "Bureau Central de la Zone de Santé", "Hôpital Général de Référence" ] },
+      { "minzoom":  9, "filter": [ "in", "esstype", "Hôpital", "Centre Hopitalier" ] },
+      { "minzoom": 10, "filter": [ "in", "esstype", "Centre Médical", "Centre de Santé de Référence", "Centre de Santé", "Poste de Santé" ] },
+      { "minzoom": 13, "filter": [ "in", "esstype", "Clinique", "Polyclinque", "Dispensaire", "Site Soin Communautaire", "Autre" ] }
     ]
   }
 }

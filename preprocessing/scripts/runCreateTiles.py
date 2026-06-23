@@ -40,12 +40,25 @@ def _resolve_data_disk():
         return (Path(__file__).resolve().parent.parent.parent / val).resolve()
     return Path(val)
 
-def _import_tippecanoe_template():
-    """Import tippecanoe template; re-called in worker processes if needed."""
+def _import_tippecanoe_template(force_reload: bool = False):
+    """Import tippecanoe template; re-called in worker processes if needed.
+
+    Args:
+        force_reload: If True, evict the cached module and all dictionary caches
+            so that changes to YAML profiles or tile_layer_steps.json are picked up
+            without a full kernel restart.
+    """
     try:
         scripts_dir = Path(__file__).resolve().parent
         if str(scripts_dir) not in sys.path:
             sys.path.insert(0, str(scripts_dir))
+        if force_reload and 'tippecanoe' in sys.modules:
+            # Clear cached JSON dictionaries before reloading so they re-read from disk
+            mod = sys.modules['tippecanoe']
+            for attr in ('_LAYER_METADATA_CACHE', '_TILE_LAYER_STEPS_CACHE', '_LAYER_COMPOSITION_CACHE'):
+                if hasattr(mod, attr):
+                    setattr(mod, attr, None)
+            importlib.reload(mod)
         tippecanoe_mod = importlib.import_module('tippecanoe')
         return (
             getattr(tippecanoe_mod, 'LAYER_GROUPS', {}),
@@ -54,6 +67,8 @@ def _import_tippecanoe_template():
         )
     except Exception:
         return {}, None, None
+
+
 
 LAYER_GROUPS, build_tippecanoe_group_command, sort_archives_by_theme = _import_tippecanoe_template()
 
@@ -76,6 +91,12 @@ def _extract_iso3(group_name: str) -> str:
     """Extract ISO3 country code from a LAYER_GROUP name like 'GRID3_COD_boundaries'."""
     parts = group_name.split("_")
     return parts[1] if len(parts) >= 3 else group_name
+
+
+def _extract_theme(group_name: str) -> str:
+    """Extract theme from 'GRID3_COD_settlement_extents' → 'settlement_extents'."""
+    parts = group_name.split("_")
+    return "_".join(parts[2:]) if len(parts) >= 3 else group_name
 
 
 def process_file_group(group_name, file_path_map, extent=None, output_dir=None):
@@ -222,7 +243,8 @@ def process_file_group(group_name, file_path_map, extent=None, output_dir=None):
 def process_to_tiles(extent=None, input_dirs=None, filter_pattern=None,
                     output_dir=None, parallel=False, max_parallel_groups=None,
                     verbose=True, tiling_profile="iso3_theme",
-                    keep_theme_files=True):
+                    keep_theme_files=True,
+                    target_iso3=None, target_theme=None, target_groups=None):
     """Process FlatGeobuf/GeoJSONSeq/GeoJSON files into PMTiles
 
     Prioritizes FlatGeobuf (.fgb) files for optimal performance with large datasets.
@@ -244,6 +266,12 @@ def process_to_tiles(extent=None, input_dirs=None, filter_pattern=None,
         keep_theme_files (bool): When tiling_profile is "iso3" or "all", keep the
             intermediate per-theme archives (default True).  Set False to remove them
             after the merge step completes.
+        target_iso3 (str|None): Process only groups for this country code (e.g. "cod").
+            Narrows the default input_dirs to that country's scratch dir automatically.
+        target_theme (str|None): Process only groups with this theme across all ISO3s
+            (e.g. "boundaries", "settlement_extents", "roads", "POIs").
+        target_groups (list[str]|None): Process only these exact LAYER_GROUP names
+            (e.g. ["GRID3_COD_boundaries"]).  Narrows input_dirs to the relevant ISO3 dirs.
 
     Returns:
         dict: Results including processed files and any errors
@@ -251,9 +279,15 @@ def process_to_tiles(extent=None, input_dirs=None, filter_pattern=None,
     if verbose:
         print("=== PROCESSING TO TILES ===")
     
-    # Default input directories - aligned with notebook CONFIG
+    # Default input directories — narrow to relevant ISO3 dirs when targeting
     if input_dirs is None:
-        input_dirs = [SCRATCH_GRID3_DIR]
+        if target_iso3:
+            input_dirs = [SCRATCH_GRID3_DIR / target_iso3.lower()]
+        elif target_groups:
+            iso3s = {_extract_iso3(g).lower() for g in target_groups}
+            input_dirs = [SCRATCH_GRID3_DIR / i for i in sorted(iso3s)]
+        else:
+            input_dirs = [SCRATCH_GRID3_DIR]
     else:
         input_dirs = [Path(d) for d in input_dirs]
     
@@ -300,7 +334,14 @@ def process_to_tiles(extent=None, input_dirs=None, filter_pattern=None,
     # in one tippecanoe call; remaining files are processed individually.
     global LAYER_GROUPS
     if not LAYER_GROUPS:
-        LAYER_GROUPS, _ = _import_tippecanoe_template()
+        # _import_tippecanoe_template may return three values in some versions;
+        # accept and ignore extra return values to avoid tuple unpacking errors.
+        returned = _import_tippecanoe_template()
+        if isinstance(returned, tuple):
+            if len(returned) >= 1:
+                LAYER_GROUPS = returned[0]
+        else:
+            LAYER_GROUPS = returned
 
     file_path_map = {}
     for f in geospatial_files:
@@ -318,6 +359,17 @@ def process_to_tiles(extent=None, input_dirs=None, filter_pattern=None,
         )
         if all(fn in file_path_map for fn in all_members):
             groups_to_process[gname] = gconfig
+
+    # ── Optional targeting: restrict which groups to process ─────────────────
+    if target_groups:
+        groups_to_process = {k: v for k, v in groups_to_process.items()
+                             if k in target_groups}
+    elif target_iso3:
+        groups_to_process = {k: v for k, v in groups_to_process.items()
+                             if _extract_iso3(k).lower() == target_iso3.lower()}
+    elif target_theme:
+        groups_to_process = {k: v for k, v in groups_to_process.items()
+                             if _extract_theme(k) == target_theme}
 
     group_member_names = {
         fn
@@ -590,14 +642,71 @@ def create_tilejson(tile_dir=None, extent=None, output_file=None):
     
     return tilejson
 
+# ---------------------------------------------------------------------------
+# Convenience wrappers
+# ---------------------------------------------------------------------------
+
+def _group_output_dir_default(group_name: str) -> Path:
+    return OUTPUT_GRID3_DIR / _extract_iso3(group_name).lower()
+
+
+def process_group(group_name: str, output_dir=None, **kwargs) -> dict:
+    """(a) Process a single named LAYER_GROUP.
+
+    Automatically narrows the search to the matching ISO3 scratch directory
+    and defaults output to OUTPUT_GRID3_DIR/{iso3}/.
+
+    Args:
+        group_name: Exact LAYER_GROUP key, e.g. "GRID3_COD_boundaries".
+        output_dir: Override output directory (default: OUTPUT_GRID3_DIR/{iso3}/).
+        **kwargs:   Forwarded to process_to_tiles (extent, tiling_profile, etc.).
+    """
+    return process_to_tiles(
+        output_dir=output_dir or str(_group_output_dir_default(group_name)),
+        target_groups=[group_name],
+        **kwargs,
+    )
+
+
+def process_iso3(iso3: str, output_dir=None, **kwargs) -> dict:
+    """(c) Process all LAYER_GROUPs for one country.
+
+    Args:
+        iso3:       Country code, e.g. "cod" or "nga" (case-insensitive).
+        output_dir: Override output directory (default: OUTPUT_GRID3_DIR).
+        **kwargs:   Forwarded to process_to_tiles.
+    """
+    return process_to_tiles(
+        target_iso3=iso3,
+        output_dir=output_dir or str(OUTPUT_GRID3_DIR),
+        **kwargs,
+    )
+
+
+def process_theme(theme: str, output_dir=None, **kwargs) -> dict:
+    """(b) Process one theme across all available countries.
+
+    Args:
+        theme:      Theme name matching the LAYER_GROUP suffix, e.g. "boundaries",
+                    "settlement_extents", "roads", "POIs".
+        output_dir: Override output directory (default: OUTPUT_GRID3_DIR).
+        **kwargs:   Forwarded to process_to_tiles.
+    """
+    return process_to_tiles(
+        target_theme=theme,
+        output_dir=output_dir or str(OUTPUT_GRID3_DIR),
+        **kwargs,
+    )
+
+
 def main():
     """Main entry point for command line usage"""
     parser = argparse.ArgumentParser(
         description='Convert geospatial data to PMTiles using Tippecanoe',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
-    
-    parser.add_argument('--extent', 
+
+    parser.add_argument('--extent',
                         help='Extent as "xmin,ymin,xmax,ymax" in WGS84 coordinates')
     parser.add_argument('--input-dir', action='append',
                         help='Input directory to search for geospatial files (can be used multiple times)')
@@ -605,13 +714,19 @@ def main():
                         help='Output directory for PMTiles files')
     parser.add_argument('--filter',
                         help='Only process files matching this pattern (e.g., "roads*" or "*.fgb")')
+    parser.add_argument('--iso3', dest='target_iso3',
+                        help='Process only this country (e.g. --iso3 cod)')
+    parser.add_argument('--theme', dest='target_theme',
+                        help='Process one theme across all ISO3s (e.g. --theme boundaries)')
+    parser.add_argument('--group', action='append', dest='target_groups',
+                        help='Process a specific group, repeatable (e.g. --group GRID3_COD_boundaries)')
     parser.add_argument('--create-tilejson', action='store_true',
                         help='Create TileJSON file after processing')
     parser.add_argument('--verbose', action='store_true', default=True,
                         help='Show detailed progress information')
-    
+
     args = parser.parse_args()
-    
+
     # Parse extent if provided
     extent = None
     if args.extent:
@@ -624,13 +739,16 @@ def main():
             print(f"Error parsing extent: {e}")
             print("Extent format: xmin,ymin,xmax,ymax")
             sys.exit(1)
-    
+
     # Process tiles
     results = process_to_tiles(
         extent=extent,
         input_dirs=args.input_dir,
         filter_pattern=args.filter,
         output_dir=args.output_dir,
+        target_iso3=getattr(args, 'target_iso3', None),
+        target_theme=getattr(args, 'target_theme', None),
+        target_groups=getattr(args, 'target_groups', None),
         verbose=args.verbose
     )
     

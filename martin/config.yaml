@@ -14,50 +14,35 @@ listen_addresses:
 cache_size: 256
 
 # CORS — allow ArcGIS Pro and MapLibre viewers on the same machine
-cors:
-  - "*"
+cors: "*"
 
-pmtiles:
-  sources:
-    # ── Base layers ──────────────────────────────────────────────────────────
-    protomaps_base:
-      path: /data/tiles/base.pmtiles
 
-    overture_base:
-      path: /data/tiles/overture/base.pmtiles
 
-    overture_buildings:
-      path: /data/tiles/overture/buildings.pmtiles
+sources:
+  # ── Base layers ──────────────────────────────────────────────────────────
+  protomaps_base:
+    pmtiles: /data/tiles/protomaps/base.pmtiles
 
-    # ── GRID3 consolidated (Africa) ──────────────────────────────────────────
-    grid3:
-      path: /data/tiles/grid3.pmtiles
+  overture_base:
+    pmtiles: /data/tiles/overture/base.pmtiles
 
-    # ── GRID3 — COD (Democratic Republic of Congo) ───────────────────────────
-    grid3_cod:
-      path: /data/tiles/grid3/cod/GRID3_COD.pmtiles
+  overture_buildings:
+    pmtiles: /data/tiles/overture/buildings_composite.pmtiles
 
-    grid3_cod_boundaries:
-      path: /data/tiles/grid3/cod/GRID3_COD_boundaries.pmtiles
+  # ── GRID3 consolidated (Africa) ──────────────────────────────────────────
+  grid3:
+    pmtiles: /data/tiles/grid3.pmtiles
 
-    grid3_cod_pois:
-      path: /data/tiles/grid3/cod/GRID3_COD_POIs.pmtiles
+  # ── GRID3 — COD (Democratic Republic of Congo) ───────────────────────────
+  grid3_cod:
+    pmtiles: /data/tiles/grid3/cod/GRID3_COD.pmtiles
 
-    grid3_cod_settlement_extents:
-      path: /data/tiles/grid3/cod/GRID3_COD_settlement_extents.pmtiles
+  # ── GRID3 — NGA (Nigeria) ────────────────────────────────────────────────
+  grid3_nga:
+    pmtiles: /data/tiles/grid3/nga/GRID3_NGA.pmtiles
 
-    # ── GRID3 — NGA (Nigeria) ────────────────────────────────────────────────
-    grid3_nga:
-      path: /data/tiles/grid3/nga/GRID3_NGA.pmtiles
-
-    grid3_nga_boundaries:
-      path: /data/tiles/grid3/nga/GRID3_NGA_boundaries.pmtiles
-
-    grid3_nga_settlement_extents:
-      path: /data/tiles/grid3/nga/GRID3_NGA_settlement_extents.pmtiles
-
-    # ── Terrain (raster webp) ─────────────────────────────────────────────────
-    # Included for completeness; ArcGIS Pro cannot use this as a hillshade DEM.
-    # Uncomment if you need to inspect terrain tiles via the catalog.
-    # terrain:
-    #   path: /data/tiles/terrain.pmtiles
+  # ── Terrain (raster webp) ─────────────────────────────────────────────────
+  # Included for completeness; ArcGIS Pro cannot use this as a hillshade DEM.
+  # Uncomment if you need to inspect terrain tiles via the catalog.
+  # terrain:
+  #   pmtiles: /data/tiles/mapterhorn/terrain.pmtiles

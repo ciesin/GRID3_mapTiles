@@ -6,7 +6,7 @@ services:
       - "3000:3000"
     volumes:
       - ./config.yaml:/config.yaml:ro
-      - ./data:/data:ro
+      - /mnt/d/mheaton/grid3_tiles/data/3-pmtiles:/data:ro
     command: ["--config", "/config.yaml"]
     environment:
       RUST_LOG: "martin=info,actix_web=warn"

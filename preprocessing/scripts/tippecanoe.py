@@ -77,7 +77,7 @@ PROFILES = {
         "line_settings": [
             "--hilbert",
             "--simplification=6",
-            "--simplify-only-low-zooms",
+            # "--simplify-only-low-zooms",
             "--maximum-tile-bytes=2097152",
             "--no-feature-limit",
         ],
