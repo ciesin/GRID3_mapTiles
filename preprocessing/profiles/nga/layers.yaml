@@ -75,22 +75,22 @@ groups:
         maxzoom: 16
 
 # ── Roads ─────────────────────────────────────────────────────────────────────
-  GRID3_NGA_roads:
-    output_stem: GRID3_NGA_roads
-    profile: roads
-    name: "GRID3 Nigeria Roads v1.0"
-    description: "GRID3 linear road features for Nigeria."
-    attribution: "© The Trustees of Columbia University in the City of New York. CC BY 4.0."
-    version: "1.0"
-    published: "2024-01-01"
-    doi: "https://doi.org/10.7916/b42r-6w17"
+  # GRID3_NGA_roads:
+  #   output_stem: GRID3_NGA_roads
+  #   profile: roads
+  #   name: "GRID3 Nigeria Roads v1.0"
+  #   description: "GRID3 linear road features for Nigeria."
+  #   attribution: "© The Trustees of Columbia University in the City of New York. CC BY 4.0."
+  #   version: "1.0"
+  #   published: "2024-01-01"
+  #   doi: "https://doi.org/10.7916/b42r-6w17"
 
-    line_layers:
-      - file: GRID3_NGA_roads_v1_0_4326.fgb
-        layer: GRID3-NGA-roads-v1-0
-        minzoom: 5
-        maxzoom: 15
-        modifier: roads
+  #   line_layers:
+  #     - file: GRID3_NGA_roads_v1_0_4326.fgb
+  #       layer: GRID3-NGA-roads-v1-0
+  #       minzoom: 5
+  #       maxzoom: 14
+  #       modifier: roads
 
 # ── POIs ──────────────────────────────────────────────────────────────────────
   GRID3_NGA_POIs:

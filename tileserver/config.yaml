@@ -1,10 +1,11 @@
 ---
 # Martin tileserver configuration v1.11.0
-# Serves PMTiles archives synced locally from Cloudflare R2.
-# Source IDs match the keys in pmtiles/app/src/sources.ts.
+# Autodiscovers PMTiles archives from Cloudflare R2 via S3 API.
+# Source IDs are derived from R2 object paths relative to the tiles/ prefix.
+# Verify discovered IDs at /catalog after startup before updating MapLibre sources.
 #
-# Run:  make start   (from the martin/ directory)
-# Sync: make sync    (pull latest PMTiles from R2 first)
+# Required env vars (see docker-compose.yml):
+#   R2_ACCOUNT_ID, R2_BUCKET_NAME, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY
 
 listen_addresses: "0.0.0.0:3000"
 
@@ -29,24 +30,28 @@ styles:
     ciesin_qgis_style: /styles/style-qgis.json
 
 
+# fonts:
+#   - /fonts
+
+sprites:
+  paths:
+    - /sprites/maki
+    - /sprites/temaki
+    - /sprites/OSM
+    - /sprites/OSM-2020
+    - /sprites/OSM-twotone
+    - /sprites/OSM-japan
+
+
 pmtiles:
-  sources:
-    # ── Base layers ────────────────────────────────────────────────────────
-    protomaps_base: /data/protomaps/base.pmtiles
-    # protomaps_bg: file not yet synced — style layers earth/landcover-bg/water-bg will 404
-
-    overture_base: /data/overture/base_clean.pmtiles
-    overture_buildings: /data/overture/buildings_composite.pmtiles
-
-    # ── Terrain ────────────────────────────────────────────────────────────
-    # Raster-DEM source for the hillshade layer.
-    # ArcGIS Pro will not render it as a DEM but tiles will serve correctly.
-    dem: /data/mapterhorn/terrain.pmtiles
-    # contours: file not yet synced — contours/contours-label layers will 404
-
-    # ── GRID3 — COD (Democratic Republic of Congo) ────────────────────────
-    grid3_cod: /data/grid3/GRID3_COD.pmtiles
-
-    # ── GRID3 — NGA (Nigeria) ─────────────────────────────────────────────
-    grid3_nga: /data/grid3/GRID3_NGA.pmtiles
-    # grid3_nga_roads: file not yet synced — grid3-nga-roads-minor layer will 404
+  # Autodiscover all *.pmtiles under tiles/ in the R2 bucket via S3 ListObjectsV2.
+  # Martin polls every 10 minutes and reflects added/changed/removed files live.
+  paths:
+    - s3://${R2_BUCKET_NAME}/tiles/
+  endpoint_url: https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com
+  access_key_id: ${R2_ACCESS_KEY_ID}
+  secret_access_key: ${R2_SECRET_ACCESS_KEY}
+  region: auto
+  allow_http: false
+  convert_to_mvt: auto
+  reload_interval: 10m

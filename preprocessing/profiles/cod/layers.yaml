@@ -72,22 +72,22 @@ groups:
         modifier: settlement_extents_type    # zoom-stepped by settlement type
 
 # ── Roads ─────────────────────────────────────────────────────────────────────
-  GRID3_COD_roads:
-    output_stem: GRID3_COD_roads
-    profile: roads
-    name: "GRID3 DRC Roads v1.0"
-    description: "GRID3 linear road features for the Democratic Republic of the Congo."
-    attribution: "© The Trustees of Columbia University in the City of New York. CC BY 4.0."
-    version: "1.0"
-    published: "2026-01-14"
-    doi: "https://doi.org/10.7916/00gb-e164"
+  # GRID3_COD_roads:
+  #   output_stem: GRID3_COD_roads
+  #   profile: roads
+  #   name: "GRID3 DRC Roads v1.0"
+  #   description: "GRID3 linear road features for the Democratic Republic of the Congo."
+  #   attribution: "© The Trustees of Columbia University in the City of New York. CC BY 4.0."
+  #   version: "1.0"
+  #   published: "2026-01-14"
+  #   doi: "https://doi.org/10.7916/00gb-e164"
 
-    line_layers:
-      - file: GRID3_COD_roads_v1_0_4326.fgb
-        layer: GRID3-COD-roads-v1-0
-        minzoom: 5
-        maxzoom: 15
-        modifier: roads                      # zoom-stepped by road class
+  #   line_layers:
+  #     - file: GRID3_COD_roads_v1_0_4326.fgb
+  #       layer: GRID3-COD-roads-v1-0
+  #       minzoom: 5
+  #       maxzoom: 14
+  #       modifier: roads                      # zoom-stepped by road class
 
 # ── POIs ──────────────────────────────────────────────────────────────────────
   GRID3_COD_POIs:
