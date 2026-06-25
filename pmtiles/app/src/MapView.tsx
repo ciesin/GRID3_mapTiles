@@ -3,6 +3,8 @@ import { render } from "solid-js/web";
 import "./index.css";
 import MaplibreInspect from "@maplibre/maplibre-gl-inspect";
 import "@maplibre/maplibre-gl-inspect/dist/maplibre-gl-inspect.css";
+import { MaplibreLegendControl } from "@watergis/maplibre-gl-legend";
+import "@watergis/maplibre-gl-legend/dist/maplibre-gl-legend.css";
 import * as maplibregl from "maplibre-gl";
 import {
   AttributionControl,
@@ -214,6 +216,14 @@ style.sources.contours = {
   return style;
 }
 
+const LEGEND_LAYERS: Record<string, string> = {
+  // "cod-health-facilities":     "Établissement de santé"
+  "cod-provinces-boundary":    "Province",
+  "cod-antenne-boundary":      "Antenne",
+  "cod-health-zones-boundary": "Zone de santé",
+  "cod-health-areas-boundary": "Aire de santé",
+};
+
 function MapLibreView() {
   let mapContainer: HTMLDivElement | undefined;
   let hiddenRef: HTMLDivElement | undefined;
@@ -343,6 +353,15 @@ function MapLibreView() {
 
     map.on("load", () => {
       map.resize();
+      map.addControl(
+        new MaplibreLegendControl(LEGEND_LAYERS, {
+          showDefault:  true,
+          showCheckbox: true,
+          onlyRendered: true,
+          reverseOrder: true,
+        }) as unknown as IControl,
+        "bottom-right",
+      );
     });
 
     map.on("error", (e) => {

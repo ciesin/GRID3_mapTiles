@@ -10559,69 +10559,6 @@
 			}
 		},
 		{
-			"id": "cod-provinces-boundary",
-			"type": "line",
-			"source": "grid3_cod",
-			"source-layer": "GRID3-COD-province-v8-0",
-			"minzoom": 3,
-			"maxzoom": 10,
-			"paint": {
-				"line-color": "#A2AAAD",
-				"line-width": [
-					"interpolate",
-					[
-						"exponential",
-						1.4
-					],
-					[
-						"zoom"
-					],
-					3,
-					0,
-					5,
-					0.75,
-					6.5,
-					1.5,
-					8,
-					2,
-					10,
-					3
-				],
-				"line-dasharray": [
-					"step",
-					[
-						"zoom"
-					],
-					[
-						"literal",
-						[
-							1,
-							0
-						]
-					],
-					5,
-					[
-						"literal",
-						[
-							2,
-							3
-						]
-					]
-				],
-				"line-opacity": [
-					"step",
-					[
-						"zoom"
-					],
-					0.333,
-					5,
-					0.5,
-					10,
-					0
-				]
-			}
-		},
-		{
 			"id": "nga-adm0-boundary",
 			"type": "line",
 			"source": "grid3_nga",
@@ -10644,115 +10581,6 @@
 					1
 				],
 				"line-opacity": 1
-			}
-		},
-		{
-			"id": "cod-antenne-boundary",
-			"type": "line",
-			"source": "grid3_cod",
-			"source-layer": "GRID3-COD-antenne-v8-0",
-			"minzoom": 4,
-			"paint": {
-				"line-color": [
-					"interpolate",
-					[
-						"exponential",
-						1.7
-					],
-					[
-						"zoom"
-					],
-					10,
-					"#6CC24A",
-					13,
-					"#009639"
-				],
-				"line-width": [
-					"interpolate",
-					[
-						"exponential",
-						1.4
-					],
-					[
-						"zoom"
-					],
-					4,
-					0,
-					6,
-					0.25,
-					9,
-					0.75,
-					18,
-					3
-				],
-				"line-dasharray": [
-					"step",
-					[
-						"zoom"
-					],
-					[
-						"literal",
-						[
-							1,
-							0
-						]
-					],
-					5.5,
-					[
-						"literal",
-						[
-							1,
-							0
-						]
-					],
-					11,
-					[
-						"literal",
-						[
-							2,
-							1
-						]
-					],
-					15,
-					[
-						"literal",
-						[
-							1,
-							0
-						]
-					]
-				],
-				"line-gap-width": [
-					"interpolate",
-					[
-						"linear",
-						1.2
-					],
-					[
-						"zoom"
-					],
-					7,
-					1,
-					10,
-					3,
-					16,
-					13
-				],
-				"line-opacity": [
-					"interpolate",
-					[
-						"linear"
-					],
-					[
-						"zoom"
-					],
-					4,
-					0,
-					5.5,
-					0.25,
-					8,
-					1
-				]
 			}
 		},
 		{
@@ -10794,7 +10622,7 @@
 			"type": "line",
 			"source": "grid3_cod",
 			"source-layer": "GRID3-COD-airesante-v8-0",
-			"minzoom": 6,
+			"minzoom": 7,
 			"paint": {
 				"line-color": [
 					"step",
@@ -10817,7 +10645,7 @@
 					[
 						"zoom"
 					],
-					6,
+					7,
 					0,
 					9,
 					0.5,
@@ -10869,7 +10697,7 @@
 						"zoom"
 					],
 					0,
-					6,
+					7,
 					0.5,
 					9,
 					0.75,
@@ -10883,7 +10711,7 @@
 			"type": "line",
 			"source": "grid3_cod",
 			"source-layer": "GRID3-COD-zonesante-v8-0",
-			"minzoom": 5,
+			"minzoom": 7,
 			"paint": {
 				"line-color": "#B388FF",
 				"line-width": [
@@ -10895,8 +10723,10 @@
 					[
 						"zoom"
 					],
-					5,
-					0.65,
+					7,
+					0,
+					7.5,
+					0.5,
 					12,
 					1,
 					16,
@@ -10926,13 +10756,105 @@
 					[
 						"zoom"
 					],
-					5,
-					0.15,
 					7,
+					0,
+					7.5,
 					0.25,
 					8,
 					1
 				]
+			}
+		},
+		{
+			"id": "cod-antenne-boundary",
+			"type": "line",
+			"source": "grid3_cod",
+			"source-layer": "GRID3-COD-antenne-v8-0",
+			"minzoom": 7.5,
+			"paint": {
+				"line-color":"#009639",
+				"line-width": [
+					"interpolate",
+					[
+						"exponential",
+						1.4
+					],
+					[
+						"zoom"
+					],
+					7.5,
+					0,
+					18,
+					3
+				],
+				"line-gap-width": [
+					"interpolate",
+					[
+						"linear",
+						1.2
+					],
+					[
+						"zoom"
+					],
+					8,
+					2,
+					11,
+					4,
+					16,
+					13
+				],
+				"line-opacity": 1
+			}
+		},
+				{
+			"id": "cod-provinces-boundary",
+			"type": "line",
+			"source": "grid3_cod",
+			"source-layer": "GRID3-COD-province-v8-0",
+			"minzoom": 5,
+			"maxzoom": 7.5,
+			"paint": {
+				"line-color": "#A2AAAD",
+				"line-width": [
+					"interpolate",
+					[
+						"exponential",
+						1.4
+					],
+					[
+						"zoom"
+					],
+					5,
+					0,
+					5.5,
+					0.75,
+					6.5,
+					1.5,
+					8.5,
+					0
+				],
+				"line-dasharray": [
+					"step",
+					[
+						"zoom"
+					],
+					[
+						"literal",
+						[
+							1,
+							0
+						]
+					],
+					5,
+					[
+						"literal",
+						[
+							2,
+							3
+						]
+					]
+				],
+				"line-opacity": 0.75
 			}
 		},
 		{
@@ -15141,7 +15063,7 @@
 					[
 						"zoom"
 					],
-					5.5,
+					5,
 					12,
 					6,
 					14,
@@ -15200,7 +15122,7 @@
 						"zoom"
 					],
 					0,
-					6,
+					5,
 					1,
 					8.5,
 					0
